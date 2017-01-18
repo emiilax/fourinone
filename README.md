@@ -1,1 +1,1 @@
-# fourinone
+# Bachelor project: Four-in-one
