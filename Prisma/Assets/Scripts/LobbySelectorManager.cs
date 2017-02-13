@@ -33,7 +33,9 @@ public class LobbySelectorManager : MonoBehaviour {
 
 	}
 
+	// Used for getting correct color
 	protected Color GetLobbyPressed(GameObject btn){
+		
 		if (btn.name.Equals ("btnOrangeLobby")) {
 
 			return StaticVariables.COLOR_ORANGE;
