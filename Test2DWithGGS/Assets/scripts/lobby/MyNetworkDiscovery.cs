@@ -17,11 +17,6 @@ public class MyNetworkDiscovery : NetworkDiscovery {
         StartCoroutine(CheckGamesList());
     }
 	
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 
 	public override void OnReceivedBroadcast (string fromAddress, string data)
