@@ -40,7 +40,6 @@ public class LobbyLoadingPanel : MonoBehaviour {
 
 		if (nbrOfPlayers > 4) {
 			lobbyManager.startGame ();
-
 		}
 		playerCounter.text = nbrOfPlayers + "/4...";
 
