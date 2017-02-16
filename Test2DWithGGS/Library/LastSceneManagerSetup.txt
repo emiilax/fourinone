@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/scenes/NetworkLobby.unity
+- path: Assets/scenes/UITest.unity
   isLoaded: 1
   isActive: 1
