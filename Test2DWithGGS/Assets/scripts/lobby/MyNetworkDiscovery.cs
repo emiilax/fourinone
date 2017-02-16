@@ -12,6 +12,7 @@ public class MyNetworkDiscovery : NetworkDiscovery {
     void Start()
     {
         Debug.Log("Discovery start");
+
         Initialize();
         if (StartAsClient()) { Debug.Log("client wor"); }
         StartCoroutine(CheckGamesList());
@@ -43,7 +44,10 @@ public class MyNetworkDiscovery : NetworkDiscovery {
 			var dGame = new DiscoveredGame();
             dGame.networkAddress = fromAddress;
 			dGame.networkPort = int.Parse(dataSplit[2]);
-            dGame.buttonColor = dataSplit[3];
+            if (dataSplit.Length > 3){
+               
+                dGame.buttonColor = dataSplit[3].Replace("\0", "");
+            }
 			dGame.lastSeen = Time.time;
 			discoveredGames.Add(dGame);
 		}

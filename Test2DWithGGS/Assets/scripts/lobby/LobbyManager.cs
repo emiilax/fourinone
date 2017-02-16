@@ -102,7 +102,7 @@ namespace AssemblyCSharp
 			}
 
 			currentPanel = newPanel;
-
+            
 
 		}
 
@@ -128,17 +128,19 @@ namespace AssemblyCSharp
 
         public bool JoinGameIfAvaliable(string button)
         {
+            bool sendback = true;
             foreach (var game in discovery.discoveredGames)
             {
-                if (game.buttonColor == button)
+                if (button == game.buttonColor)
                 {
+                    Debug.Log("trying to join game now");
                     networkAddress = game.networkAddress;
                     discovery.StopBroadcast();
                     StartClient();
-                    return false;
+                    sendback = false;
                 }
             }
-            return true;
+            return sendback;
         }
   
 
