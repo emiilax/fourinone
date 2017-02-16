@@ -8,32 +8,30 @@ public class MyNetworkDiscovery : NetworkDiscovery {
 
 	public List<DiscoveredGame> discoveredGames = new List<DiscoveredGame>();
 
-	// Use this for initialization
-	void Start () {
-		
-		Initialize();
-		StartAsClient();
-		StartCoroutine(CheckGamesList());
+    // Use this for initialization
+    void Start()
+    {
+        Debug.Log("Discovery start");
 
-	}
+        Initialize();
+        if (StartAsClient()) { Debug.Log("client wor"); }
+        StartCoroutine(CheckGamesList());
+    }
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 
 	public override void OnReceivedBroadcast (string fromAddress, string data)
 	{
-		Debug.Log ("On Recieve Broadcast");
+		Debug.Log ("On Recieve Broadcast BIG DINGERING");
 		base.OnReceivedBroadcast (fromAddress, data);
 		Debug.Log(fromAddress);
-		var parts = fromAddress.Split(new char[]{':'});
+		//var adressSplit = fromAddress.Split(new char[]{':'});
+        var dataSplit = data.Split(new char[] { ':' });
 
-		bool found = false;
+        bool found = false;
 		foreach(var dGame in discoveredGames)
 		{
-			if(dGame.networkAddress == parts[3])
+			if(dGame.networkAddress == fromAddress)
 			{
 				found = true;
 				dGame.lastSeen = Time.time;
@@ -44,8 +42,12 @@ public class MyNetworkDiscovery : NetworkDiscovery {
 		if(!found)
 		{
 			var dGame = new DiscoveredGame();
-			dGame.networkAddress = parts[3];
-			dGame.networkPort = int.Parse(data);
+            dGame.networkAddress = fromAddress;
+			dGame.networkPort = int.Parse(dataSplit[2]);
+            if (dataSplit.Length > 3){
+               
+                dGame.buttonColor = dataSplit[3].Replace("\0", "");
+            }
 			dGame.lastSeen = Time.time;
 			discoveredGames.Add(dGame);
 		}
@@ -58,6 +60,7 @@ public class MyNetworkDiscovery : NetworkDiscovery {
 		{
 			for(int i = discoveredGames.Count -1; i >= 0; i--)
 			{
+                
 				if(discoveredGames[i].lastSeen < Time.time-1.5f)
 				{
 					discoveredGames.RemoveAt(i);
@@ -94,4 +97,5 @@ public class DiscoveredGame
 	public string networkAddress;
 	public int networkPort;
 	public float lastSeen;
+    public string buttonColor;
 }

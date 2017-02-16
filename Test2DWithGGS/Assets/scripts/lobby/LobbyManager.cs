@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -15,15 +16,15 @@ namespace AssemblyCSharp
 
 		static public LobbyManager s_Singleton;
 
-		public NetworkDiscovery discovery;
+		public MyNetworkDiscovery discovery;
 
 		public bool isDebug = true;
 		public string lobbyName = "";
 		private string externalIP = "";
 
+        public List<string> potato = new List<string>();
 
-
-		[Header("Unity UI Lobby")]
+        [Header("Unity UI Lobby")]
 		[Tooltip("Time in second between all players ready & match start")]
 		public float prematchCountdown = 5.0f;
 
@@ -62,32 +63,38 @@ namespace AssemblyCSharp
 
 			DontDestroyOnLoad(gameObject);
 
-			StartCoroutine(GetPublicIP ());
-
+            //StartCoroutine(GetPublicIP ());
+           // discovery.Initialize();
 		}
 
 		public override void OnStartHost()
 		{
 			base.OnStartHost();
-
-			discovery.StopBroadcast ();
-			string str = networkPort.ToString ();
-			Debug.Log("Broadcast start.. " + str);
-			discovery.broadcastData = networkPort.ToString();
-			discovery.StartAsServer();
+            //discovery.StopBroadcast ();
+            //Debug.Log(discovery.broadcastData.ToString());
+            //string str = networkPort.ToString ();
+            //Debug.Log("Broadcast start.. " + str);
+            //discovery.broadcastData = networkPort.ToString();
+            if (discovery.StartAsServer()) { Debug.Log("server works"); }
 
 			ChangePanel (lobbyPanel);
 
-			Debug.Log ("OnStartHost");
+			Debug.Log ("OnStartHostCustom");
 		}
+        public override void OnStartClient(NetworkClient lobbyClient)
+        {
+            Debug.Log("OnStartClientCustom");
+            base.OnStartClient(lobbyClient);
+      
+        }
 
-		public void ChangePanel(RectTransform newPanel)
+        public void ChangePanel(RectTransform newPanel)
 		{
 			if (currentPanel != null)
 			{
 				currentPanel.gameObject.SetActive(false);
 			}
-				
+			
 
 			if (newPanel != null)
 			{
@@ -95,7 +102,7 @@ namespace AssemblyCSharp
 			}
 
 			currentPanel = newPanel;
-
+            
 
 		}
 
@@ -105,19 +112,40 @@ namespace AssemblyCSharp
 			GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
 
 		    lobbyName = externalIP + GetButtonName(btn);
-			if (IsLobbyEmpty()) {
-				
-				OnClickCreateMatchmakingGame ();
-
-			} else {
-				JoinGame ();
+			if (JoinGameIfAvaliable(GetButtonName(btn))) {
+                Debug.Log("Starthost");
+                discovery.StopBroadcast();
+                discovery.broadcastData += ":"+ GetButtonName(btn);
+                Debug.Log(discovery.broadcastData);
+                StartHost();
+                //OnClickCreateMatchmakingGame ();
+                
+                
 			}
 			if (isDebug) 
 				Debug.Log (lobbyName);
 		}
 
+        public bool JoinGameIfAvaliable(string button)
+        {
+            bool sendback = true;
+            foreach (var game in discovery.discoveredGames)
+            {
+                if (button == game.buttonColor)
+                {
+                    Debug.Log("trying to join game now");
+                    networkAddress = game.networkAddress;
+                    discovery.StopBroadcast();
+                    StartClient();
+                    sendback = false;
+                }
+            }
+            return sendback;
+        }
+  
 
-		protected IEnumerator GetPublicIP(){
+
+        protected IEnumerator GetPublicIP(){
 			WWW myExtIPWWW = new WWW ("http://checkip.dyndns.org");
 
 			yield return myExtIPWWW;
@@ -138,7 +166,7 @@ namespace AssemblyCSharp
 		protected string GetButtonName(GameObject btn){
 			if (btn.name.Equals ("btnYellowLobby")) {
 
-				return "yellow";
+				return "yell";
 
 			} else if (btn.name.Equals ("btnBlueLobby")) {
 				
@@ -146,12 +174,12 @@ namespace AssemblyCSharp
 
 			} else if (btn.name.Equals ("btnGreenLobby")) {
 
-				return "green";
+				return "gree";
 
 
 			} else if (btn.name.Equals ("btnWhiteLobby")) {
 
-				return "white";
+				return "whit";
 
 			} 
 
@@ -162,7 +190,7 @@ namespace AssemblyCSharp
 
 		public void OnClickCreateMatchmakingGame()
 		{
-
+            
 			StartMatchMaker();
 			matchMaker.CreateMatch( 
 				lobbyName,
@@ -186,12 +214,7 @@ namespace AssemblyCSharp
 			base.OnMatchCreate(success, extendedInfo, matchInfo);
 			_currentMatchID = (System.UInt64)matchInfo.networkId;
 		}
-		public void JoinGame(){
-			//todo
-		}
-		public bool IsLobbyEmpty(){
-			return true;
-		}
+
 	}
 }
 
