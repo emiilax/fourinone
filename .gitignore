@@ -5,6 +5,20 @@ Prisma/[Bb]uild/
 Prisma/[Bb]uilds/
 Prisma/Assets/AssetStoreTools*
 
+Laser/[Ll]ibrary/
+Laser/[Tt]emp/
+Laser/[Oo]bj/
+Laser/[Bb]uild/
+Laser/[Bb]uilds/
+Laser/Assets/AssetStoreTools*
+
+Test2DWithGGS/[Ll]ibrary/
+Test2DWithGGS/[Tt]emp/
+Test2DWithGGS/[Oo]bj/
+Test2DWithGGS/[Bb]uild/
+Test2DWithGGS/[Bb]uilds/
+Test2DWithGGS/Assets/AssetStoreTools*
+
 # Visual Studio 2015 cache directory
 /.vs/
 
