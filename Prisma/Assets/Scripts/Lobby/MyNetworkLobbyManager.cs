@@ -7,6 +7,8 @@ using UnityEngine.Networking.Match;
 
 public class MyNetworkLobbyManager : NetworkLobbyManager {
 
+	static public MyNetworkLobbyManager singelton;
+
 	// Menu with startbutton
 	public RectTransform mainMenuPanel;
 
@@ -17,7 +19,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public LobbyLoadingPanel loadingScreen;
 
 	// Displays when connecting to a server
-	public RectTransform connectingScreen;
+	public ConnectionPanel connectingScreen;
 
 	public string lobbyName = ""; 
 
@@ -29,6 +31,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	// Use this for initialization
 	void Start () {
+
+		singelton = this;
 
 		StartMatchMaker ();
 		mainMenuPanel.gameObject.SetActive (true);
@@ -66,7 +70,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public void ShowLoadingScreen(Color color){
 		
-		loadingScreen.Display (color);
+		connectingScreen.gameObject.SetActive (true);
+		loadingScreen.SetColor (color);
 
 		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, JoinOrCreateMatch);
 
@@ -122,6 +127,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override void OnLobbyClientConnect(NetworkConnection conn){
 		base.OnLobbyClientConnect (conn);
+		connectingScreen.gameObject.SetActive (false);
+		loadingScreen.Display ();
 
 		Debug.Log ("OnLobbyClientConnect");
 
@@ -151,12 +158,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
-	public void startGame(){
-		
-		GetComponent<Canvas>().enabled = false;
-
+	public void PlayerAdded(){
+		loadingScreen.IncPlayers ();
 	}
-
 
 	// Update is called once per frame
 	void Update () {

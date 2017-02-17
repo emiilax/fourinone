@@ -23,10 +23,10 @@ public class LobbyLoadingPanel : MonoBehaviour {
 		
 	}
 
-	public void Display(Color color){
-		nbrOfPlayers = 1;
-		playerCounter.text = nbrOfPlayers + "/4...";
-		backgroundColor.color = color;
+	public void Display(){
+		nbrOfPlayers = 0;
+		playerCounter.text = nbrOfPlayers + "/2...";
+		//backgroundColor.color = color;
 		blur.color = new Color (0f, 0f, 0f, 0.7f);
 
 		gameObject.SetActive (true);
@@ -34,14 +34,16 @@ public class LobbyLoadingPanel : MonoBehaviour {
 	}
 		
 
+	public void SetColor(Color color){
+		backgroundColor.color = color;
+	}
 
-	public void incPlayers(){
+
+	public void IncPlayers(){
 		nbrOfPlayers += 1;
 
-		if (nbrOfPlayers > 4) {
-			lobbyManager.startGame ();
-		}
-		playerCounter.text = nbrOfPlayers + "/4...";
+
+		playerCounter.text = nbrOfPlayers + "/2...";
 
 	}
 }
