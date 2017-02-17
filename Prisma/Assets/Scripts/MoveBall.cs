@@ -10,9 +10,8 @@ public class MoveBall : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		float dirX = Input.GetAxis ("Horizontal");
 
-		Debug.Log (dirX);
+
 
 		foreach (Touch touch in Input.touches) {
 			HandleTouch(touch.fingerId, Camera.main.ScreenToWorldPoint(touch.position), touch.phase);

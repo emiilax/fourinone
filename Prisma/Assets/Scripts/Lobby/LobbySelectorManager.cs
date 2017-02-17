@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class LobbySelectorManager : MonoBehaviour {
 
-	public LobbyManager lobbyManager;
+	public MyNetworkLobbyManager lobbyManager;
+
+	private Color color;
 
 	// Use this for initialization
 	void Start () {
@@ -23,40 +25,43 @@ public class LobbySelectorManager : MonoBehaviour {
 
 		GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
 
-		Color lobbyColor = GetLobbyPressed(btn);
 
-		if(lobbyColor != Color.white)
-			lobbyManager.ShowLoadingScreen (lobbyColor);
-
-
-
+		if(SetLobbyColor(btn))
+			lobbyManager.ShowLoadingScreen (color);
 
 
 	}
 
 	// Used for getting correct color
-	protected Color GetLobbyPressed(GameObject btn){
+	protected bool SetLobbyColor(GameObject btn){
 		
 		if (btn.name.Equals ("btnOrangeLobby")) {
 
-			return StaticVariables.COLOR_ORANGE;
+			color = StaticVariables.COLOR_ORANGE;
+			lobbyManager.lobbyName = "orange";
+			return true;
 
 		} else if (btn.name.Equals ("btnBlueLobby")) {
 
-			return StaticVariables.COLOR_BLUE;
+			color = StaticVariables.COLOR_BLUE;
+			lobbyManager.lobbyName = "blue";
+			return true;
 
 		} else if (btn.name.Equals ("btnGreenLobby")) {
 
-			return StaticVariables.COLOR_GREEN;
-
+			color = StaticVariables.COLOR_GREEN;
+			lobbyManager.lobbyName = "green";
+			return true;
 
 		} else if (btn.name.Equals ("btnRedLobby")) {
 
-			return StaticVariables.COLOR_RED;
+			color = StaticVariables.COLOR_RED;
+			lobbyManager.lobbyName = "red";
+			return true;
 
 		} 
 
-		return Color.white;
+		return false;
 	}
 
 

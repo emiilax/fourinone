@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-	public class LobbyManager : NetworkLobbyManager 
+	public class LobbyManager : NetworkManager 
 	{
 		//static short MsgKicked = MsgType.Highest + 1;
 
@@ -186,7 +186,7 @@ namespace AssemblyCSharp
 			return "";
 		}
 
-
+		/*
 
 		public void OnClickCreateMatchmakingGame()
 		{
@@ -206,7 +206,7 @@ namespace AssemblyCSharp
 
 			//lobbyManager.SetServerInfo("Matchmaker Host", lobbyManager.matchHost);
 		}
-
+		*/
 
 
 		public override void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo)

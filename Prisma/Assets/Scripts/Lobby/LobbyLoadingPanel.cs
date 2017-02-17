@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class LobbyLoadingPanel : MonoBehaviour {
 
-	public LobbyManager lobbyManager;
+	public MyNetworkLobbyManager lobbyManager;
 	public Text playerCounter;
 	public Image backgroundColor;
 	public Image blur;
