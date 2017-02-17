@@ -5,12 +5,12 @@ Prisma/[Bb]uild/
 Prisma/[Bb]uilds/
 Prisma/Assets/AssetStoreTools*
 
-Laser/[Ll]ibrary/
-Laser/[Tt]emp/
-Laser/[Oo]bj/
-Laser/[Bb]uild/
-Laser/[Bb]uilds/
-Laser/Assets/AssetStoreTools*
+Lasers/[Ll]ibrary/
+Lasers/[Tt]emp/
+Lasers/[Oo]bj/
+Lasers/[Bb]uild/
+Lasers/[Bb]uilds/
+Lasers/Assets/AssetStoreTools*
 
 Test2DWithGGS/[Ll]ibrary/
 Test2DWithGGS/[Tt]emp/
