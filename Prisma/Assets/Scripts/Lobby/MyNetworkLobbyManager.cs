@@ -46,7 +46,6 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		DontDestroyOnLoad(gameObject);
 
-
 	}
 
 	public void ChangePanel(RectTransform newPanel){
