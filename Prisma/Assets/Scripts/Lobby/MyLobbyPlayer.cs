@@ -13,6 +13,12 @@ namespace AssemblyCSharp
 			MyNetworkLobbyManager.singelton.PlayerAdded ();
 		}
 
+		public override void OnClientExitLobby(){
+			base.OnClientExitLobby ();
+			// TODO
+			// Decrease number of players
+		}
+
 		public override void OnStartLocalPlayer(){
 			base.OnStartLocalPlayer ();
 			SendReadyToBeginMessage ();

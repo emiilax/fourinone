@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConnectionPanel : MonoBehaviour {
+public class ConnectingPanel : MonoBehaviour {
 
 	public MyNetworkLobbyManager lobbyManager;
 	public Text connectingText;
@@ -13,8 +13,5 @@ public class ConnectionPanel : MonoBehaviour {
 	void start(){
 		connectingText.text = "Ansluter...";
 	}
-
-
-
-
+		
 }
