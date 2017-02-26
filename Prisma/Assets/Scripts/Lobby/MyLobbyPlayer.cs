@@ -10,13 +10,13 @@ namespace AssemblyCSharp
 				
 			//Debug.Log ("Client entered lobby");
 			base.OnClientEnterLobby ();
-			MyNetworkLobbyManager.singelton.PlayerAdded ();
+			MyNetworkLobbyManager.singelton.NumberOfPlayersChanged (1);
 		}
+			
 
 		public override void OnClientExitLobby(){
 			base.OnClientExitLobby ();
-			// TODO
-			// Decrease number of players
+			MyNetworkLobbyManager.singelton.NumberOfPlayersChanged (-1);
 		}
 
 		public override void OnStartLocalPlayer(){

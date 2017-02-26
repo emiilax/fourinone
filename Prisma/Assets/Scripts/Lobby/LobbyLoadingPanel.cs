@@ -26,9 +26,9 @@ public class LobbyLoadingPanel : MonoBehaviour {
 		
 	}
 
-	public void Display(int players){
+	public void Display(int minPlayers){
 		nbrOfPlayers = 0;
-		minNumberOfPlayers = players;
+		minNumberOfPlayers = minPlayers;
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
 		//backgroundColor.color = color;
 		blur.color = new Color (0f, 0f, 0f, 0.7f);
@@ -43,8 +43,8 @@ public class LobbyLoadingPanel : MonoBehaviour {
 	}
 
 
-	public void IncPlayers(){
-		nbrOfPlayers += 1;
+	public void NumberOfPlayersChanged(int i){
+		nbrOfPlayers += i;
 
 
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";

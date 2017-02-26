@@ -77,39 +77,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
-	public void CancelConnection(){
 
-		if (isHost) {
-			Debug.Log ("Host: Destroy match");
-			matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
-		} else {
-			Debug.Log ("Client: Stop matchmaker");
-			StopClient();
-			StopMatchMaker();
-		}
-
-		ChangePanel(lobbySelectionPanel);
-
-	}
-
-
-
-	public override void OnStartHost(){
-
-		base.OnStartHost();
-
-	}
-
-
-	public override void OnDestroyMatch(bool success, string extendedInfo)
-	{
-		base.OnDestroyMatch(success, extendedInfo);
-		StopMatchMaker();
-		StopHost();
-	}
-
-
-
+	/* Function called when serching for games (ShowLoadingScreen). It first loops through all the active games, and 
+	if the lobby you choosed is not active, then create lobby */ 
 	public void JoinOrCreateMatch(bool success, string extendedInfo, List<MatchInfoSnapshot> matches){
 	
 		if (success) {
@@ -133,7 +103,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 			}// end if success
 
 			matchMaker.CreateMatch(
-				lobbyName,
+				lobbyName ,
 				(uint)maxPlayers,
 				true,
 				"", "", "", 0, 0,
@@ -152,8 +122,34 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
+	/* Fucktion used when you want to cancel the connection. Doing different actions
+	depending on "host" och client */
+	public void CancelConnection(){
+
+		if (isHost) {
+			Debug.Log ("Host: Destroy match");
+			matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
+		} else {
+			Debug.Log ("Client: Stop matchmaker");
+			StopClient();
+			StopMatchMaker();
+		}
+
+		ChangePanel(lobbySelectionPanel);
+
+	}
+
+	/* Called when you want to destroy ther current matchmaker game is */
+	public override void OnDestroyMatch(bool success, string extendedInfo)
+	{
+		base.OnDestroyMatch(success, extendedInfo);
+		StopMatchMaker();
+		StopHost();
+		isHost = false;
+	}
 
 
+	/* Called when a match is created on mathMaker. Overrides this since we wan to save current match id.*/
 	public override void OnMatchCreate (bool success, string extendedInfo, MatchInfo matchInfo)
 	{
 		base.OnMatchCreate (success, extendedInfo, matchInfo);
@@ -164,7 +160,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
-
+	/* When you connect to the lobby, show loading screen with the amount of players */ 
 	public override void OnLobbyClientConnect(NetworkConnection conn){
 		base.OnLobbyClientConnect (conn);
 		connectingScreen.gameObject.SetActive (false);
@@ -174,6 +170,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
+	/* called when the scene is changed (lobby -> game). Have to disable current screen */
 	public override void OnLobbyClientSceneChanged (NetworkConnection conn){
 
 		base.OnLobbyClientSceneChanged (conn);
@@ -181,7 +178,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
-
+	/* When all players ready, start the game and disable current canvas */
 	public override void OnLobbyServerPlayersReady(){
 
 		Debug.Log ("All ready");
@@ -192,23 +189,46 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
-	// When app is closing and you were "host", destroy game
+	public override void OnLobbyServerDisconnect(NetworkConnection conn){
+		base.OnLobbyServerDisconnect (conn);
+		Debug.Log ("Server disconnect");
+		ChangePanel (lobbySelectionPanel);
+	}
+
+
+
+	/* When app is closing and you were "host", destroy game */
 	void OnApplicationQuit() {
 		if (isHost){
-			Debug.Log ("Host: Destroy match");
-			matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
+			if (matchMaker)
+				Debug.Log ("Host: Destroy match");
+				matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
 		}
 		Debug.Log("Application ending after " + Time.time + " seconds");
 	}
 
+
+
+	public override void OnClientDisconnect(NetworkConnection conn)
+	{
+		base.OnClientDisconnect(conn);
+		waitingForPlayersScreen.gameObject.SetActive (false);
+		ChangePanel(lobbySelectionPanel);
+	}
+
+
+	/* Action handler for start screen */
 	public void StartButtonPressed(){
 	
 		ChangePanel (lobbySelectionPanel);
 
 	}
 
-	public void PlayerAdded(){
-		waitingForPlayersScreen.IncPlayers ();
+	/* Called when a player is added */ 
+
+	public void NumberOfPlayersChanged(int i){
+		waitingForPlayersScreen.NumberOfPlayersChanged (i);
+
 	}
 		
 }
