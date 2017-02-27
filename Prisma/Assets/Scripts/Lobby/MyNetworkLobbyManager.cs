@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.Networking.Types;
+using UnityEngine.SceneManagement;
 
 public class MyNetworkLobbyManager : NetworkLobbyManager {
 
@@ -192,7 +193,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public override void OnLobbyServerDisconnect(NetworkConnection conn){
 		base.OnLobbyServerDisconnect (conn);
 		Debug.Log ("Server disconnect");
+
 		ChangePanel (lobbySelectionPanel);
+		CancelConnection ();
+		DestroyObject (gameObject);
+		//ServerReturnToLobby ();
+
+
 	}
 
 
@@ -213,7 +220,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	{
 		base.OnClientDisconnect(conn);
 		waitingForPlayersScreen.gameObject.SetActive (false);
-		ChangePanel(lobbySelectionPanel);
+
+		GetComponent<Canvas>().enabled = true;
 	}
 
 
