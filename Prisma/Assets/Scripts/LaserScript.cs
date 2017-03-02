@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class LaserScript : MonoBehaviour {
+public class LaserScript : NetworkBehaviour {
 
     private LineRenderer line;
     public bool isHit;
+	public Camera camera;
 
 	// Use this for initialization
 	void Start () {
@@ -28,7 +30,7 @@ public class LaserScript : MonoBehaviour {
 
         while (Input.GetButton("Fire1"))
         {
-            transform.forward = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			transform.forward = camera.ScreenToWorldPoint(Input.mousePosition);
             Ray2D ray = new Ray2D(transform.position, transform.forward);
             RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.forward);
             line.numPositions = 2;
