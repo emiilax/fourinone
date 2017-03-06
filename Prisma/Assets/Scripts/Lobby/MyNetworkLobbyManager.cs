@@ -207,7 +207,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* When app is closing and you were "host", destroy game */
 	void OnApplicationQuit() {
 		if (isHost){
-			if (matchMaker)
+			if (matchMaker != null)
 				Debug.Log ("Host: Destroy match");
 				matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
 		}
