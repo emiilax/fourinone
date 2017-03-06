@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class LaserScript : NetworkBehaviour {
+public class LaserScript : MonoBehaviour {
 
     private LineRenderer line;
     public bool isHit;
-	public Camera camera;
+	public Camera playerCam;
 
 	// Use this for initialization
 	void Start () {
         line = gameObject.GetComponent<LineRenderer>();
-        line.enabled = false;
+        line.enabled = true;
         line.useWorldSpace = true;
 	}
 	
@@ -30,7 +30,7 @@ public class LaserScript : NetworkBehaviour {
 
         while (Input.GetButton("Fire1"))
         {
-			transform.forward = camera.ScreenToWorldPoint(Input.mousePosition);
+			transform.forward = playerCam.ScreenToWorldPoint(Input.mousePosition);
             Ray2D ray = new Ray2D(transform.position, transform.forward);
             RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.forward);
             line.numPositions = 2;
@@ -58,7 +58,7 @@ public class LaserScript : NetworkBehaviour {
                     }
                     else if (hit.collider.tag.Equals("Mirror"))
                     {
-                        Debug.Log(bounceNum);
+                       // Debug.Log(bounceNum);
                         if (bounceNum == maxBounces)
                         {
                             line.SetPosition(ptNum, hit.point);

@@ -10,7 +10,7 @@ public class LaserReflect : MonoBehaviour {
     void Start() {
         GameObject player = GameObject.Find("Player");
         line = gameObject.GetComponent<LineRenderer>();
-        LaserScript laserScript = player.gameObject.GetComponent<LaserScript>();
+//        LaserScript laserScript = player.gameObject.GetComponent<LaserScript>();
         line.enabled = false;
         line.useWorldSpace = true;
     }

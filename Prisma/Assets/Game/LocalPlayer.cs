@@ -5,8 +5,8 @@ using UnityEngine.Networking;
 
 public class LocalPlayer : NetworkBehaviour
 {
-    public GameObject laserPrefab;
-    public LineRenderer laserLineRenderer;
+    //public GameObject laserPrefab;
+    //public LineRenderer laserLineRenderer;
     
     // Use this for initialization
     void Start()
@@ -27,7 +27,7 @@ public class LocalPlayer : NetworkBehaviour
             Debug.Log("spawning other player");
         }
     }
-    void Update()
+   /* void Update()
     {
         if (!isLocalPlayer) { return; }
 
@@ -36,7 +36,7 @@ public class LocalPlayer : NetworkBehaviour
             CmdShootLaser();
         }
     }
-
+	
     [Command]
     void CmdShootLaser()
     {
@@ -46,5 +46,5 @@ public class LocalPlayer : NetworkBehaviour
         NetworkServer.Spawn(laserPrefab);
 
     }
-    
+    */
 }
