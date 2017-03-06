@@ -7,15 +7,16 @@ public class LaserScript : MonoBehaviour {
 
     private LineRenderer line;
     public bool isHit;
-	public Camera playerCam;
+	private Camera playerCam;
 
 	// Use this for initialization
 	void Start () {
         line = gameObject.GetComponent<LineRenderer>();
         line.enabled = true;
         line.useWorldSpace = true;
+		playerCam = transform.parent.GetComponent<Camera>();
+		Debug.Log("parent : " + transform.parent.name);
 	}
-	
 	// Update is called once per frame
 	void Update () {
         if (Input.GetButtonDown("Fire1")){
@@ -23,7 +24,7 @@ public class LaserScript : MonoBehaviour {
             StartCoroutine("FireLaser");
         }
     }
-
+		
     IEnumerator FireLaser()
     {
         line.enabled = true;

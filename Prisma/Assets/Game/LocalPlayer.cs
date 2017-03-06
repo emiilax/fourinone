@@ -23,7 +23,7 @@ public class LocalPlayer : NetworkBehaviour
         }
         else
         {
-            Destroy(playerCamera);
+          //  Destroy(playerCamera); Why would we do this ? AAAAAAAAAAAAGGH
             Debug.Log("spawning other player");
         }
     }
