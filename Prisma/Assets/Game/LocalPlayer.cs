@@ -14,6 +14,7 @@ public class LocalPlayer : NetworkBehaviour
         Camera playerCamera = this.GetComponent<Camera>();
         if (isLocalPlayer)
         {
+			playerCamera.enabled = true;
             //Camera.main.enabled = false;
             Debug.Log(Application.loadedLevelName);
             Debug.Log("created player");
@@ -24,6 +25,7 @@ public class LocalPlayer : NetworkBehaviour
         else
         {
           //  Destroy(playerCamera); Why would we do this ? AAAAAAAAAAAAGGH
+			playerCamera.enabled = false;
             Debug.Log("spawning other player");
         }
     }
