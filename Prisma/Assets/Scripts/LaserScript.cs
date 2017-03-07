@@ -14,7 +14,8 @@ public class LaserScript : MonoBehaviour {
         line = gameObject.GetComponent<LineRenderer>();
         line.enabled = true;
         line.useWorldSpace = true;
-		playerCam = transform.parent.GetComponent<Camera>();
+		//playerCam = transform.parent.GetComponent<Camera>();
+		playerCam = transform.parent.GetComponentInChildren<Camera> ();
 		Debug.Log("parent : " + transform.parent.name);
 	}
 	// Update is called once per frame

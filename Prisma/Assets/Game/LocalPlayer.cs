@@ -7,14 +7,18 @@ public class LocalPlayer : NetworkBehaviour
 {
     //public GameObject laserPrefab;
     //public LineRenderer laserLineRenderer;
+	//public Camera playerCamera;
     
     // Use this for initialization
     void Start()
     {
-        Camera playerCamera = this.GetComponent<Camera>();
+		Camera playerCamera = gameObject.GetComponent<Camera>();
+		//Camera playerCamera = gameObject.GetComponentInChildren<Camera>();
+
         if (isLocalPlayer)
         {
 			playerCamera.enabled = true;
+			playerCamera.transform.position = gameObject.transform.position;
             //Camera.main.enabled = false;
             Debug.Log(Application.loadedLevelName);
             Debug.Log("created player");
