@@ -32,9 +32,10 @@ public class LaserScript : MonoBehaviour {
 
         while (Input.GetButton("Fire1"))
         {
-			transform.forward = playerCam.ScreenToWorldPoint(Input.mousePosition);
-            Ray2D ray = new Ray2D(transform.position, transform.forward);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.forward);
+			Vector3 mousePosition = playerCam.ScreenToWorldPoint(Input.mousePosition);
+			//transform.forward = playerCam.ScreenToWorldPoint(Input.mousePosition);
+			Ray2D ray = new Ray2D(transform.position, mousePosition);
+			RaycastHit2D hit = Physics2D.Raycast(transform.position, mousePosition);
             line.numPositions = 2;
 
             // Debug.Log("bla");
