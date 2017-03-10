@@ -6,7 +6,6 @@ public class PlayerControler : NetworkBehaviour {
 	[SerializeField] float fireRate = 0.5f;
 	LineRenderer laser;
 	float nextFireTime;
-
 	Camera playerCamera;
 
 
@@ -32,6 +31,7 @@ public class PlayerControler : NetworkBehaviour {
 		playerCamera.enabled = true;
 
 
+
 	}
 
 	public override void OnStartClient ()
@@ -40,18 +40,40 @@ public class PlayerControler : NetworkBehaviour {
 		laser = gameObject.GetComponentInChildren<LineRenderer>();
 		Debug.Log (gameObject.transform.position + "playerposition");
 		Debug.Log (laser.transform.position +  "laserposition");
+		laser.SetPosition(0, laser.transform.position);
 
 		laser.enabled = false;
 		enabled = false;
 	}
-	Vector3 mousePosition;
 	void Update () {
 		if(Input.GetAxis("Fire1") != 0 && canFire)
 		{
+
+			if (isLocalPlayer) {
+				Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
+				Ray2D ray = new Ray2D (laser.transform.position, mousePosition);
+				RaycastHit2D hit = Physics2D.Raycast (laser.transform.position, mousePosition);
+				laser.numPositions = 2;
+				int ptNum = 1;
+				int maxBounces = 16;
+				int bounceNum = 0;
+				laser.SetPosition (ptNum, ray.GetPoint (100));
+
+				Vector3[] laserPositions = new Vector3[laser.numPositions];
+				laser.GetPositions (laserPositions);
+
+				foreach (Vector3 vector in laserPositions) {
+					Debug.Log("laserpositions" + vector.ToString ());
+				}
+
+				//Copy Old postion to the new LineRenderer
+				//newLine.GetComponent<LineRenderer>().SetPositions(newPos);
+				CmdSynchLaser (gameObject, laserPositions);
+			}
+
+
+
 			nextFireTime = Time.time + fireRate;
-
-			mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
-
 			Fire();
 		}
 	}
@@ -65,7 +87,7 @@ public class PlayerControler : NetworkBehaviour {
 	[Command]
 	void CmdShowLaser()
 	{
-		Debug.Log ("COMMAND");
+		//Debug.Log ("COMMAND");
 		RpcShowLaser();
 	}
 
@@ -73,8 +95,7 @@ public class PlayerControler : NetworkBehaviour {
 	void RpcShowLaser()
 	{
 		if(isLocalPlayer) return;
-		Debug.Log ("ClientRPC");
-		Debug.Log ("Laser Pos:" + laser.GetPosition(0));
+		//Debug.Log ("ClientRPC");
 		StartCoroutine(ShowLaser());
 	}
 
@@ -82,20 +103,27 @@ public class PlayerControler : NetworkBehaviour {
 	{
 		
 		laser.enabled = true;
-
-		Debug.Log (mousePosition);
-		Ray2D ray = new Ray2D(transform.position, mousePosition);
-
-		laser.SetPosition(0, ray.origin);
-
+	
 		yield return new WaitForSeconds(0.1f);
 				
 		laser.enabled = false;
 
-
+	}
+	[Command]
+	void CmdSynchLaser(GameObject player, Vector3[] laserPos){
+		Debug.Log ("synch command");
+		RpcSynchLaser (player, laserPos);
 	}
 
+	[ClientRpc]
+	void RpcSynchLaser(GameObject player, Vector3[] laserPos){
+		if (isLocalPlayer) {
+			return;
+		}
+		player.GetComponentInChildren<LineRenderer> ().SetPositions (laserPos);
 
+	}
+		
 
 
 	public bool canFire {
