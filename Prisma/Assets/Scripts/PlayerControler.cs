@@ -7,6 +7,15 @@ public class PlayerControler : NetworkBehaviour {
 	LineRenderer laser;
 	float nextFireTime;
 
+	Camera playerCamera;
+
+
+	void Start(){
+		 playerCamera = gameObject.GetComponent<Camera>();
+	}
+
+
+
 	public override void OnStartLocalPlayer ()
 	{
 		enabled = true;
@@ -43,8 +52,9 @@ public class PlayerControler : NetworkBehaviour {
 	[ClientRpc]
 	void RpcShowLaser()
 	{
-		Debug.Log ("ClientRPC");
 		if(isLocalPlayer) return;
+		Debug.Log ("ClientRPC");
+		Debug.Log ("Laser Pos:" + laser.GetPosition(0));
 		StartCoroutine(ShowLaser());
 	}
 
