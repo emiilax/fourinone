@@ -14,7 +14,11 @@ public class PlayerControler : NetworkBehaviour {
 
 	public override void OnStartClient ()
 	{
-		laser = transform.Find("LaserTip").GetComponent<LineRenderer>();
+		//laser = transform.Find("LaserTip").GetComponent<LineRenderer>();
+		laser = gameObject.GetComponentInChildren<LineRenderer>();
+		Debug.Log (gameObject.transform.position + "playerposition");
+		Debug.Log (laser.transform.position +  "laserposition");
+
 		laser.enabled = false;
 		enabled = false;
 	}
@@ -59,5 +63,6 @@ public class PlayerControler : NetworkBehaviour {
 
 	public bool canFire {
 		get {return Time.time >= nextFireTime;}
+
 	}
 }
