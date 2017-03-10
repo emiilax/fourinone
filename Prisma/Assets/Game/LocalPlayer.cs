@@ -9,6 +9,8 @@ public class LocalPlayer : NetworkBehaviour
     //public LineRenderer laserLineRenderer;
 	//public Camera playerCamera;
     
+
+
     // Use this for initialization
     void Start()
     {
@@ -40,8 +42,8 @@ public class LocalPlayer : NetworkBehaviour
 	public override void OnStartLocalPlayer ()
 	{
 		Camera playerCamera = gameObject.GetComponent<Camera>();
-		playerCamera.enabled = true;
-		gameObject.transform.position.Set (gameObject.transform.position.x, gameObject.transform.position.y, -10);
+		//playerCam.gameObject.SetActive(true);
+		//gameObject.transform.position.Set (gameObject.transform.position.x, gameObject.transform.position.y, -10);
 
 		Debug.Log ("OnStartLocalPlayer");
 

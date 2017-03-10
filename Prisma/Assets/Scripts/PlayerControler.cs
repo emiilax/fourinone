@@ -7,7 +7,7 @@ public class PlayerControler : NetworkBehaviour {
 	LineRenderer laser;
 	float nextFireTime;
 
-	//Camera playerCamera;
+	Camera playerCamera;
 
 
 	void Start(){
@@ -28,6 +28,8 @@ public class PlayerControler : NetworkBehaviour {
 	public override void OnStartLocalPlayer ()
 	{
 		enabled = true;
+		playerCamera = gameObject.GetComponent<Camera>();
+		playerCamera.enabled = true;
 
 
 	}
@@ -42,11 +44,14 @@ public class PlayerControler : NetworkBehaviour {
 		laser.enabled = false;
 		enabled = false;
 	}
-
+	Vector3 mousePosition;
 	void Update () {
 		if(Input.GetAxis("Fire1") != 0 && canFire)
 		{
 			nextFireTime = Time.time + fireRate;
+
+			mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
+
 			Fire();
 		}
 	}
@@ -75,24 +80,13 @@ public class PlayerControler : NetworkBehaviour {
 
 	IEnumerator ShowLaser()
 	{
-		//Debug.Log ("ShowLaser");
-		//laser.enabled = true;
-
-		//yield return new WaitForSeconds(0.1f);
-		//laser.enabled = false;
-
-
+		
 		laser.enabled = true;
 
+		Debug.Log (mousePosition);
+		Ray2D ray = new Ray2D(transform.position, mousePosition);
 
-		//Vector3 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
-		//transform.forward = playerCam.ScreenToWorldPoint(Input.mousePosition);
-		//Ray2D ray = new Ray2D(transform.position, mousePosition);
-
-		//laser.numPositions = 2;
-
-
-		//laser.SetPosition(0, ray.origin);
+		laser.SetPosition(0, ray.origin);
 
 		yield return new WaitForSeconds(0.1f);
 				
