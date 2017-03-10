@@ -27,7 +27,7 @@ public class PlayerSpawn : NetworkBehaviour
         //Debug.Log(PlayerCamera.gameObject.name);
         if (isLocalPlayer) {
             Debug.Log("is local client");
-            PlayerCamera.enabled = true;
+            //PlayerCamera.enabled = true;
         }
         
 	}

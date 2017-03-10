@@ -10,8 +10,11 @@ public class LobbyLoadingPanel : MonoBehaviour {
 	public Text playerCounter;
 	public Image backgroundColor;
 	public Image blur;
+	public Text waitingLbl;
+	public Button startGame;
 
 	private int nbrOfPlayers;
+	private int minNumberOfPlayers;
 
 	// Use this for initialization
 	void Start () {
@@ -23,9 +26,10 @@ public class LobbyLoadingPanel : MonoBehaviour {
 		
 	}
 
-	public void Display(){
+	public void Display(int minPlayers){
 		nbrOfPlayers = 0;
-		playerCounter.text = nbrOfPlayers + "/2...";
+		minNumberOfPlayers = minPlayers;
+		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
 		//backgroundColor.color = color;
 		blur.color = new Color (0f, 0f, 0f, 0.7f);
 
@@ -39,11 +43,19 @@ public class LobbyLoadingPanel : MonoBehaviour {
 	}
 
 
-	public void IncPlayers(){
-		nbrOfPlayers += 1;
+	public void NumberOfPlayersChanged(int i){
+		nbrOfPlayers += i;
 
 
-		playerCounter.text = nbrOfPlayers + "/2...";
+		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
+
+	}
+		
+	public void CancelButtonClicked(){
+
+
+		MyNetworkLobbyManager.singelton.CancelConnection ();
+		this.gameObject.SetActive (false);
 
 	}
 }
