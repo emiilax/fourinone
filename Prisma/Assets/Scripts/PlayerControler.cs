@@ -3,24 +3,13 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class PlayerControler : NetworkBehaviour {
-	[SerializeField] float fireRate = 0.5f;
+	[SerializeField] float shutDownDelay = 0.3f;
 	LineRenderer laser;
-	//float nextFireTime;
 	float ShutOffTimer;
 	Camera playerCamera;
 
 
 	void Start(){
-
-		/*if (isLocalPlayer) {
-			Debug.Log ("Start");
-			playerCamera = gameObject.GetComponent<Camera> ();
-			playerCamera.enabled = true;
-			playerCamera.transform.position = gameObject.transform.position;
-
-		} else {
-			playerCamera.enabled = false;
-		}*/
 	}
 
 
@@ -31,13 +20,10 @@ public class PlayerControler : NetworkBehaviour {
 		playerCamera = gameObject.GetComponent<Camera>();
 		playerCamera.enabled = true;
 
-
-
 	}
 
 	public override void OnStartClient ()
 	{
-		//laser = transform.Find("LaserTip").GetComponent<LineRenderer>();
 		laser = gameObject.GetComponentInChildren<LineRenderer>();
 		Debug.Log (gameObject.transform.position + "playerposition");
 		Debug.Log (laser.transform.position +  "laserposition");
@@ -67,14 +53,12 @@ public class PlayerControler : NetworkBehaviour {
 					Debug.Log("laserpositions" + vector.ToString ());
 				}
 
-				//Copy Old postion to the new LineRenderer
-				//newLine.GetComponent<LineRenderer>().SetPositions(newPos);
 				CmdSynchLaser (gameObject, laserPositions);
 			}
 
 
 
-			ShutOffTimer = Time.time + fireRate;
+			ShutOffTimer = Time.time + shutDownDelay;
 			Fire();
 		}
 		if (Time.time > ShutOffTimer) {
@@ -85,7 +69,6 @@ public class PlayerControler : NetworkBehaviour {
 
 	void Fire()
 	{
-		//StartCoroutine(ShowLaser());
 		SetLaserEnabled(true);
 		CmdSetLaserEnabled(true);
 	}
@@ -124,12 +107,5 @@ public class PlayerControler : NetworkBehaviour {
 		activeLaser.SetPositions (laserPos);
 
 	}
-		
 
-	/*
-	public bool canFire {
-		get {return Time.time >= nextFireTime;}
-
-	}
-	*/
 }
