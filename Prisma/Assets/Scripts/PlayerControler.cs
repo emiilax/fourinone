@@ -5,7 +5,8 @@ using UnityEngine.Networking;
 public class PlayerControler : NetworkBehaviour {
 	[SerializeField] float fireRate = 0.5f;
 	LineRenderer laser;
-	float nextFireTime;
+	//float nextFireTime;
+	float ShutOffTimer;
 	Camera playerCamera;
 
 
@@ -46,13 +47,13 @@ public class PlayerControler : NetworkBehaviour {
 		enabled = false;
 	}
 	void Update () {
-		if(Input.GetAxis("Fire1") != 0 && canFire)
+		if(Input.GetButton("Fire1"))
 		{
 
 			if (isLocalPlayer) {
 				Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
-				Ray2D ray = new Ray2D (laser.transform.position, mousePosition);
-				RaycastHit2D hit = Physics2D.Raycast (laser.transform.position, mousePosition);
+				Ray2D ray = new Ray2D (gameObject.transform.position, mousePosition);
+				RaycastHit2D hit = Physics2D.Raycast (gameObject.transform.position, mousePosition);
 				laser.numPositions = 2;
 				int ptNum = 1;
 				int maxBounces = 16;
@@ -73,40 +74,39 @@ public class PlayerControler : NetworkBehaviour {
 
 
 
-			nextFireTime = Time.time + fireRate;
+			ShutOffTimer = Time.time + fireRate;
 			Fire();
+		}
+		if (Time.time > ShutOffTimer) {
+			SetLaserEnabled (false);
+			CmdSetLaserEnabled (false);
 		}
 	}
 
 	void Fire()
 	{
-		StartCoroutine(ShowLaser());
-		CmdShowLaser();
+		//StartCoroutine(ShowLaser());
+		SetLaserEnabled(true);
+		CmdSetLaserEnabled(true);
 	}
 
 	[Command]
-	void CmdShowLaser()
+	void CmdSetLaserEnabled(bool b)
 	{
-		//Debug.Log ("COMMAND");
-		RpcShowLaser();
+		RpcSetLaserEnabled(b);
 	}
 
 	[ClientRpc]
-	void RpcShowLaser()
+	void RpcSetLaserEnabled(bool b)
 	{
 		if(isLocalPlayer) return;
-		//Debug.Log ("ClientRPC");
-		StartCoroutine(ShowLaser());
+
+		SetLaserEnabled(b);
 	}
 
-	IEnumerator ShowLaser()
+	void SetLaserEnabled(bool b)
 	{
-		
-		laser.enabled = true;
-	
-		yield return new WaitForSeconds(0.1f);
-				
-		laser.enabled = false;
+		laser.enabled = b;
 
 	}
 	[Command]
@@ -120,14 +120,16 @@ public class PlayerControler : NetworkBehaviour {
 		if (isLocalPlayer) {
 			return;
 		}
-		player.GetComponentInChildren<LineRenderer> ().SetPositions (laserPos);
+		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer> ();
+		activeLaser.SetPositions (laserPos);
 
 	}
 		
 
-
+	/*
 	public bool canFire {
 		get {return Time.time >= nextFireTime;}
 
 	}
+	*/
 }
