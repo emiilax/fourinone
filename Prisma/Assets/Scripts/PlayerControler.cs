@@ -17,7 +17,30 @@ public class PlayerControler : NetworkBehaviour {
 	public override void OnStartLocalPlayer ()
 	{
 		enabled = true;
-		playerCamera = gameObject.GetComponent<Camera>();
+
+		float dist;
+		Vector3 offset;
+		Camera[] cameras = new Camera[Camera.allCamerasCount];
+		Camera.GetAllCameras (cameras);
+		offset = cameras [0].gameObject.transform.position - gameObject.transform.position;
+		dist = offset.sqrMagnitude;
+		playerCamera = cameras [0];
+		foreach (Camera cam in cameras) {
+			if (cam != null) {
+				Debug.Log (cam.gameObject.transform.position + "CAMPOS");
+				Vector3 a = cam.gameObject.transform.position;
+				Vector3 b = gameObject.transform.position;
+				offset = a - b;
+				float camDist = offset.sqrMagnitude;
+				Debug.Log (camDist - dist);
+				if (camDist < dist) {
+					dist = camDist;
+					playerCamera = cam;
+				}	
+			}
+		}
+		//playerCamera = gameObject.GetComponent<Camera>();
+		playerCamera.enabled = false;
 		playerCamera.enabled = true;
 
 	}
@@ -47,8 +70,8 @@ public class PlayerControler : NetworkBehaviour {
 				int ptNum = 1;
 				int maxBounces = 16;
 				int bounceNum = 0;
-
-				laser.SetPosition (ptNum, ray.GetPoint (100));
+				Vector3 rayposition = new Vector3 (ray.GetPoint (100).x, ray.GetPoint (100).y, 0);
+				laser.SetPosition (ptNum, rayposition);
 
 				Vector3[] laserPositions = new Vector3[laser.numPositions];
 				laser.GetPositions (laserPositions);
