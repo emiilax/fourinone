@@ -18,6 +18,8 @@ public class PlayerControler : NetworkBehaviour {
 	{
 		enabled = true;
 
+
+		// This sets playercamera as the camera closest to your spawnposition.
 		float dist;
 		Vector3 offset;
 		Camera[] cameras = new Camera[Camera.allCamerasCount];
@@ -27,10 +29,10 @@ public class PlayerControler : NetworkBehaviour {
 		playerCamera = cameras [0];
 		foreach (Camera cam in cameras) {
 			if (cam != null) {
-				Debug.Log (cam.gameObject.transform.position + "CAMPOS");
-				Vector3 a = cam.gameObject.transform.position;
-				Vector3 b = gameObject.transform.position;
-				offset = a - b;
+				//Debug.Log (cam.gameObject.transform.position + "CAMPOS");
+				//Vector3 a = cam.gameObject.transform.position;
+				//Vector3 b = gameObject.transform.position;
+				offset = cam.gameObject.transform.position - gameObject.transform.position;
 				float camDist = offset.sqrMagnitude;
 				Debug.Log (camDist - dist);
 				if (camDist < dist) {
@@ -39,7 +41,8 @@ public class PlayerControler : NetworkBehaviour {
 				}	
 			}
 		}
-		//playerCamera = gameObject.GetComponent<Camera>();
+
+		//This aparantley is how you chose your active camera...
 		playerCamera.enabled = false;
 		playerCamera.enabled = true;
 
@@ -63,24 +66,66 @@ public class PlayerControler : NetworkBehaviour {
 				Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 				Vector3 playerPosition = gameObject.transform.position;
 				Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
-				//Vector3 origin = new Vector3 (playerPosition.x, playerPosition.y, 0);
 				Ray2D ray = new Ray2D (playerPosition, direction);
-				RaycastHit2D hit = Physics2D.Raycast (gameObject.transform.position, mousePosition);
+				RaycastHit2D hit = Physics2D.Raycast (playerPosition, direction);
 				laser.numPositions = 2;
 				int ptNum = 1;
 				int maxBounces = 16;
 				int bounceNum = 0;
-				Vector3 rayposition = new Vector3 (ray.GetPoint (100).x, ray.GetPoint (100).y, 0);
-				laser.SetPosition (ptNum, rayposition);
 
+				//Verkar som att reflektionen kan fastna på samma spegel igen
+				//om man inte flyttar ut den lite från spegeln bör kanske 
+				//lösa detta på nåt bättre sätt men verkar fungera iallafall
+				float offsetReflection = 0.01f;
+				bool continueBouncing = true;
+				while (continueBouncing) {
+					if (hit.collider) {
+						if (hit.collider.tag.Equals ("Wall")) {
+
+							laser.SetPosition (ptNum, hit.point);
+							//isHit = true;
+							break;
+						} else if (hit.collider.tag.Equals ("Mirror")) {
+							// Debug.Log(bounceNum);
+							if (bounceNum == maxBounces) {
+								laser.SetPosition (ptNum, hit.point);
+								//isHit = true;
+								break;
+							}
+							laser.SetPosition (ptNum, hit.point);
+							//isHit = true;
+
+							Vector3 origin = laser.GetPosition (ptNum - 1);
+							Vector3 hitPoint = hit.point;
+							Vector3 incoming = hitPoint - origin;
+							Vector3 normal = new Vector3 (hit.normal.x, hit.normal.y, 0);
+							Vector3 reflected = Vector3.Reflect (incoming, hit.normal);
+
+							ray = new Ray2D (hitPoint, reflected);
+							hit = Physics2D.Raycast (hitPoint + offsetReflection * normal, reflected);
+							ptNum++;
+							laser.numPositions++;
+							bounceNum++;
+			
+
+						}
+
+					} else {
+						laser.SetPosition (ptNum, ray.GetPoint (100));
+						break;
+					}
+				}
+
+
+				//gets all the points of the laser
 				Vector3[] laserPositions = new Vector3[laser.numPositions];
 				laser.GetPositions (laserPositions);
 
-				foreach (Vector3 vector in laserPositions) {
-					//Debug.Log("laserpositions" + vector.ToString ());
-				}
+				/*foreach (Vector3 vector in laserPositions) {
+					Debug.Log("laserpositions" + vector.ToString ());
+				}*/
 
-				CmdSynchLaser (gameObject, laserPositions);
+				CmdSynchLaser (gameObject, laserPositions, laser.numPositions);
 			}
 
 
@@ -120,17 +165,17 @@ public class PlayerControler : NetworkBehaviour {
 
 	}
 	[Command]
-	void CmdSynchLaser(GameObject player, Vector3[] laserPos){
-		//Debug.Log ("synch command");
-		RpcSynchLaser (player, laserPos);
+	void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos ){
+		RpcSynchLaser (player, laserPos, nrOfPos);
 	}
 
 	[ClientRpc]
-	void RpcSynchLaser(GameObject player, Vector3[] laserPos){
+	void RpcSynchLaser(GameObject player, Vector3[] laserPos,int nrOfPos){
 		if (isLocalPlayer) {
 			return;
 		}
 		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer> ();
+		activeLaser.numPositions = nrOfPos;
 		activeLaser.SetPositions (laserPos);
 
 	}
