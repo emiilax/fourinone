@@ -23,37 +23,20 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	// Displays when connecting to a server
 	public ConnectingPanel connectingScreen;
 
-	public List<Vector3> positions; 
-
 	private ulong currentMatchID; 
 
 	private bool isHost = false;
 
 	public string lobbyName = ""; 
 
-	//public NetworkDiscovery discovery;
-
-
 
 	protected RectTransform currentPanel;
 
+	private MyNetworkLobbyManager(){}
+
 	// Use this for initialization
 	void Start () {
-		//Transform t = new RectTransform ();
-		transform.position = new Vector3(-4,3,-10);
-
-		this.startPositions.Add (transform);
-		transform.position = new Vector3(4,3,-10);
-		this.startPositions.Add (transform);
-
-		transform.position = new Vector3(-4,-3,-10);
-		this.startPositions.Add (transform);
-
-		transform.position = new Vector3(4,-3,-10);
-		this.startPositions.Add (transform);
-
-		Debug.Log (startPositions.Count);
-
+		
 		singelton = this;
 
 		mainMenuPanel.gameObject.SetActive (true);
@@ -61,19 +44,22 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		currentPanel = mainMenuPanel;
 
-
-		//GetComponent<Canvas>().enabled = true;
-
-
 		DontDestroyOnLoad(gameObject);
 
 	}
 
 	public void ChangePanel(RectTransform newPanel){
 
+
 		currentPanel.gameObject.SetActive (false);
 
+		if (newPanel.Equals (lobbySelectionPanel)) {
+			ButtonsInteractiable (true);
+		}
+
 		newPanel.gameObject.SetActive (true);
+
+
 
 		currentPanel = newPanel;
 
@@ -82,13 +68,24 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
+	public void ButtonsInteractiable(bool isInteractiable) {
+
+		if(LobbySelectorManager.singleton)
+			LobbySelectorManager.singleton.ButtonsInteractiable (isInteractiable);
+
+	}
 
 
 	public void ShowLoadingScreen(Color color){
 
 
-		connectingScreen.gameObject.SetActive (true);
+		ButtonsInteractiable (false);
+
 		waitingForPlayersScreen.SetColor (color);
+		connectingScreen.SetColor (color);
+
+		connectingScreen.gameObject.SetActive (true);
+
 		StartMatchMaker ();
 		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, JoinOrCreateMatch);
 
@@ -193,7 +190,6 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		base.OnLobbyClientSceneChanged (conn);
 		gameObject.SetActive (false);
-		//GetComponent<Canvas>().enabled = false;
 
 	}
 
@@ -203,7 +199,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		Debug.Log ("All ready");
 		base.OnLobbyServerPlayersReady ();
 		gameObject.SetActive (false);
-		//GetComponent<Canvas>().enabled = false;
+
 
 	}
 
@@ -215,23 +211,14 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		ChangePanel (lobbySelectionPanel);
 
 		gameObject.SetActive (true);
-		//GetComponent<Canvas>().enabled = true;
+
 		waitingForPlayersScreen.gameObject.SetActive (false);
 		CancelConnection ();
-		//DestroyObject (gameObject);
-		//ServerReturnToLobby ();
 
-
-	}
-
-	public override void OnServerAddPlayer (NetworkConnection conn, short playerControllerId)
-	{
-
-		base.OnServerAddPlayer (conn, playerControllerId);
 
 
 	}
-
+		
 
 	/* When app is closing and you were "host", destroy game */
 	void OnApplicationQuit() {
@@ -244,14 +231,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
-
+	/* When a client disconnects, get back to lobby*/ 
 	public override void OnClientDisconnect(NetworkConnection conn)
 	{
 		base.OnClientDisconnect(conn);
 		waitingForPlayersScreen.gameObject.SetActive (false);
 
 		gameObject.SetActive (true);
-		//GetComponent<Canvas>().enabled = true;
 	}
 
 

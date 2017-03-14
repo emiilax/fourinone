@@ -1,23 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LobbySelectorManager : MonoBehaviour {
 
-	public MyNetworkLobbyManager lobbyManager;
-
 	private Color color;
+	public static LobbySelectorManager singleton;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	public Button btnGreen;
+	public Button btnBlue;
+	public Button btnOrange;
+	public Button btnRed;
+
+
+
+	void Start(){
+		singleton = this;
 	}
 
+	public void ButtonsInteractiable(bool isInteractiable) {
+
+		btnRed.interactable = isInteractiable;
+		btnOrange.interactable = isInteractiable;
+		btnBlue.interactable = isInteractiable;
+		btnGreen.interactable = isInteractiable;
+
+	}
 
 	public void LobbyBtnPressed(){
 
@@ -27,7 +36,7 @@ public class LobbySelectorManager : MonoBehaviour {
 
 
 		if(SetLobbyColor(btn))
-			lobbyManager.ShowLoadingScreen (color);
+			MyNetworkLobbyManager.singelton.ShowLoadingScreen (color);
 
 
 	}
@@ -38,25 +47,25 @@ public class LobbySelectorManager : MonoBehaviour {
 		if (btn.name.Equals ("btnOrangeLobby")) {
 
 			color = StaticVariables.COLOR_ORANGE;
-			lobbyManager.lobbyName = "orange";
+			MyNetworkLobbyManager.singelton.lobbyName = "orange";
 			return true;
 
 		} else if (btn.name.Equals ("btnBlueLobby")) {
 
 			color = StaticVariables.COLOR_BLUE;
-			lobbyManager.lobbyName = "blue";
+			MyNetworkLobbyManager.singelton.lobbyName = "blue";
 			return true;
 
 		} else if (btn.name.Equals ("btnGreenLobby")) {
 
 			color = StaticVariables.COLOR_GREEN;
-			lobbyManager.lobbyName = "green";
+			MyNetworkLobbyManager.singelton.lobbyName = "green";
 			return true;
 
 		} else if (btn.name.Equals ("btnRedLobby")) {
 
 			color = StaticVariables.COLOR_RED;
-			lobbyManager.lobbyName = "red";
+			MyNetworkLobbyManager.singelton.lobbyName = "red";
 			return true;
 
 		} 

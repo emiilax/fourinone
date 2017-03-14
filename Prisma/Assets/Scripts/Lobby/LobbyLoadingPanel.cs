@@ -4,47 +4,38 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class LobbyLoadingPanel : MonoBehaviour {
+public class LobbyLoadingPanel : PromptWindow {
 
-	public MyNetworkLobbyManager lobbyManager;
+	/* UI Elements */
 	public Text playerCounter;
-	public Image backgroundColor;
-	public Image blur;
 	public Text waitingLbl;
 	public Button startGame;
 
+	/* Private variables */
 	private int nbrOfPlayers;
 	private int minNumberOfPlayers;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public void Display(int minPlayers){
+
 		nbrOfPlayers = 0;
 		minNumberOfPlayers = minPlayers;
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
-		blur.color = new Color (0f, 0f, 0f, 0.7f);
 
 		gameObject.SetActive (true);
 
 	}
-		
 
-	public void SetColor(Color color){
-		backgroundColor.color = color;
+	public void ButtonsInteractiable(bool isInteractiable) {
+
+
+
 	}
 
 
 	public void NumberOfPlayersChanged(int i){
-		nbrOfPlayers += i;
 
+		nbrOfPlayers += i;
 
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
 
@@ -52,8 +43,8 @@ public class LobbyLoadingPanel : MonoBehaviour {
 		
 	public void CancelButtonClicked(){
 
-
 		MyNetworkLobbyManager.singelton.CancelConnection ();
+
 		this.gameObject.SetActive (false);
 
 	}
