@@ -62,7 +62,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		currentPanel = mainMenuPanel;
 
 
-		GetComponent<Canvas>().enabled = true;
+		//GetComponent<Canvas>().enabled = true;
 
 
 		DontDestroyOnLoad(gameObject);
@@ -192,7 +192,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		
 
 		base.OnLobbyClientSceneChanged (conn);
-		GetComponent<Canvas>().enabled = false;
+		gameObject.SetActive (false);
+		//GetComponent<Canvas>().enabled = false;
 
 	}
 
@@ -201,8 +202,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		Debug.Log ("All ready");
 		base.OnLobbyServerPlayersReady ();
-
-		GetComponent<Canvas>().enabled = false;
+		gameObject.SetActive (false);
+		//GetComponent<Canvas>().enabled = false;
 
 	}
 
@@ -212,8 +213,12 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		Debug.Log ("Server disconnect");
 
 		ChangePanel (lobbySelectionPanel);
+
+		gameObject.SetActive (true);
+		//GetComponent<Canvas>().enabled = true;
+		waitingForPlayersScreen.gameObject.SetActive (false);
 		CancelConnection ();
-		DestroyObject (gameObject);
+		//DestroyObject (gameObject);
 		//ServerReturnToLobby ();
 
 
@@ -245,7 +250,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		base.OnClientDisconnect(conn);
 		waitingForPlayersScreen.gameObject.SetActive (false);
 
-		GetComponent<Canvas>().enabled = true;
+		gameObject.SetActive (true);
+		//GetComponent<Canvas>().enabled = true;
 	}
 
 
