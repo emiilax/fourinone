@@ -30,7 +30,6 @@ public class LobbyLoadingPanel : MonoBehaviour {
 		nbrOfPlayers = 0;
 		minNumberOfPlayers = minPlayers;
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
-		//backgroundColor.color = color;
 		blur.color = new Color (0f, 0f, 0f, 0.7f);
 
 		gameObject.SetActive (true);

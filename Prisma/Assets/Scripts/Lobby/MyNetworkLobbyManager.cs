@@ -86,6 +86,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public void ShowLoadingScreen(Color color){
 
+
 		connectingScreen.gameObject.SetActive (true);
 		waitingForPlayersScreen.SetColor (color);
 		StartMatchMaker ();
@@ -220,24 +221,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override void OnServerAddPlayer (NetworkConnection conn, short playerControllerId)
 	{
-		/*transform.position = new Vector3(-4,3,-10);
-
-		this.startPositions.Add (transform);
-		transform.position = new Vector3(4,3,-10);
-		this.startPositions.Add (transform);
-
-		transform.position = new Vector3(-4,-3,-10);
-		this.startPositions.Add (transform);
-
-		transform.position = new Vector3(4,-3,-10);
-		this.startPositions.Add (transform);*/
-
-		Debug.Log ("Startpos: " + startPositions.Count);
 
 		base.OnServerAddPlayer (conn, playerControllerId);
 
-		//base.OnServerAddPlayer (conn, playerControllerId);
-		//Debug.Log ("Number of startpos: " + NetworkManager.singleton.startPositions.Count);
 
 	}
 
