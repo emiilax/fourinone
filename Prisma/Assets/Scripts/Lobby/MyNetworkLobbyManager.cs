@@ -23,6 +23,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	// Displays when connecting to a server
 	public ConnectingPanel connectingScreen;
 
+	// Displays when something went wrong
+	public PlayerDisconnectPanel disconnectScreen;
+
 	private ulong currentMatchID; 
 
 	private bool isHost = false;
@@ -63,8 +66,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		currentPanel = newPanel;
 
+	}
 
+	public void ShowPromptWindow(PromptWindow prompt, bool active){
 
+		ButtonsInteractiable (!active);
+
+		prompt.gameObject.SetActive (active);
 	}
 
 
@@ -78,13 +86,10 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public void ShowLoadingScreen(Color color){
 
-
-		ButtonsInteractiable (false);
-
 		waitingForPlayersScreen.SetColor (color);
 		connectingScreen.SetColor (color);
 
-		connectingScreen.gameObject.SetActive (true);
+		ShowPromptWindow (connectingScreen, true);
 
 		StartMatchMaker ();
 		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, JoinOrCreateMatch);
@@ -176,9 +181,15 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	/* When you connect to the lobby, show loading screen with the amount of players */ 
 	public override void OnLobbyClientConnect(NetworkConnection conn){
+
 		base.OnLobbyClientConnect (conn);
-		connectingScreen.gameObject.SetActive (false);
-		waitingForPlayersScreen.Display (minPlayers);
+
+		ShowPromptWindow (connectingScreen, false);
+
+		waitingForPlayersScreen.SetUpPanel (minPlayers);
+
+		ShowPromptWindow (waitingForPlayersScreen, true);
+
 
 		Debug.Log ("Client connected to lobby");
 
@@ -212,11 +223,11 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		gameObject.SetActive (true);
 
-		waitingForPlayersScreen.gameObject.SetActive (false);
+		ShowPromptWindow (waitingForPlayersScreen, false);
+
+		ShowPromptWindow (disconnectScreen, true);
+
 		CancelConnection ();
-
-
-
 	}
 		
 
@@ -231,11 +242,14 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
-	/* When a client disconnects, get back to lobby*/ 
+	/* When a client disconnects, get back to lobby */ 
 	public override void OnClientDisconnect(NetworkConnection conn)
 	{
 		base.OnClientDisconnect(conn);
-		waitingForPlayersScreen.gameObject.SetActive (false);
+
+		ShowPromptWindow (waitingForPlayersScreen, false);
+
+		ShowPromptWindow (disconnectScreen, true);
 
 		gameObject.SetActive (true);
 	}

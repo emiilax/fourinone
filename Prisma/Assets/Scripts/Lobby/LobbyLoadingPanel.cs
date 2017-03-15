@@ -16,21 +16,14 @@ public class LobbyLoadingPanel : PromptWindow {
 	private int minNumberOfPlayers;
 
 
-	public void Display(int minPlayers){
+	public void SetUpPanel(int minPlayers){
 
 		nbrOfPlayers = 0;
 		minNumberOfPlayers = minPlayers;
 		playerCounter.text = nbrOfPlayers + "/" + minNumberOfPlayers + "...";
 
-		gameObject.SetActive (true);
-
 	}
 
-	public void ButtonsInteractiable(bool isInteractiable) {
-
-
-
-	}
 
 
 	public void NumberOfPlayersChanged(int i){
