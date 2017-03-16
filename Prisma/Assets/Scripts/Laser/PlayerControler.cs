@@ -12,6 +12,24 @@ public class PlayerControler : NetworkBehaviour {
 
 
 
+
+
+	public GameObject gameObjectToDrag;
+
+	public Vector3 GOcenter; // The game object center
+
+	public Vector3 touchPosition; // Where on the object the mouse click
+
+	public Vector3 offset; // vector between GOcenter and touchPosition
+
+	public Vector3 newGOcenter;
+
+	public bool draggingMode;
+
+	RaycastHit hit;
+
+
+
 	void Start(){}
 
 
@@ -63,6 +81,57 @@ public class PlayerControler : NetworkBehaviour {
 	}
 
 	void Update () {
+
+		if (!isLocalPlayer)
+			return;
+
+		if (Input.GetMouseButtonDown (0)) {
+			Debug.Log ("Clicked!");
+
+			//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+
+			RaycastHit2D hit = Physics2D.Raycast(playerCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+			if(hit.collider != null){
+
+				Debug.Log ("Raycast hit");
+
+				gameObjectToDrag = hit.collider.gameObject;
+
+				GOcenter = gameObjectToDrag.transform.position;
+
+				touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
+
+				offset = touchPosition - GOcenter;
+
+				draggingMode = true;
+
+			}
+		}
+
+		if (Input.GetMouseButton (0)) {
+
+			if (draggingMode) {
+
+				touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
+
+				newGOcenter = touchPosition - offset;
+
+				CmdMoveObject (gameObjectToDrag,newGOcenter);
+
+				//gameObjectToDrag.transform.position = newGOcenter;
+
+			}
+
+		}
+
+		if (Input.GetMouseButtonUp (0)) {
+			draggingMode = false;
+		}
+
+
+
+		/*
 		if(Input.GetButton("Fire1"))
 		{
 
@@ -125,9 +194,6 @@ public class PlayerControler : NetworkBehaviour {
 				Vector3[] laserPositions = new Vector3[laser.numPositions];
 				laser.GetPositions (laserPositions);
 
-				/*foreach (Vector3 vector in laserPositions) {
-					Debug.Log("laserpositions" + vector.ToString ());
-				}*/
 
 
 				CmdSynchLaser (gameObject, laserPositions, laser.numPositions);
@@ -143,7 +209,15 @@ public class PlayerControler : NetworkBehaviour {
 			SetLaserEnabled (false);
 			CmdSetLaserEnabled (false);
 		}
+		*/
+
 	}
+
+	[Command]
+	void CmdMoveObject(GameObject GO, Vector3 newpos){
+		GO.transform.position = newpos;
+	}
+		
 
 	void Fire()
 	{
