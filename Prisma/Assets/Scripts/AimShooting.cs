@@ -10,6 +10,10 @@ public class AimShooting : MonoBehaviour {
 
 	private Vector3 offset; 
 
+	private Vector3 oldDirection;
+
+	private float offsetAngle;
+
 	// Use this for initialization
 	void Start () {
 
@@ -31,8 +35,17 @@ public class AimShooting : MonoBehaviour {
 		Debug.Log ("upper Corner (x,y): " + uppercorner);
 		Debug.Log ("lower Corner (x,y): " + lowercorner);
 		Vector3 direction = new Vector3 (lowercorner.x - uppercorner.x, lowercorner.y - uppercorner.y, 0);
+		oldDirection = direction;
 		Ray2D ray = new Ray2D (rt.rect.center, direction);
 
+
+
+		float sign = (uppercorner.y < lowercorner.y) ? -1.0f : 1.0f;
+		offsetAngle = Vector2.Angle (Vector2.right, direction) * sign;
+		//oldDirection = direction;
+		Debug.Log ("Angle: " + offsetAngle);
+
+	
 		line.SetPosition (0, gameObject.transform.position   );
 		line.SetPosition (1, ray.GetPoint (100));
 
@@ -66,6 +79,15 @@ public class AimShooting : MonoBehaviour {
 			Vector3 mousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition) - offset;
 				Vector3 playerPosition = gameObject.transform.position-offset;
 				Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
+
+	
+				float sign = (direction.y < oldDirection.y) ? -1.0f : 1.0f;
+				float angle = Vector2.Angle (Vector2.right, direction) * sign;
+				//oldDirection = direction;
+				Debug.Log ("Angle: " + angle);
+				transform.rotation = Quaternion.Euler (0, 0, angle );
+
+
 				Ray2D ray = new Ray2D (playerPosition, direction);
 				RaycastHit2D hit = Physics2D.Raycast (playerPosition, direction);
 				line.numPositions = 2;
