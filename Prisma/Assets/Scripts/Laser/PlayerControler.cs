@@ -53,7 +53,7 @@ public class PlayerControler : NetworkBehaviour {
 
 	}
 
-	// Flips the sprite depending in the screen
+	// Flips the sprite depending in the assigned screen
 	private void FlipSprite() {
 
 		SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer> ();
@@ -68,11 +68,11 @@ public class PlayerControler : NetworkBehaviour {
 		}
 	}
 
+	// Calculate offsetangle depending on assigned screen
 	private void CalculateOffsetAngle(){
+
 		RectTransform rt = (RectTransform)gameObject.transform;
-
-		Vector3 lowercorner = Vector3.zero;
-
+	
 		float x;
 		float y;
 	
@@ -93,16 +93,14 @@ public class PlayerControler : NetworkBehaviour {
 
 		Vector3 direction = new Vector3 (x - GOpos.x, y - GOpos.y, 0);
 
-		//Vector3 diff = Vector3.right - direction;
+
+		// If on other side of x axis, add 180 degreese
 		float add = (assignedScreen == 3 || assignedScreen == 4) ? 180.0f : 0 ;
 
 
 		offsetAngle = Vector2.Angle (Vector2.right, direction) + add;
-		//oldDirection = direction;
 
-		Debug.Log ("offsetangle: " + offsetAngle);
 
-		Ray2D ray = new Ray2D (rt.rect.center, direction);
 	}
 
 
@@ -155,21 +153,7 @@ public class PlayerControler : NetworkBehaviour {
 	}
 
 
-	private void RotateSprite(Vector3 direction) {
-	
 
-		float angle = Vector2.Angle (Vector2.right, direction);
-		Debug.Log ("Accual angle: " + angle);
-
-		Vector3 diff = Vector3.right - direction;
-		float sign = (diff.y < 0) ? -1.0f : 1.0f;
-
-		Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
-		Debug.Log ("Up/Down: " + diff.y);
-
-		transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
-
-	}
 
 	void Update () {
 
@@ -177,9 +161,6 @@ public class PlayerControler : NetworkBehaviour {
 		if (!isLocalPlayer)
 			return;
 		
-
-
-
 
 		if (Input.GetButton ("Fire1")) {
 
@@ -191,8 +172,11 @@ public class PlayerControler : NetworkBehaviour {
 				FireLaser ();
 				ShutOffTimer = Time.time + shutDownDelay;
 				Fire ();
+
 			} else {
+				
 				MoveObject ();
+
 			}
 
 
@@ -209,6 +193,7 @@ public class PlayerControler : NetworkBehaviour {
 
 	}
 
+	// Method for firing the laser
 	private void FireLaser(){
 	
 
@@ -280,7 +265,24 @@ public class PlayerControler : NetworkBehaviour {
 
 	}
 
+	// Function used to rotate the player sprite depending on laser-angle
+	private void RotateSprite(Vector3 direction) {
 
+
+		float angle = Vector2.Angle (Vector2.right, direction);
+		Debug.Log ("Accual angle: " + angle);
+
+		Vector3 diff = Vector3.right - direction;
+		float sign = (diff.y < 0) ? -1.0f : 1.0f;
+
+		Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
+		Debug.Log ("Up/Down: " + diff.y);
+
+		transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
+
+	}
+
+	// Function for moving objects on the board
 	private void MoveObject(){
 
 		//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -320,44 +322,49 @@ public class PlayerControler : NetworkBehaviour {
 
 
 
-
-	[Command]
-	void CmdMoveObject(GameObject GO, Vector3 newpos){
-		GO.transform.position = newpos;
-	}
-		
-
-	void Fire()
-	{
+	void Fire(){
 		SetLaserEnabled(true);
 		CmdSetLaserEnabled(true);
 	}
 
-	[Command]
-	void CmdSetLaserEnabled(bool b)
-	{
-		RpcSetLaserEnabled(b);
-	}
 
-	[ClientRpc]
-	void RpcSetLaserEnabled(bool b)
-	{
-		if(isLocalPlayer) return;
 
-		SetLaserEnabled(b);
-	}
-
-	void SetLaserEnabled(bool b)
-	{
+	void SetLaserEnabled(bool b){
 
 		laser.enabled = b;
 
 	}
 
 
+	/* ---- Command calls -----*/
+
+	// Tells Server to enable laser on clients
+	[Command]
+	void CmdSetLaserEnabled(bool b){
+		RpcSetLaserEnabled(b);
+	}
+
+	// Tells Server to move a object
+	[Command]
+	void CmdMoveObject(GameObject GO, Vector3 newpos){
+		GO.transform.position = newpos;
+	}
+
+
+	// Tells Server to sync laser on clients 
 	[Command]
 	void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos ){
 		RpcSynchLaser (player, laserPos, nrOfPos);
+	}
+
+
+	/* ---- ClientRPC Calls -----*/
+
+	[ClientRpc]
+	void RpcSetLaserEnabled(bool b) {
+		if(isLocalPlayer) return;
+
+		SetLaserEnabled(b);
 	}
 
 
@@ -373,49 +380,4 @@ public class PlayerControler : NetworkBehaviour {
 	}
 
 }
-
-
-/*
-		if (Input.GetMouseButtonDown (0)) {
-			Debug.Log ("Clicked!");
-
-			//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-
-			RaycastHit2D hit = Physics2D.Raycast(playerCamera.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-			if(hit.collider != null){
-
-				Debug.Log ("Raycast hit");
-
-				gameObjectToDrag = hit.collider.gameObject;
-
-				GOcenter = gameObjectToDrag.transform.position;
-
-				touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
-
-				offset = touchPosition - GOcenter;
-
-				draggingMode = true;
-
-			}
-		}
-
-		if (Input.GetMouseButton (0)) {
-
-			if (draggingMode) {
-
-				touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
-
-				newGOcenter = touchPosition - offset;
-
-				CmdMoveObject (gameObjectToDrag,newGOcenter);
-
-				//gameObjectToDrag.transform.position = newGOcenter;
-
-			}
-
-		}
-
-		if (Input.GetMouseButtonUp (0)) {
-			draggingMode = false;
-		} */
+	
