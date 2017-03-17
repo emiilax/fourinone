@@ -34,18 +34,28 @@ public class AimShooting : MonoBehaviour {
 
 		Debug.Log ("upper Corner (x,y): " + uppercorner);
 		Debug.Log ("lower Corner (x,y): " + lowercorner);
-		Vector3 direction = new Vector3 (lowercorner.x - uppercorner.x, lowercorner.y - uppercorner.y, 0);
-		oldDirection = direction;
-		Ray2D ray = new Ray2D (rt.rect.center, direction);
+		//Vector3 direction = new Vector3 (lowercorner.x - uppercorner.x, lowercorner.y - uppercorner.y, 0);
 
 
+		float x = gameObject.transform.position.x - (rt.rect.width / 2);
+
+		float y = gameObject.transform.position.y + (rt.rect.height / 2);
+
+
+
+		Vector3 GOpos = gameObject.transform.position;
+
+		Vector3 direction = new Vector3 (x - GOpos.x, y - GOpos.y, 0);
+
+		offsetAngle = Vector2.Angle (Vector2.right, direction);
 
 		float sign = (uppercorner.y < lowercorner.y) ? -1.0f : 1.0f;
-		offsetAngle = Vector2.Angle (Vector2.right, direction) * sign;
+		offsetAngle = Vector2.Angle (Vector2.right, direction) * sign + 180;
 		//oldDirection = direction;
 		Debug.Log ("Angle: " + offsetAngle);
 
 	
+		Ray2D ray = new Ray2D (rt.rect.center, direction);
 		line.SetPosition (0, gameObject.transform.position   );
 		line.SetPosition (1, ray.GetPoint (100));
 
