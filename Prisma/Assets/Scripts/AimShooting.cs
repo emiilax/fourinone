@@ -76,16 +76,20 @@ public class AimShooting : MonoBehaviour {
 		{
 			line.enabled = false;
 			//if (isLocalPlayer) {
-			Vector3 mousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition) - offset;
-				Vector3 playerPosition = gameObject.transform.position-offset;
-				Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
+			Vector3 mousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);// - offset;
+			Vector3 playerPosition = gameObject.transform.position;//-offset;
+			Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
 
-	
-				float sign = (direction.y < oldDirection.y) ? -1.0f : 1.0f;
-				float angle = Vector2.Angle (Vector2.right, direction) * sign;
-				//oldDirection = direction;
-				Debug.Log ("Angle: " + angle);
-				transform.rotation = Quaternion.Euler (0, 0, angle );
+			float angle = Vector2.Angle (Vector2.right, direction);
+			Debug.Log ("Accual angle: " + angle);
+
+			Vector3 diff = Vector3.right - direction;
+			float sign = (diff.y < 0) ? -1.0f : 1.0f;
+
+			Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
+			Debug.Log ("Up/Down: " + diff.y);
+
+			transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
 
 
 				Ray2D ray = new Ray2D (playerPosition, direction);
