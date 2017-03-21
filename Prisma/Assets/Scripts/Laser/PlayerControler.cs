@@ -32,78 +32,6 @@ public class PlayerControler : NetworkBehaviour {
 
 	void Start(){}
 
-
-	private void initPlayer(){
-	
-		Vector3 GOpos = gameObject.transform.position;
-
-
-		// Calculate what screen you are to be assiged
-		if (GOpos.x < 0) {
-			assignedScreen = (GOpos.y > 0) ? 1 : 3;
-		} else {
-			assignedScreen = (GOpos.y > 0) ? 2 : 4;
-		}
-
-		FlipSprite ();
-
-		CalculateOffsetAngle ();
-
-
-
-	}
-
-	// Flips the sprite depending in the assigned screen
-	private void FlipSprite() {
-
-		SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer> ();
-
-		if (assignedScreen == 2) {
-			sr.flipX = true;
-		} else if (assignedScreen == 3) {
-			sr.flipY = true;
-		} else if (assignedScreen == 4) {
-			sr.flipX = true;
-			sr.flipY = true;
-		}
-	}
-
-	// Calculate offsetangle depending on assigned screen
-	private void CalculateOffsetAngle(){
-
-		RectTransform rt = (RectTransform)gameObject.transform;
-	
-		float x;
-		float y;
-	
-		if (assignedScreen == 1 || assignedScreen == 4) {
-			x = gameObject.transform.position.x + (rt.rect.width / 2);
-		} else {
-			x = gameObject.transform.position.x - (rt.rect.width / 2);
-		}
-
-		if (assignedScreen == 1 || assignedScreen == 2) {
-			y = gameObject.transform.position.y - (rt.rect.height / 2);
-
-		} else {
-			y = gameObject.transform.position.y + (rt.rect.height / 2);
-		}
-			
-		Vector3 GOpos = gameObject.transform.position;
-
-		Vector3 direction = new Vector3 (x - GOpos.x, y - GOpos.y, 0);
-
-
-		// If on other side of x axis, add 180 degreese
-		float add = (assignedScreen == 3 || assignedScreen == 4) ? 180.0f : 0 ;
-
-
-		offsetAngle = Vector2.Angle (Vector2.right, direction) + add;
-
-
-	}
-
-
 	public override void OnStartLocalPlayer ()
 	{
 		enabled = true;
@@ -139,6 +67,7 @@ public class PlayerControler : NetworkBehaviour {
 
 	}
 
+
 	public override void OnStartClient ()
 	{
 		laser = gameObject.GetComponentInChildren<LineRenderer>();
@@ -150,6 +79,80 @@ public class PlayerControler : NetworkBehaviour {
 
 		laser.enabled = false;
 		enabled = false;
+	}
+
+	// Init all player stuff
+	private void initPlayer(){
+
+		Vector3 GOpos = gameObject.transform.position;
+
+
+		// Calculate what screen you are to be assiged
+		if (GOpos.x < 0) {
+			assignedScreen = (GOpos.y > 0) ? 1 : 3;
+		} else {
+			assignedScreen = (GOpos.y > 0) ? 2 : 4;
+		}
+
+		FlipSprite ();
+
+		CalculateOffsetAngle ();
+
+
+
+	}
+
+	// Flips the sprite depending in the assigned screen
+	private void FlipSprite() {
+
+		SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer> ();
+
+		if (assignedScreen == 2) {
+			sr.flipX = true;
+		} else if (assignedScreen == 3) {
+			sr.flipY = true;
+		} else if (assignedScreen == 4) {
+			sr.flipX = true;
+			sr.flipY = true;
+		}
+	}
+
+	// Calculate offset-angle depending on assigned screen
+	private void CalculateOffsetAngle(){
+
+		RectTransform rt = (RectTransform)gameObject.transform;
+
+		float x;
+		float y;
+
+		// To get the angle of the laser when pointing 45 degreese, you could get the 
+		// centerposition and the corner off the sprite where the laser should shoot from
+
+		if (assignedScreen == 1 || assignedScreen == 4) {
+			x = gameObject.transform.position.x + (rt.rect.width / 2);
+		} else {
+			x = gameObject.transform.position.x - (rt.rect.width / 2);
+		}
+
+		if (assignedScreen == 1 || assignedScreen == 2) {
+			y = gameObject.transform.position.y - (rt.rect.height / 2);
+
+		} else {
+			y = gameObject.transform.position.y + (rt.rect.height / 2);
+		}
+
+		Vector3 GOpos = gameObject.transform.position;
+
+		Vector3 direction = new Vector3 (x - GOpos.x, y - GOpos.y, 0);
+
+
+		// If on other side of x axis, add 180 degreese
+		float add = (assignedScreen == 3 || assignedScreen == 4) ? 180.0f : 0 ;
+
+
+		offsetAngle = Vector2.Angle (Vector2.right, direction) + add;
+
+
 	}
 
 
