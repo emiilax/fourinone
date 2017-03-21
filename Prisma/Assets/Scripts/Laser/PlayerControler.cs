@@ -350,7 +350,7 @@ public class PlayerControler : NetworkBehaviour {
 	// Tells Server to move a object
 	[Command]
 	void CmdMoveObject(GameObject GO, Vector3 newpos){
-		GO.transform.position = newpos;
+		RpcMoveObject (GO, newpos);
 	}
 
 
@@ -364,12 +364,22 @@ public class PlayerControler : NetworkBehaviour {
 	/* ---- ClientRPC Calls -----*/
 
 	[ClientRpc]
+	void RpcMoveObject(GameObject GO, Vector3 newpos){
+		if (isLocalPlayer)
+			return;
+
+
+		GO.transform.position = newpos;
+	}
+
+
+	[ClientRpc]
 	void RpcSetLaserEnabled(bool b) {
 		if(isLocalPlayer) return;
 
 		SetLaserEnabled(b);
 	}
-
+		
 
 	[ClientRpc]
 	void RpcSynchLaser(GameObject player, Vector3[] laserPos,int nrOfPos){
