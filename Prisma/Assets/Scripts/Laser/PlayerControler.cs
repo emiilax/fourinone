@@ -5,9 +5,11 @@ using UnityEngine.Networking;
 public class PlayerControler : NetworkBehaviour {
 
 	[SerializeField] float shutDownDelay = 0.3f;
+	[SerializeField] float keyShutDownDelay = 0.1f;
 
 	LineRenderer laser;
-	float ShutOffTimer;
+	float LaserShutOffTimer;
+	float KeyShutOffTimer;
 	Camera playerCamera;
 
 	private float assignedScreen;
@@ -173,7 +175,7 @@ public class PlayerControler : NetworkBehaviour {
 
 			if (direction.magnitude < 2) {
 				FireLaser ();
-				ShutOffTimer = Time.time + shutDownDelay;
+				LaserShutOffTimer = Time.time + shutDownDelay;
 				Fire ();
 
 			} else {
@@ -188,7 +190,8 @@ public class PlayerControler : NetworkBehaviour {
 			draggingMode = false;
 		}
 
-		if (Time.time > ShutOffTimer) {
+		//TODO make more efficient
+		if (Time.time > LaserShutOffTimer) {
 			SetLaserEnabled (false);
 			CmdSetLaserEnabled (false);
 		}
@@ -247,8 +250,13 @@ public class PlayerControler : NetworkBehaviour {
 					ptNum++;
 					laser.numPositions++;
 					bounceNum++;
-
-
+				} else if (hit.collider.tag.Equals ("Key")) {
+					laser.SetPosition (ptNum, hit.point);
+					KeyShutOffTimer = Time.time + keyShutDownDelay;
+					//hit.collider.gameObject.GetComponent<KeyScript> ().door.SetActive (false);
+					//CmdSetObjectEnabled(hit.collider.gameObject.GetComponent<KeyScript> ().door, false);
+					StartCoroutine(KeyIsHit(hit.collider.gameObject.GetComponent<KeyScript> ().door));
+					break;
 				}
 
 			} else {
@@ -339,14 +347,35 @@ public class PlayerControler : NetworkBehaviour {
 	}
 
 
+	IEnumerator KeyIsHit(GameObject door){
+		door.SetActive (false);
+		CmdSetObjectEnabled (door, false);
+
+		//is this creating stackoverflow?
+		while(Time.time < KeyShutOffTimer)
+		{
+			yield return new WaitForSeconds(0.1f);
+		}
+		door.SetActive (true);
+		CmdSetObjectEnabled(door,true);
+
+	}
+
+
+
 	/* ---- Command calls -----*/
 
-	// Tells Server to enable laser on clients
+	// Tells Server to enable or disable laser on clients
 	[Command]
 	void CmdSetLaserEnabled(bool b){
 		RpcSetLaserEnabled(b);
 	}
 
+	// Tells Server to enable or disable gameObjects
+	[Command]
+	void CmdSetObjectEnabled(GameObject o, bool b){
+		RpcSetObjectEnabled(o,b);
+	}
 	// Tells Server to move a object
 	[Command]
 	void CmdMoveObject(GameObject GO, Vector3 newpos){
@@ -370,6 +399,12 @@ public class PlayerControler : NetworkBehaviour {
 
 
 		GO.transform.position = newpos;
+	}
+
+	[ClientRpc]
+	void RpcSetObjectEnabled(GameObject o, bool b){
+		if (isLocalPlayer) return;
+		o.SetActive (b);
 	}
 
 
