@@ -32,10 +32,16 @@ public class PlayerControler : NetworkBehaviour {
 
 
 
-	void Start(){}
+	void Start(){
+	//	Debug.Log ("Startposition: " + gameObject.transform.position);
+	}
 
 	public override void OnStartLocalPlayer ()
 	{
+
+		//NetworkStartPosition[] spawnPoints = FindObjectsOfType<NetworkStartPosition>();
+
+		//Debug.Log ("Startpos: " + spawnPoints.Length);
 		enabled = true;
 
 		initPlayer ();
@@ -55,7 +61,7 @@ public class PlayerControler : NetworkBehaviour {
 			if (cam != null) {
 				offset = cam.gameObject.transform.position - gameObject.transform.position;
 				float camDist = offset.sqrMagnitude;
-				Debug.Log (camDist - dist);
+			//	Debug.Log (camDist - dist);
 				if (camDist < dist) {
 					dist = camDist;
 					playerCamera = cam;
@@ -75,8 +81,8 @@ public class PlayerControler : NetworkBehaviour {
 		laser = gameObject.GetComponentInChildren<LineRenderer>();
 		laser.sortingLayerName = "Midground";
 
-		Debug.Log (gameObject.transform.position + "playerposition");
-		Debug.Log (laser.transform.position +  "laserposition");
+		//Debug.Log (gameObject.transform.position + "playerposition");
+		//Debug.Log (laser.transform.position +  "laserposition");
 		laser.SetPosition(0, laser.transform.position);
 
 		laser.enabled = false;

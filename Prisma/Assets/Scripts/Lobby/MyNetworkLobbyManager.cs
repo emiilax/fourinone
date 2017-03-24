@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine.Networking.Types;
 using UnityEngine.SceneManagement;
+using AssemblyCSharp;
 
 public class MyNetworkLobbyManager : NetworkLobbyManager {
 
@@ -34,11 +35,21 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	protected RectTransform currentPanel;
 
+	private Vector3[] playerSpawnPositions;
+
 	private MyNetworkLobbyManager(){}
 
 	// Use this for initialization
 	void Start () {
-		
+
+		playerSpawnPositions = new Vector3 [4];
+
+		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
+		playerSpawnPositions[1] = (new Vector3 (30.5f, 22f, 0f));
+		playerSpawnPositions[2] = (new Vector3 (-30.5f, -22f, 0f));
+		playerSpawnPositions[3] = (new Vector3 (30.5f, -22f, 0f));
+
+
 		singelton = this;
 
 		mainMenuPanel.gameObject.SetActive (true);
@@ -194,16 +205,31 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* called when the scene is changed (lobby -> game). Have to disable current screen */
 	public override void OnLobbyClientSceneChanged (NetworkConnection conn){
 		
-
 		base.OnLobbyClientSceneChanged (conn);
 		gameObject.SetActive (false);
 
 	}
+	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+	{
+		Debug.Log ("Connectionid: " + conn.connectionId);
+		base.OnServerAddPlayer (conn, playerControllerId);
+	}
+
+	public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId){
+
+		int index = conn.connectionId;
+
+		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[index], Quaternion.identity);
+
+		return player;
+	}
+		
 
 	/* When all players ready, start the game and disable current canvas */
 	public override void OnLobbyServerPlayersReady(){
-
+		Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
 		Debug.Log ("All ready");
+
 		base.OnLobbyServerPlayersReady ();
 		gameObject.SetActive (false);
 
@@ -225,10 +251,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		CancelConnection ();
 	}
+
+
 		
 
 	/* When app is closing and you were "host", destroy game */
 	void OnApplicationQuit() {
+		//gameObject.SetActive (true);
 		if (isHost){
 			if (matchMaker != null)
 				Debug.Log ("Host: Destroy match");
