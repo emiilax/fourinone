@@ -173,7 +173,7 @@ public class PlayerControler : NetworkBehaviour {
 			Vector3 playerPosition = gameObject.transform.position;
 			Vector3 direction = new Vector3 (mousePosition.x - playerPosition.x, mousePosition.y - playerPosition.y, 0);
 
-			if (direction.magnitude < 2) {
+			if (direction.magnitude < 5) {
 				FireLaser ();
 				LaserShutOffTimer = Time.time + shutDownDelay;
 				Fire ();
