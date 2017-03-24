@@ -287,13 +287,13 @@ public class PlayerControler : NetworkBehaviour {
 
 
 		float angle = Vector2.Angle (Vector2.right, direction);
-		Debug.Log ("Accual angle: " + angle);
+		//Debug.Log ("Accual angle: " + angle);
 
 		Vector3 diff = Vector3.right - direction;
 		float sign = (diff.y < 0) ? -1.0f : 1.0f;
 
-		Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
-		Debug.Log ("Up/Down: " + diff.y);
+		//Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
+		//Debug.Log ("Up/Down: " + diff.y);
 
 		transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
 
@@ -430,6 +430,14 @@ public class PlayerControler : NetworkBehaviour {
 		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer> ();
 		activeLaser.numPositions = nrOfPos;
 		activeLaser.SetPositions (laserPos);
+
+	}
+
+
+	void OnApplicationQuit(){
+		// Must make NetworkLobbyManager active to make it destroy match
+		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		MyNetworkLobbyManager.singelton.QuitGame ();
 
 	}
 

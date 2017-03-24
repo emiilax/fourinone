@@ -198,7 +198,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		ShowPromptWindow (waitingForPlayersScreen, true);
 
 
-		Debug.Log ("Client connected to lobby");
+		//Debug.Log ("Client connected to lobby");
 
 	}
 
@@ -211,7 +211,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 	{
-		Debug.Log ("Connectionid: " + conn.connectionId);
+		//Debug.Log ("Connectionid: " + conn.connectionId);
 		base.OnServerAddPlayer (conn, playerControllerId);
 	}
 
@@ -227,7 +227,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	/* When all players ready, start the game and disable current canvas */
 	public override void OnLobbyServerPlayersReady(){
-		Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
+		// Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
 		Debug.Log ("All ready");
 
 		base.OnLobbyServerPlayersReady ();
@@ -252,7 +252,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		CancelConnection ();
 	}
 
-
+	public void QuitGame (){
+		OnApplicationQuit ();
+	}
 		
 
 	/* When app is closing and you were "host", destroy game */
