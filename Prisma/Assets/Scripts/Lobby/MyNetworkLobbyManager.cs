@@ -32,7 +32,6 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public string lobbyName = ""; 
 
-
 	protected RectTransform currentPanel;
 
 	private MyNetworkLobbyManager(){}
@@ -59,11 +58,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		if (newPanel.Equals (lobbySelectionPanel)) {
 			ButtonsInteractiable (true);
 		}
-
+			
 		newPanel.gameObject.SetActive (true);
-
-
-
 		currentPanel = newPanel;
 
 	}
@@ -256,9 +252,25 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 
 	/* Action handler for start screen */
-	public void StartButtonPressed(){
+	public void StartButtonPressed() {
 	
 		ChangePanel (lobbySelectionPanel);
+
+	}
+
+	/* Action handler for button to start a 1-player game */
+	public void SingleGameButtonPressed() {
+
+		SceneManager.LoadScene ("SingelPlayerLevel1");
+		gameObject.SetActive (false);
+
+	}
+
+	/* Action handler for back-button to previous panel*/
+	/* The only panel to go back to is the mainMenuPanel at the moment */
+	public void BackButtonPressed() {
+		
+		ChangePanel (mainMenuPanel);
 
 	}
 
