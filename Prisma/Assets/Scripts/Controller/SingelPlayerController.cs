@@ -21,8 +21,7 @@ public class SingelPlayerController : MonoBehaviour {
 	// Integer to store the number of keys collected
 	private int keyCount;
 
-	void Awake()
-	{
+	void Awake() {
 		//If we don't currently have a game control...
 		if (instance == null)
 			//...set this one to be it...

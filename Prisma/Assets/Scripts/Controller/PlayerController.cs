@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.Networking;
 
-public class PlayerControler : NetworkBehaviour {
+public class PlayerController : NetworkBehaviour {
 
 	[SerializeField] float shutDownDelay = 0.3f;
 	[SerializeField] float keyShutDownDelay = 0.1f;
