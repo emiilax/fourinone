@@ -69,7 +69,7 @@ public class SingelPlayerController : MonoBehaviour {
 				SceneManager.LoadScene ("SingelPlayerLevel3");
 				break;
 			case "SingelPlayerLevel3":
-				SceneManager.LoadScene ("Lobby");
+				BackButtonPressed ();
 				break;
 			}
 	}
