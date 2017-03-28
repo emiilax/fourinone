@@ -320,6 +320,7 @@ public class PlayerControler : NetworkBehaviour {
 				offset = touchPosition - GOcenter;
 
 				draggingMode = true;
+			}
 		}
 
 
