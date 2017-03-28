@@ -295,6 +295,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		SceneManager.LoadScene ("SingelPlayerLevel1");
 		gameObject.SetActive (false);
 		*/
+		minPlayers = 1;
 		playScene = "SP1";
 		StartHost ();
 	}
