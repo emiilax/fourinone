@@ -58,8 +58,12 @@ public class LaserScript : MonoBehaviour {
                         line.SetPosition(ptNum, hit.point);
                         isHit = true;
                         break;
-                    }
-                    else if (hit.collider.tag.Equals("Mirror"))
+					} else if (hit.collider.tag.Equals("Key"))
+					{
+						line.SetPosition(ptNum, hit.point);
+						isHit = true;
+						break;
+					} else if (hit.collider.tag.Equals("Mirror"))
                     {
                        // Debug.Log(bounceNum);
                         if (bounceNum == maxBounces)

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.Networking;
 
-public class PlayerControler : NetworkBehaviour {
+public class PlayerController : NetworkBehaviour {
 
 	[SerializeField] float shutDownDelay = 0.3f;
 	[SerializeField] float keyShutDownDelay = 0.1f;
@@ -182,7 +182,7 @@ public class PlayerControler : NetworkBehaviour {
 			if (direction.magnitude < 5) {
 				FireLaser ();
 				LaserShutOffTimer = Time.time + shutDownDelay;
-				Fire ();
+				ShowLaser();
 
 			} else {
 				
@@ -307,19 +307,20 @@ public class PlayerControler : NetworkBehaviour {
 		RaycastHit2D hit = Physics2D.Raycast (playerCamera.ScreenToWorldPoint (Input.mousePosition), Vector2.zero);
 
 		if (hit.collider != null) {
+			if (hit.collider.tag.Equals ("Mirror")) {
 
-			Debug.Log ("Raycast hit");
+				Debug.Log ("Raycast hit");
 
-			gameObjectToDrag = hit.collider.gameObject;
+				gameObjectToDrag = hit.collider.gameObject;
 
-			GOcenter = gameObjectToDrag.transform.position;
+				GOcenter = gameObjectToDrag.transform.position;
 
-			touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
+				touchPosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
-			offset = touchPosition - GOcenter;
+				offset = touchPosition - GOcenter;
 
-			draggingMode = true;
-
+				draggingMode = true;
+			}
 		}
 
 
@@ -339,7 +340,7 @@ public class PlayerControler : NetworkBehaviour {
 
 
 
-	void Fire(){
+	void ShowLaser(){
 		SetLaserEnabled(true);
 		CmdSetLaserEnabled(true);
 	}
