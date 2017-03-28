@@ -27,6 +27,8 @@ public class AimShooting : MonoBehaviour {
 
 	public bool draggingMode;
 
+	public bool inSinglePlayerMode = false;
+
 	// Use this for initialization
 	void Start () {
 
@@ -103,6 +105,16 @@ public class AimShooting : MonoBehaviour {
 
 					laser.SetPosition (ptNum, hit.point);
 					//isHit = true;
+					break;
+				} else if (hit.collider.tag.Equals ("Key")) {
+
+					laser.SetPosition (ptNum, hit.point);
+					//isHit = true;
+
+					if (inSinglePlayerMode) {
+						SingelPlayerController.instance.keyHit (hit.collider);
+					}
+
 					break;
 				} else if (hit.collider.tag.Equals ("Mirror")) {
 					// Debug.Log(bounceNum);
