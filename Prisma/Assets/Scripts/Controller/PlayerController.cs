@@ -212,11 +212,18 @@ public class PlayerController : NetworkBehaviour {
 		Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 		Vector3 playerPosition = gameObject.transform.position;
 		Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
-		Ray2D ray = new Ray2D (playerPosition, direction);
+
+
+
+		CmdFireLaser (mousePosition, playerPosition, gameObject);
+
+
+		/*Ray2D ray = new Ray2D (playerPosition, direction);
 		RaycastHit2D hit = Physics2D.Raycast (playerPosition, direction);
 
-		RotateSprite (direction);
 
+
+		//EmilMultiplayerController.instance.HandleHit();
 
 		laser.numPositions = 2;
 		int ptNum = 1;
@@ -278,12 +285,91 @@ public class PlayerController : NetworkBehaviour {
 
 
 
-		CmdSynchLaser (gameObject, laserPositions, laser.numPositions);
+		CmdSynchLaser (gameObject, laserPositions, laser.numPositions);*/
+
+	}
+
+	[Command]
+	void CmdFireLaser(Vector3 mousePosition, Vector3 playerPosition, GameObject player){
+
+		//Debug.Log ("Fire Laser!!");
+		Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
+
+		RpcRotateSprite (direction, player);
+		Ray2D ray = new Ray2D (playerPosition, direction);
+		RaycastHit2D hit = Physics2D.Raycast (playerPosition, direction);
+
+		LineRenderer playerLaser = player.GetComponentInChildren<LineRenderer> ();
+		
+		//EmilMultiplayerController.instance.HandleHit();
+
+		playerLaser.numPositions = 2;
+		int ptNum = 1;
+		int maxBounces = 16;
+		int bounceNum = 0;
+
+		//Verkar som att reflektionen kan fastna på samma spegel igen
+		//om man inte flyttar ut den lite från spegeln bör kanske 
+		//lösa detta på nåt bättre sätt men verkar fungera iallafall
+		float offsetReflection = 0.01f;
+		bool continueBouncing = true;
+		while (continueBouncing) {
+			if (hit.collider) {
+				if (hit.collider.tag.Equals ("Wall")) {
+
+					playerLaser.SetPosition (ptNum, hit.point);
+					//isHit = true;
+					break;
+				} else if (hit.collider.tag.Equals ("Mirror")) {
+					// Debug.Log(bounceNum);
+					if (bounceNum == maxBounces) {
+						playerLaser.SetPosition (ptNum, hit.point);
+						//isHit = true;
+						break;
+					}
+					playerLaser.SetPosition (ptNum, hit.point);
+					//isHit = true;
+
+					Vector3 origin = playerLaser.GetPosition (ptNum - 1);
+					Vector3 hitPoint = hit.point;
+					Vector3 incoming = hitPoint - origin;
+					Vector3 normal = new Vector3 (hit.normal.x, hit.normal.y, 0);
+					Vector3 reflected = Vector3.Reflect (incoming, hit.normal);
+
+					ray = new Ray2D (hitPoint, reflected);
+					hit = Physics2D.Raycast (hitPoint + offsetReflection * normal, reflected);
+					ptNum++;
+					playerLaser.numPositions++;
+					bounceNum++;
+				} else if (hit.collider.tag.Equals ("Key")) {
+					playerLaser.SetPosition (ptNum, hit.point);
+					KeyShutOffTimer = Time.time + keyShutDownDelay;
+					//hit.collider.gameObject.GetComponent<KeyScript> ().door.SetActive (false);
+					//CmdSetObjectEnabled(hit.collider.gameObject.GetComponent<KeyScript> ().door, false);
+					StartCoroutine(KeyIsHit(hit.collider.gameObject));
+					break;
+				}
+
+			} else {
+				playerLaser.SetPosition (ptNum, ray.GetPoint (100));
+				break;
+			}
+		}
+
+
+		//gets all the points of the laser
+		Vector3[] laserPositions = new Vector3[playerLaser.numPositions];
+		playerLaser.GetPositions (laserPositions);
+
+
+
+		RpcSynchLaser (gameObject, laserPositions, playerLaser.numPositions);
 
 	}
 
 	// Function used to rotate the player sprite depending on laser-angle
-	private void RotateSprite(Vector3 direction) {
+	[ClientRpc]
+	private void RpcRotateSprite(Vector3 direction, GameObject player) {
 
 
 		float angle = Vector2.Angle (Vector2.right, direction);
@@ -295,9 +381,11 @@ public class PlayerController : NetworkBehaviour {
 		//Debug.Log ("Rotation: " + (offsetAngle-angle*sign));
 		//Debug.Log ("Up/Down: " + diff.y);
 
-		transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
+		player.transform.rotation = Quaternion.Euler (0, 0, offsetAngle-angle*sign );
 
 	}
+
+
 
 	// Function for moving objects on the board
 	private void MoveObject(){
@@ -341,7 +429,7 @@ public class PlayerController : NetworkBehaviour {
 
 
 	void ShowLaser(){
-		SetLaserEnabled(true);
+		//SetLaserEnabled(true);
 		CmdSetLaserEnabled(true);
 	}
 
@@ -354,17 +442,22 @@ public class PlayerController : NetworkBehaviour {
 	}
 
 
-	IEnumerator KeyIsHit(GameObject door){
-		door.SetActive (false);
-		CmdSetObjectEnabled (door, false);
+	IEnumerator KeyIsHit(GameObject key){
+		GameObject door = key.GetComponent<KeyScript> ().door;
+		//door.SetActive (false);
+		//CmdSetObjectEnabled (door, false);
+		RpcSetObjectEnabled(door, false);
+		//Debug.Log(EmilMultiplayerController.instance.KeyIsHit (key, true));
 
 		//is this creating stackoverflow?
 		while(Time.time < KeyShutOffTimer)
 		{
 			yield return new WaitForSeconds(0.1f);
 		}
-		door.SetActive (true);
-		CmdSetObjectEnabled(door,true);
+		//door.SetActive (true);
+		//Debug.Log(EmilMultiplayerController.instance.KeyIsHit (key, false));
+		//CmdSetObjectEnabled(door,true);
+		RpcSetObjectEnabled (door, true);
 
 	}
 
@@ -394,6 +487,7 @@ public class PlayerController : NetworkBehaviour {
 	[Command]
 	void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos ){
 		RpcSynchLaser (player, laserPos, nrOfPos);
+
 	}
 
 
@@ -410,14 +504,14 @@ public class PlayerController : NetworkBehaviour {
 
 	[ClientRpc]
 	void RpcSetObjectEnabled(GameObject o, bool b){
-		if (isLocalPlayer) return;
+		//if (isLocalPlayer) return;
 		o.SetActive (b);
 	}
 
 
 	[ClientRpc]
 	void RpcSetLaserEnabled(bool b) {
-		if(isLocalPlayer) return;
+	//	if(isLocalPlayer) return;
 
 		SetLaserEnabled(b);
 	}
@@ -425,9 +519,9 @@ public class PlayerController : NetworkBehaviour {
 
 	[ClientRpc]
 	void RpcSynchLaser(GameObject player, Vector3[] laserPos,int nrOfPos){
-		if (isLocalPlayer) {
-			return;
-		}
+		//if (isLocalPlayer) {
+	//		return;
+//		}
 		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer> ();
 		activeLaser.numPositions = nrOfPos;
 		activeLaser.SetPositions (laserPos);

@@ -4,5 +4,11 @@ using UnityEngine;
 
 public class KeyScript : MonoBehaviour {
 
-	public GameObject door;		
+	public GameObject door;	
+
+	public bool unlocked;
+
+	void Start(){
+		unlocked = false;
+	}
 }
