@@ -291,10 +291,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	/* Action handler for button to start a 1-player game */
 	public void SingleGameButtonPressed() {
-
+		/*
 		SceneManager.LoadScene ("SingelPlayerLevel1");
 		gameObject.SetActive (false);
-
+		*/
+		minPlayers = 1;
+		playScene = "SP1";
+		StartHost ();
 	}
 
 	/* Action handler for back-button to previous panel*/
