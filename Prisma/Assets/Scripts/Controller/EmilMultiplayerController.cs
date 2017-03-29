@@ -26,11 +26,11 @@ public class EmilMultiplayerController : NetworkBehaviour {
 	void Update () {}
 
 
-	public bool KeyIsHit(GameObject theKey, bool keyIsHit){
+	public void KeyIsHit(GameObject theKey, bool keyIsHit){
 
 		// Safety first..
 		if (!theKey.CompareTag ("Key"))
-			return false;
+			return;
 
 		foreach (GameObject go in listOfKeys) {
 			if (go.Equals (theKey)) {
@@ -40,11 +40,11 @@ public class EmilMultiplayerController : NetworkBehaviour {
 		}
 
 
-		return GameFinished ();
+
 
 	}
 
-	private bool GameFinished(){
+	public bool GameFinished(){
 
 		foreach (GameObject go in listOfKeys) {
 			if (!go.GetComponent<KeyScript> ().unlocked)

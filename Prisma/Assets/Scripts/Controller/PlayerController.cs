@@ -31,9 +31,10 @@ public class PlayerController : NetworkBehaviour {
 	RaycastHit hit;
 
 
-
 	void Start(){
 	//	Debug.Log ("Startposition: " + gameObject.transform.position);
+
+			
 	}
 
 	public override void OnStartLocalPlayer ()
@@ -211,7 +212,7 @@ public class PlayerController : NetworkBehaviour {
 
 		Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 		Vector3 playerPosition = gameObject.transform.position;
-		Vector3 direction = new Vector3 (mousePosition.x-playerPosition.x, mousePosition.y-playerPosition.y, 0);
+	
 
 
 
@@ -447,7 +448,11 @@ public class PlayerController : NetworkBehaviour {
 		//door.SetActive (false);
 		//CmdSetObjectEnabled (door, false);
 		RpcSetObjectEnabled(door, false);
-		//Debug.Log(EmilMultiplayerController.instance.KeyIsHit (key, true));
+		EmilMultiplayerController.instance.KeyIsHit (key, true);
+
+		/*if(EmilMultiplayerController.instance.GameFinished()){
+			
+		}*/
 
 		//is this creating stackoverflow?
 		while(Time.time < KeyShutOffTimer)
