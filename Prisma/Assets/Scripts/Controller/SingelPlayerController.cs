@@ -8,8 +8,8 @@ public class SingelPlayerController : MonoBehaviour {
 	// A reference to our game control script so we can access it statically
 	public static SingelPlayerController instance;
 
-	// The gamepanel that contains all the game objects
-	public RectTransform gamePanel;
+	// The current game
+	public GameObject game;
 
 	// Pop-up menu when the player wins, also takes the player to the next level
 	public RectTransform winPanel;
@@ -51,7 +51,7 @@ public class SingelPlayerController : MonoBehaviour {
 		keyCount++;
 
 		if (keyCount == keyMaxCount) {
-			gamePanel.gameObject.SetActive (false);
+			game.SetActive (false);
 			winPanel.gameObject.SetActive (true);
 		}
 
@@ -59,24 +59,13 @@ public class SingelPlayerController : MonoBehaviour {
 
 	public void NextButtonPressed() {
 
-		switch (SceneManager.GetActiveScene().name) {
-			case "SingelPlayerLevel1":
-				SceneManager.LoadScene ("SingelPlayerLevel2");
-				break;
-			case "SingelPlayerLevel2":
-				SceneManager.LoadScene ("SingelPlayerLevel3");
-				break;
-			case "SingelPlayerLevel3":
-				BackButtonPressed ();
-				break;
-			}
+
 	}
 		
 	// Action handler for back-button to last scene
 	public void BackButtonPressed() {
 
-		SceneManager.LoadScene ("Lobby");
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		MyNetworkLobbyManager.singelton.resetFromSinglePlayer ();
 
 	}
 }
