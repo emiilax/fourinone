@@ -46,19 +46,14 @@ public class SingelPlayerController : MonoBehaviour {
 	}
 
 	public void keyHit(Collider2D key) {
-		
-		key.gameObject.SetActive (false);
-		keyCount++;
 
-		if (keyCount == keyMaxCount) {
-			game.SetActive (false);
-			winPanel.gameObject.SetActive (true);
-		}
+		// TO-DO
 
 	}
 
 	public void NextButtonPressed() {
 
+		// TO-DO
 
 	}
 		
