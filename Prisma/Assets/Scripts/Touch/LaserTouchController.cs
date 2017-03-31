@@ -23,7 +23,7 @@ public class LaserTouchController : AbstractTouchController {
         
         player.GetComponent<AimShootingMultiTouch>().SetLaserAim(touchPosition);//.SendMessage("FireLaser", touchPosition, SendMessageOptions.DontRequireReceiver);
         player.GetComponent<AimShootingMultiTouch>().SetLaserEnabled(true);
-        GUILog.Log("got aim shooting component");
+        
 
     }
 

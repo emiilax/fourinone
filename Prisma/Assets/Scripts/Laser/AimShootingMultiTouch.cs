@@ -335,8 +335,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     void Update()
     {
         if (!isLocalPlayer) { return;  }
-       // if (isServer) { //GUILog.Log("is server"); }
-       // if (isClient) { //GUILog.Log("is client"); }
         if (Input.GetButton ("Fire1")) {
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 			if (mousePhase == TouchPhase.Ended) {
@@ -465,7 +463,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [Command]
     public void CmdMoveRotate(GameObject GO, Vector3 pos, Quaternion rotation)
     {
-        GUILog.Log("sent command to server");
         RpcMoveRotate(GO, pos, rotation);
         //GUILog.Log("sent RPC sync");
         // RpcSyncTransform(GO, position, rotation);
@@ -548,7 +545,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	void RpcMoveRotate(GameObject GO, Vector3 pos, Quaternion rotation)
 	{
 		if (isLocalPlayer) return;
-		GUILog.Log("rpc recieved");
 		GO.transform.position = pos;
 		GO.transform.rotation = rotation;
 	}
