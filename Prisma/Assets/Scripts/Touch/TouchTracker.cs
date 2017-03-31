@@ -31,7 +31,7 @@ public class TouchTracker  {
             FindTappedObject(pos);
             return;
         }
-        gameObjectToDrag.GetComponent<ITouchController>().Move(pos, player);
+        gameObjectToDrag.GetComponent<AbstractTouchController>().Move(pos, player);
         //DrawDot();
     }
 
@@ -41,7 +41,7 @@ public class TouchTracker  {
         if (draggingMode)
         {
             //GUILog.Log("End");
-            gameObjectToDrag.GetComponent<ITouchController>().Release();
+            gameObjectToDrag.GetComponent<AbstractTouchController>().Release();
         }
        
     }
@@ -57,10 +57,10 @@ public class TouchTracker  {
             if (gameObjectToDrag.tag.Equals("TouchController") || gameObjectToDrag.tag.Equals("Mirror"))
             {
                 //GUILog.Log("tracker checking if selectable");
-                if (gameObjectToDrag.GetComponent<ITouchController>().Selectable())
+                if (gameObjectToDrag.GetComponent<AbstractTouchController>().Selectable())
                 {
                     //GUILog.Log("Tracker found object");
-                    gameObjectToDrag.GetComponent<ITouchController>().Begin(pos);
+                    gameObjectToDrag.GetComponent<AbstractTouchController>().Begin(pos);
                     draggingMode = true;
                 }
             }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LaserTouchController : ITouchController {
+public class LaserTouchController : AbstractTouchController {
 
     public GameObject player;
     // Update is called once per frame

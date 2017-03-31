@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 
-public abstract class ITouchController : MonoBehaviour{
+public abstract class AbstractTouchController : MonoBehaviour{
 
     public Color spriteColor = Color.white;
 

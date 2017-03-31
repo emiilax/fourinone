@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MirrorSideTouchController :  ITouchController {
+public class MirrorSideTouchController :  AbstractTouchController {
 
 
     public GameObject controlled; //Object being controlled by the controller

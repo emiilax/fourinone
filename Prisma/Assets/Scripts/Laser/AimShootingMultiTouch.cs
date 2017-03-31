@@ -5,16 +5,18 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 
-public class PlayerControllerMultiTouch : NetworkBehaviour
+public class AimShootingMultiTouch : NetworkBehaviour
 {
     [SerializeField]
     float shutDownDelay = 0.3f;
     [SerializeField]
     float keyShutDownDelay = 0.1f;
 
-    private LineRenderer laser;
+    LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
-    private Camera playerCam;
+    private LineRenderer laser;
+    
+	public bool isHit;
 
     private Vector3 offset;
 
@@ -22,11 +24,13 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     private Vector3 laserAim; //location aimed at with the laser
     private float offsetAngle;
 
-    private float assignedScreen;
 
     float LaserShutOffTimer;
     float KeyShutOffTimer;
     Camera playerCamera;
+
+    private float assignedScreen;
+
 
     public GameObject gameObjectToDrag;
 
@@ -42,14 +46,12 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
 
     private Dictionary<int, TouchTracker> touchMap; // For keeping track of TouchTrackers by there touchId
 
-    RaycastHit hit;
+   
 
-    // Use this for initialization
-    void Start() { }
+    void Start() { touchMap = new Dictionary<int, TouchTracker>(); }
 
     public override void OnStartLocalPlayer()
     {
-        GUILog.Log("starting local player");
         enabled = true;
 
         initPlayer();
@@ -83,10 +85,9 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
         //This aparantley is how you chose your active camera...
         playerCamera.enabled = false;
         playerCamera.enabled = true;
-
-        touchMap = new Dictionary<int, TouchTracker>();
-        GUILog.Log("done starting local player");
+        
     }
+
 
     public override void OnStartClient()
     {
@@ -104,7 +105,9 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     // Init all player stuff
     private void initPlayer()
     {
+
         Vector3 GOpos = gameObject.transform.position;
+
 
         // Calculate what screen you are to be assiged
         if (GOpos.x < 0)
@@ -119,6 +122,9 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
         FlipSprite();
 
         CalculateOffsetAngle();
+
+
+
     }
 
     // Flips the sprite depending in the assigned screen
@@ -141,8 +147,6 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
             sr.flipY = true;
         }
     }
-
-   
 
     // Calculate offset-angle depending on assigned screen
     private void CalculateOffsetAngle()
@@ -189,70 +193,46 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
 
     }
 
-    int updIdx = 0;
-    // Update is called once per frame
-    void Update()
+
+
+
+    public void SetLaserEnabled(bool enable)
     {
-
-        if (!isLocalPlayer)
-            return;
-        updIdx++;
-        GUILog.Log("update " + updIdx);
-        //if (laser.enabled)
-        //{
-        //    FireLaser(laserAim);
-        //}
-        var fingerCount = Input.touchCount;
-        for (int i = 0; i < fingerCount; i++)
-        {
-            GUILog.Log("checking finger " + i.ToString());
-            Touch touch = Input.GetTouch(i);
-            Vector3 position = Camera.main.ScreenToWorldPoint(touch.position);
-            if (!touchMap.ContainsKey(touch.fingerId))
-            {
-                touchMap[touch.fingerId] = new TouchTracker();
-            }
-            switch (touch.phase)
-            {
-                // Record initial touch position.
-                case TouchPhase.Began:
-                    touchMap[touch.fingerId].Begin(position);
-                    break;
-
-                // Determine direction by comparing the current touch position with the initial one.
-                case TouchPhase.Moved:
-                    touchMap[touch.fingerId].Move(position, gameObject);
-                    break;
-
-                // Report that a direction has been chosen when the finger is lifted.
-                case TouchPhase.Ended:
-                    touchMap[touch.fingerId].End();
-                    touchMap.Remove(touch.fingerId);
-                    break;
-            }
-            //Do whatever you want with the current touch.
-        }
-
-
+        laser.enabled = enable;
+        CmdSetLaserEnabled(enable);
     }
 
-    public void SetLaserEnabled(bool b)
-    {
-        GUILog.Log("set laser enabled");
-        laser.enabled = b;
+  
 
+    public void EnableLaser()
+    {
+        laser.enabled = true;
+    }
+    public void DisableLaser()
+    {
+        laser.enabled = false;
     }
 
+    public void SetLaserAim(Vector3 pos)
+    {
+        laserAim = pos;
+    }
 
-
+    public RaycastHit2D RayCastExcludingControllers(Vector3 pos, Vector3 direction)
+    {
+        
+        return Physics2D.Raycast(pos, direction, Mathf.Infinity, controllerLayerMask.value);
+    }
     // Method for firing the laser
-    public void FireLaser(Vector3 mousePosition)
+    private void FireLaser(Vector3 mousePosition)
     {
-        GUILog.Log("firing laser");
+
+
+        //Vector3 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector3 playerPosition = gameObject.transform.position;
         Vector3 direction = new Vector3(mousePosition.x - playerPosition.x, mousePosition.y - playerPosition.y, 0);
         Ray2D ray = new Ray2D(playerPosition, direction);
-        RaycastHit2D hit = Physics2D.Raycast(playerPosition, direction);
+        RaycastHit2D hit = RayCastExcludingControllers(playerPosition, direction);
 
         RotateSprite(direction);
 
@@ -297,7 +277,7 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
                     Vector3 reflected = Vector3.Reflect(incoming, hit.normal);
 
                     ray = new Ray2D(hitPoint, reflected);
-                    hit = Physics2D.Raycast(hitPoint + offsetReflection * normal, reflected);
+                    hit = RayCastExcludingControllers(hitPoint + offsetReflection * normal, reflected);
                     ptNum++;
                     laser.numPositions++;
                     bounceNum++;
@@ -306,8 +286,6 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
                 {
                     laser.SetPosition(ptNum, hit.point);
                     KeyShutOffTimer = Time.time + keyShutDownDelay;
-                    //hit.collider.gameObject.GetComponent<KeyScript> ().door.SetActive (false);
-                    //CmdSetObjectEnabled(hit.collider.gameObject.GetComponent<KeyScript> ().door, false);
                     StartCoroutine(KeyIsHit(hit.collider.gameObject.GetComponent<KeyScript>().door));
                     break;
                 }
@@ -324,9 +302,106 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
         //gets all the points of the laser
         Vector3[] laserPositions = new Vector3[laser.numPositions];
         laser.GetPositions(laserPositions);
+
+
+
         CmdSynchLaser(gameObject, laserPositions, laser.numPositions);
 
     }
+
+
+    // Function used to rotate the player sprite depending on laser-angle
+    private void RotateSprite(Vector3 direction)
+    {
+
+
+        float angle = Vector2.Angle(Vector2.right, direction);
+        Debug.Log("Accual angle: " + angle);
+
+        Vector3 diff = Vector3.right - direction;
+        float sign = (diff.y < 0) ? -1.0f : 1.0f;
+
+        Debug.Log("Rotation: " + (offsetAngle - angle * sign));
+        Debug.Log("Up/Down: " + diff.y);
+
+        transform.rotation = Quaternion.Euler(0, 0, offsetAngle - angle * sign);
+
+    }
+
+	TouchPhase mousePhase = TouchPhase.Ended;
+	private int mouseFingerId = 999; // Will work as long as there are less than 999 fingers on the iPad simultaneously
+	Vector3 lastMousePosition;
+    // Update is called once per frame
+    void Update()
+    {
+        if (!isLocalPlayer) { return;  }
+       // if (isServer) { //GUILog.Log("is server"); }
+       // if (isClient) { //GUILog.Log("is client"); }
+        if (Input.GetButton ("Fire1")) {
+			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
+			if (mousePhase == TouchPhase.Ended) {
+				//GUILog.Log ("began");
+				mousePhase = TouchPhase.Began;
+				lastMousePosition = mousePosition;
+			} else if (mousePhase == TouchPhase.Began) {
+				
+				if (lastMousePosition != mousePosition) {
+					//GUILog.Log ("moved");
+					mousePhase = TouchPhase.Moved;
+					lastMousePosition = mousePosition;
+				}
+			}
+			UpdateTouchMap (mousePosition, mousePhase, mouseFingerId);
+            //CmdUpdateTouchMap(mousePosition, mousePhase, mouseFingerId);
+        } else if (Input.GetMouseButtonUp(0)){
+			//GUILog.Log ("ended");
+			mousePhase = TouchPhase.Ended;
+			UpdateTouchMap (Vector3.zero, mousePhase, mouseFingerId);
+            //CmdUpdateTouchMap(Vector3.zero, mousePhase, mouseFingerId);
+        }
+
+        if (laser.enabled)
+        {
+            FireLaser(laserAim);
+        }
+        var fingerCount = Input.touchCount;
+        for (int i = 0; i < fingerCount; i++)
+        {
+            Touch touch = Input.GetTouch(i);
+            Vector3 position = playerCamera.ScreenToWorldPoint(touch.position);
+			UpdateTouchMap (position, touch.phase, touch.fingerId);
+		}
+
+    }
+
+	private void UpdateTouchMap(Vector3 position, TouchPhase phase, int fingerId){
+			
+		if (!touchMap.ContainsKey(fingerId))
+		{
+			touchMap[fingerId] = new TouchTracker();
+		}
+		switch (phase)
+		{
+		// Record initial touch position.
+		case TouchPhase.Began:
+			touchMap[fingerId].Begin(position);
+			break;
+
+			// Determine direction by comparing the current touch position with the initial one.
+		case TouchPhase.Moved:
+			touchMap[fingerId].Move(position, gameObject);
+			break;
+
+			// Report that a direction has been chosen when the finger is lifted.
+		case TouchPhase.Ended:
+			touchMap[fingerId].End();
+			touchMap.Remove(fingerId);
+			break;
+		}
+		//Do whatever you want with the current touch.
+		
+	}
+
 
     // Function to move objects 
     private void MoveObject()
@@ -365,39 +440,10 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
             newGOcenter = touchPosition - offset;
 
             gameObjectToDrag.transform.position = newGOcenter;
-            CmdMoveObject(gameObjectToDrag, newGOcenter);
+
         }
 
     }
-
-
-
-    public void SetLaserAim(Vector3 pos)
-    {
-        laserAim = pos;
-    }
-
-
-    // Function used to rotate the player sprite depending on laser-angle
-    private void RotateSprite(Vector3 direction)
-    {
-
-
-        float angle = Vector2.Angle(Vector2.right, direction);
-        Debug.Log("Accual angle: " + angle);
-
-        Vector3 diff = Vector3.right - direction;
-        float sign = (diff.y < 0) ? -1.0f : 1.0f;
-
-        Debug.Log("Rotation: " + (offsetAngle - angle * sign));
-        Debug.Log("Up/Down: " + diff.y);
-
-        transform.rotation = Quaternion.Euler(0, 0, offsetAngle - angle * sign);
-
-    }
-
-
-
 
     IEnumerator KeyIsHit(GameObject door)
     {
@@ -416,13 +462,20 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
 
 
     /* ---- Command calls -----*/
+    [Command]
+    public void CmdMoveRotate(GameObject GO, Vector3 pos, Quaternion rotation)
+    {
+        GUILog.Log("sent command to server");
+        RpcMoveRotate(GO, pos, rotation);
+        //GUILog.Log("sent RPC sync");
+        // RpcSyncTransform(GO, position, rotation);
+    }
 
 
     // Tells Server to enable or disable laser on clients
     [Command]
     void CmdSetLaserEnabled(bool b)
     {
-        GUILog.Log("sent");
         RpcSetLaserEnabled(b);
     }
 
@@ -430,14 +483,13 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     [Command]
     void CmdSetObjectEnabled(GameObject o, bool b)
     {
-        GUILog.Log("sent");
         RpcSetObjectEnabled(o, b);
     }
     // Tells Server to move a object
     [Command]
     void CmdMoveObject(GameObject GO, Vector3 newpos)
     {
-        GUILog.Log("sent");
+        ////GUILog.Log("sent RPC move");
         RpcMoveObject(GO, newpos);
     }
 
@@ -446,7 +498,6 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     [Command]
     void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos)
     {
-        GUILog.Log("sent sync laser");
         RpcSynchLaser(player, laserPos, nrOfPos);
     }
 
@@ -456,10 +507,10 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     [ClientRpc]
     void RpcMoveObject(GameObject GO, Vector3 newpos)
     {
+        ////GUILog.Log("recieved RPC move");
         if (isLocalPlayer)
             return;
-        GUILog.Log("recieved");
-
+        //GUILog.Log("recieved RPC move and not local player");
         GO.transform.position = newpos;
     }
 
@@ -467,7 +518,6 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     void RpcSetObjectEnabled(GameObject o, bool b)
     {
         if (isLocalPlayer) return;
-        GUILog.Log("recieved");
         o.SetActive(b);
     }
 
@@ -476,25 +526,34 @@ public class PlayerControllerMultiTouch : NetworkBehaviour
     void RpcSetLaserEnabled(bool b)
     {
         if (isLocalPlayer) return;
-        GUILog.Log("recieved");
-        SetLaserEnabled(b);
+
+        laser.enabled = b;
     }
 
 
     [ClientRpc]
     void RpcSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos)
     {
-        
         if (isLocalPlayer)
         {
             return;
         }
-        GUILog.Log("recieved");
         LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer>();
         activeLaser.numPositions = nrOfPos;
         activeLaser.SetPositions(laserPos);
 
     }
 
+	[ClientRpc]
+	void RpcMoveRotate(GameObject GO, Vector3 pos, Quaternion rotation)
+	{
+		if (isLocalPlayer) return;
+		GUILog.Log("rpc recieved");
+		GO.transform.position = pos;
+		GO.transform.rotation = rotation;
+	}
+
 }
-	
+
+
+

@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class MirrorTouchController :  ITouchController
+public class MirrorTouchController :  AbstractTouchController
 {
 
 
-    public float distFromCenter = 2.35f;
+    public float distFromCenter;
     public GameObject ctrlLeft;
     public GameObject ctrlRight;
     protected bool beingDragged = false;
-    bool abortFadeOut = false;
-    IEnumerator fadeEnumerator;
-    public float fadeInTime = 0.2f;
+    protected bool abortFadeOut = false;
+    protected IEnumerator fadeEnumerator;
     public float fadeOutTime = 1.5f;
 
     public Sprite selectionSprite;
@@ -23,7 +22,7 @@ public class MirrorTouchController :  ITouchController
     // Use this for initialization
      void Start() {
         selectionIndicator = new TouchSelectionIndicator(selectionSprite, gameObject);
-        fadeEnumerator = FadeIn();
+		fadeEnumerator = FadeOut ();
         SetControllerAlpha(0.0f);
         ResetControllerPositions();
 
@@ -158,24 +157,7 @@ public class MirrorTouchController :  ITouchController
 
         
     }
-
-    public IEnumerator FadeIn()
-    {
-        abortFadeOut = true;
-        float fade = 0f;
-        float startTime = Time.time;
-        while (fade < 1f)
-        {
-            //GUILog.Log("Fading in");
-            fade = Mathf.Lerp(0f, 1f, (Time.time - startTime) / fadeInTime);
-            //spriteColor.a = fade;
-            //ctrlRight.GetComponent<SpriteRenderer>().color = spriteColor;
-            // sprite.color = spriteColor;
-            SetControllerAlpha(fade);
-            yield return null;
-        }
-        fade = 1.0f;
-    }
+		
 
     public IEnumerator FadeOut()
     {
@@ -184,7 +166,7 @@ public class MirrorTouchController :  ITouchController
         while (fade > 0.0f)
         {
             //if (abortFadeOut) { abortFadeOut = false;  break; }
-            fade = Mathf.Lerp(1f, 0f, (Time.time - startTime) / fadeInTime);
+            fade = Mathf.Lerp(1f, 0f, (Time.time - startTime) / fadeOutTime);
             //spriteColor.a = fade;
             //ctrlRight.GetComponent<SpriteRenderer>().color = spriteColor;
             SetControllerAlpha(fade);
