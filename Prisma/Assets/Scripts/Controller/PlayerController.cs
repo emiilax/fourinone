@@ -448,7 +448,7 @@ public class PlayerController : NetworkBehaviour {
 		//door.SetActive (false);
 		//CmdSetObjectEnabled (door, false);
 		RpcSetObjectEnabled(door, false);
-		EmilMultiplayerController.instance.KeyIsHit (key, true);
+		GameController.instance.KeyIsHit (key, true);
 
 		/*if(EmilMultiplayerController.instance.GameFinished()){
 			

@@ -39,23 +39,36 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private MyNetworkLobbyManager(){}
 
+	private int defaultMinPlayer;
+
+	// Initialization of the singelton
+	void Awake() {
+		//If we don't currently have a game control...
+		if (singelton == null)
+			//...set this one to be it...
+			singelton = this;
+		//...otherwise...
+		else if(singelton != this)
+			//...destroy this one because it is a duplicate.
+			Destroy (gameObject);
+	}
+
 	// Use this for initialization
 	void Start () {
 
 		playerSpawnPositions = new Vector3 [4];
 
-		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
-		playerSpawnPositions[1] = (new Vector3 (30.5f, 22f, 0f));
-		playerSpawnPositions[2] = (new Vector3 (-30.5f, -22f, 0f));
-		playerSpawnPositions[3] = (new Vector3 (30.5f, -22f, 0f));
-
-
-		singelton = this;
+		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, -1f));
+		playerSpawnPositions[1] = (new Vector3 (30.5f, 22f, -1f));
+		playerSpawnPositions[2] = (new Vector3 (-30.5f, -22f, -1f));
+		playerSpawnPositions[3] = (new Vector3 (30.5f, -22f, -1f));
 
 		mainMenuPanel.gameObject.SetActive (true);
 		lobbySelectionPanel.gameObject.SetActive (false);
 
 		currentPanel = mainMenuPanel;
+
+		defaultMinPlayer = minPlayers;
 
 		DontDestroyOnLoad(gameObject);
 
@@ -291,13 +304,26 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	/* Action handler for button to start a 1-player game */
 	public void SingleGameButtonPressed() {
-		/*
-		SceneManager.LoadScene ("SingelPlayerLevel1");
-		gameObject.SetActive (false);
-		*/
 		minPlayers = 1;
-		playScene = "SP1";
+		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
+		playScene = "SinglePlayerLevel1";
+
+		gameObject.SetActive (false);
 		StartHost ();
+	}
+
+	/* Set the value back to the original value for multiplayer */ 
+	public void resetFromSinglePlayer() {
+		minPlayers = defaultMinPlayer;
+		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
+		playScene = "MoveObjectsOnline";
+
+		gameObject.SetActive (true);
+		StopHost();
+
+		waitingForPlayersScreen.CancelButtonClicked ();
+		ChangePanel (mainMenuPanel);
+
 	}
 
 	/* Action handler for back-button to previous panel*/

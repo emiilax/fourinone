@@ -23,7 +23,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (!isServer)
 			return;
 		// If the player has run out of health...
-		if(EmilMultiplayerController.instance.GameFinished())
+		if(GameController.instance.GameFinished())
 		{
 			// ... tell the animator the game is over.
 			//anim.SetTrigger ("LevelComplete");
