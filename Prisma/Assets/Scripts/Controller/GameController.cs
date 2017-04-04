@@ -14,7 +14,7 @@ public class GameController : NetworkBehaviour {
 	void Start () {
 		
 		instance = this;
-		Debug.Log ("IsServer: " + isServer);
+		//Debug.Log ("IsServer: " + isServer);
 		listOfKeys = GameObject.FindGameObjectsWithTag("Key");
 		Debug.Log ("NbrOfKeys: " + listOfKeys.Length);
 

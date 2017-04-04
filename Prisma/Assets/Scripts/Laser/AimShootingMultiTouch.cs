@@ -12,6 +12,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [SerializeField]
     float keyShutDownDelay = 0.1f;
 
+	public GameObject aimingCircle;
+
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
     private LineRenderer laser;
@@ -94,8 +96,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
         laser = gameObject.GetComponentInChildren<LineRenderer>();
         laser.sortingLayerName = "Midground";
 
-        Debug.Log(gameObject.transform.position + "playerposition");
-        Debug.Log(laser.transform.position + "laserposition");
+//        Debug.Log(gameObject.transform.position + "playerposition");
+//        Debug.Log(laser.transform.position + "laserposition");
         laser.SetPosition(0, laser.transform.position);
 
         laser.enabled = false;
@@ -124,6 +126,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
         CalculateOffsetAngle();
 
 
+		aimingCircle.transform.position = GOpos;
+		Instantiate (aimingCircle);
 
     }
 
