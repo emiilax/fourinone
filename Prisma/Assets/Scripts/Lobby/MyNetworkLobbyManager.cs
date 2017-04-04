@@ -302,18 +302,28 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
-	/* Action handler for button to start a 1-player game */
+	/* Action handler for button to go to the level selector for single player */
 	public void SingleGameButtonPressed() {
+
 		minPlayers = 1;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
-		playScene = "SinglePlayerLevel1";
+		playScene = "LevelSelector";
 
 		gameObject.SetActive (false);
 		StartHost ();
+
+	}
+
+	/* Setup the values for 1-player game and starts it */
+	public void startSinglePlayer(string sceneName) {
+		
+		SceneManager.LoadScene (sceneName);
+
 	}
 
 	/* Set the value back to the original value for multiplayer */ 
 	public void resetFromSinglePlayer() {
+		
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
 		playScene = "MoveObjectsOnline";
