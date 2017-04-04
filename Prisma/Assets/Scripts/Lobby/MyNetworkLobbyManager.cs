@@ -222,11 +222,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		gameObject.SetActive (false);
 
 	}
-	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
-	{
-		//Debug.Log ("Connectionid: " + conn.connectionId);
-		base.OnServerAddPlayer (conn, playerControllerId);
-	}
+
+
 
 	public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId){
 
@@ -254,7 +251,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		base.OnLobbyServerDisconnect (conn);
 		Debug.Log ("Server disconnect");
 
-		ChangePanel (lobbySelectionPanel);
+		//ChangePanel (lobbySelectionPanel);
 
 		gameObject.SetActive (true);
 

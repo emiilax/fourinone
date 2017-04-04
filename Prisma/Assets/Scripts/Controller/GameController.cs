@@ -10,15 +10,24 @@ public class GameController : NetworkBehaviour {
 
 	private GameObject[] listOfKeys;
 
+	void Awake() {
+		//If we don't currently have a game control...
+		if (instance == null)
+			//...set this one to be it...
+			instance = this;
+		//...otherwise...
+		else if(instance != this)
+			//...destroy this one because it is a duplicate.
+			Destroy (gameObject);
+	}
+
 	// Use this for initialization
 	void Start () {
 		
 		instance = this;
-		//Debug.Log ("IsServer: " + isServer);
+
 		listOfKeys = GameObject.FindGameObjectsWithTag("Key");
 		Debug.Log ("NbrOfKeys: " + listOfKeys.Length);
-
-
 
 	}
 	
@@ -36,11 +45,7 @@ public class GameController : NetworkBehaviour {
 			if (go.Equals (theKey)) {
 				go.GetComponent<KeyScript> ().unlocked = keyIsHit;
 			}
-				
 		}
-
-
-
 
 	}
 
@@ -52,6 +57,14 @@ public class GameController : NetworkBehaviour {
 		}
 
 		return true;
+
+	}
+		
+	// Action handler for back-button for singlePlayer to last scene.
+	public void SinglePlayerBackButtonPressed() {
+
+		// Resets the default values for multiplayer and change back to lobby scene.
+		MyNetworkLobbyManager.singelton.resetFromSinglePlayer ();
 
 	}
 

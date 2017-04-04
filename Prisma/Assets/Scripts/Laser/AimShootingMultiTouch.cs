@@ -75,7 +75,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
             {
                 offset = cam.gameObject.transform.position - gameObject.transform.position;
                 float camDist = offset.sqrMagnitude;
-                Debug.Log(camDist - dist);
+//                Debug.Log(camDist - dist);
                 if (camDist < dist)
                 {
                     dist = camDist;
@@ -593,7 +593,16 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		GO.transform.rotation = rotation;
 	}
 
+
+	void OnApplicationQuit(){
+		// Must make NetworkLobbyManager active to make it destroy match
+		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		MyNetworkLobbyManager.singelton.QuitGame ();
+
+	}
+
 }
+
 
 
 

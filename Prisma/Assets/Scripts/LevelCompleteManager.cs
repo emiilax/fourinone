@@ -25,20 +25,9 @@ public class LevelCompleteManager : NetworkBehaviour {
 		// If the player has run out of health...
 		if(GameController.instance.GameFinished())
 		{
-			// ... tell the animator the game is over.
-			//anim.SetTrigger ("LevelComplete");
-
-			// .. increment a timer to count up to restarting.
-			//restartTimer += Time.deltaTime;
 
 			RpcShowAnimation ();
 
-			// .. if it reaches the restart delay...
-			/*if(restartTimer >= restartDelay)
-			{
-				// .. then reload the currently loaded level.
-				Application.LoadLevel(Application.loadedLevel);
-			}*/
 		}
 	}
 
@@ -52,7 +41,12 @@ public class LevelCompleteManager : NetworkBehaviour {
 	}
 
 
-
+	public void ButtonBackToLobby(){
+		
+		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		MyNetworkLobbyManager.singelton.CancelConnection ();
+	
+	}
 }
 
 

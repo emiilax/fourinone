@@ -111,10 +111,6 @@ public class AimShooting : MonoBehaviour {
 					laser.SetPosition (ptNum, hit.point);
 					//isHit = true;
 
-					if (inSinglePlayerMode) {
-						SingelPlayerController.instance.keyHit (hit.collider);
-					}
-
 					break;
 				} else if (hit.collider.tag.Equals ("Mirror")) {
 					// Debug.Log(bounceNum);
