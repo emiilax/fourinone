@@ -7,7 +7,7 @@ public class TouchSelectionIndicator  {
     private GameObject selectedRendererObject;
 
     public TouchSelectionIndicator (Sprite selectedSprite, GameObject gameObject) {
-        Debug.Log("created renderer");
+       // Debug.Log("created renderer");
         selectedRendererObject = new GameObject("selected renderer");
         selectedRendererObject.transform.position = gameObject.transform.position;
         selectedRendererObject.transform.rotation = gameObject.transform.rotation;
@@ -22,7 +22,7 @@ public class TouchSelectionIndicator  {
 
     public void ShowSelected()
     {
-        GUILog.Log("show selected");
+      //  GUILog.Log("show selected");
         selectedRenderer.enabled = true;
     }
 

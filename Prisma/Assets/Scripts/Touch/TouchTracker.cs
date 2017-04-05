@@ -52,7 +52,7 @@ public class TouchTracker  {
         //GUILog.Log("casting ray");
         if (hit.collider != null)
         {
-            Debug.Log("Raycast hit");
+           // Debug.Log("Raycast hit");
             gameObjectToDrag = hit.collider.gameObject;
             if (gameObjectToDrag.tag.Equals("TouchController") || gameObjectToDrag.tag.Equals("Mirror"))
             {
