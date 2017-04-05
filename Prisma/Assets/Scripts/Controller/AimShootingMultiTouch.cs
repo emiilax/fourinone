@@ -52,43 +52,56 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
     void Start() { touchMap = new Dictionary<int, TouchTracker>(); }
 
+
     public override void OnStartLocalPlayer()
     {
         enabled = true;
 
         initPlayer();
 
+		Debug.Log ("here?");
 
         //Debug.Log ("Assigned Screen: " + assignedScreen);
-
-        // This sets playercamera as the camera closest to your spawnposition.
-        float dist;
-        Vector3 offset;
-        Camera[] cameras = new Camera[Camera.allCamerasCount];
-        Camera.GetAllCameras(cameras);
-        offset = cameras[0].gameObject.transform.position - gameObject.transform.position;
-        dist = offset.sqrMagnitude;
-        playerCamera = cameras[0];
-        foreach (Camera cam in cameras)
-        {
-            if (cam != null)
-            {
-                offset = cam.gameObject.transform.position - gameObject.transform.position;
-                float camDist = offset.sqrMagnitude;
-//                Debug.Log(camDist - dist);
-                if (camDist < dist)
-                {
-                    dist = camDist;
-                    playerCamera = cam;
-                }
-            }
-        }
+		SetCamera();
 
         //This aparantley is how you chose your active camera...
         playerCamera.enabled = false;
         playerCamera.enabled = true;
+
         
     }
+
+	// This sets playercamera as the camera closest to your spawnposition.
+	private void SetCamera(){
+		float dist;
+		Vector3 offset;
+		Camera[] cameras = new Camera[Camera.allCamerasCount];
+		Camera.GetAllCameras(cameras);
+		offset = cameras[0].gameObject.transform.position - gameObject.transform.position;
+		dist = offset.sqrMagnitude;
+		playerCamera = cameras[0];
+		foreach (Camera cam in cameras)
+		{
+			if (cam != null)
+			{
+				offset = cam.gameObject.transform.position - gameObject.transform.position;
+				float camDist = offset.sqrMagnitude;
+				Debug.Log("CAMDIST" + (camDist - dist));
+				if (camDist < dist)
+				{
+					dist = camDist;
+					playerCamera = cam;
+				}
+			}
+		}
+
+		//This aparantley is how you chose your active camera...
+		Debug.Log("Camera: " + playerCamera.ToString());
+		playerCamera.enabled = false;
+		playerCamera.enabled = true;
+
+	}
+
 
 
     public override void OnStartClient()
@@ -107,6 +120,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Init all player stuff
     private void initPlayer()
     {
+	//	Debug.Log ("BANANA");
+		DontDestroyOnLoad (gameObject);
 
         Vector3 GOpos = gameObject.transform.position;
 
@@ -358,12 +373,15 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isLocalPlayer) 
-			return; 
 
-
-
-		if (Input.GetButton ("Fire1")) {
+		if (!isLocalPlayer) { return;  }
+		if (playerCamera == null) {
+			Debug.Log ("NO CAMERA WTF");
+			SetCamera ();
+		}
+		//Debug.Log ("SPAM");
+        if (Input.GetButton ("Fire1")) {
+			
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
 			if (mousePhase == TouchPhase.Ended) {
@@ -384,7 +402,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		} else if (Input.GetMouseButtonUp(0)){
 
-			Debug.Log ("inhere");
+
 			mousePhase = TouchPhase.Ended;
 
 			UpdateTouchMap (Vector3.zero, mousePhase, mouseFingerId);
