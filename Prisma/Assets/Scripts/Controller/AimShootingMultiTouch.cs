@@ -121,7 +121,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     private void initPlayer()
     {
 	//	Debug.Log ("BANANA");
-		DontDestroyOnLoad (gameObject);
 
         Vector3 GOpos = gameObject.transform.position;
 
@@ -143,6 +142,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		aimingCircle.transform.position = GOpos;
 		Instantiate (aimingCircle);
+		DontDestroyOnLoad (gameObject);
 
     }
 

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
-public class LevelSelectorController : MonoBehaviour {
+public class LevelSelectorController : NetworkBehaviour {
 
 	public static LevelSelectorController instance;
 
@@ -22,8 +23,14 @@ public class LevelSelectorController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
-		this.gameMode = "SinglePlayer";
+		if(SceneManager.GetActiveScene ().name.Equals("LevelSelectorMP")){
+			this.gameMode = "MultiPlayer";
+		}else if(SceneManager.GetActiveScene ().name.Equals("LevelSelectorSP")){
+			this.gameMode = "SinglePlayer";
+		}else{
+			Debug.Log("Forgot to set levelselectors in LevelSelectController");
+			this.gameMode = null;
+		}
 		
 	}
 	
@@ -36,10 +43,12 @@ public class LevelSelectorController : MonoBehaviour {
 
 		if (gameMode == "SinglePlayer") {
 
-			MyNetworkLobbyManager.singelton.startSinglePlayer (sceneName);
+			MyNetworkLobbyManager.singelton.StartSinglePlayer (sceneName);
 			
 		} else if (gameMode == "MultiPlayer") {
-			
+			if (isServer) {
+				MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
+			}
 		}
 		
 	}
@@ -48,7 +57,7 @@ public class LevelSelectorController : MonoBehaviour {
 	public void SinglePlayerBackButtonPressed() {
 
 		// Resets the default values for multiplayer and change back to lobby scene.
-		MyNetworkLobbyManager.singelton.resetFromSinglePlayer ();
+		MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
 
 	}
 
