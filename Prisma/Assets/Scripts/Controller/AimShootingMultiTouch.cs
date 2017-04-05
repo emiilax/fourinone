@@ -64,35 +64,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
         //Debug.Log ("Assigned Screen: " + assignedScreen);
 		SetCamera();
 
-<<<<<<< HEAD:Prisma/Assets/Scripts/Controller/AimShootingMultiTouch.cs
-        // This sets playercamera as the camera closest to your spawnposition.
-        float dist;
-        Vector3 offset;
-        Camera[] cameras = new Camera[Camera.allCamerasCount];
-        Camera.GetAllCameras(cameras);
-        offset = cameras[0].gameObject.transform.position - gameObject.transform.position;
-        dist = offset.sqrMagnitude;
-        playerCamera = cameras[0];
-        foreach (Camera cam in cameras)
-        {
-            if (cam != null)
-            {
-                offset = cam.gameObject.transform.position - gameObject.transform.position;
-                float camDist = offset.sqrMagnitude;
-//                Debug.Log(camDist - dist);
-                if (camDist < dist)
-                {
-                    dist = camDist;
-                    playerCamera = cam;
-                }
-            }
-        }
-
         //This aparantley is how you chose your active camera...
         playerCamera.enabled = false;
         playerCamera.enabled = true;
-=======
->>>>>>> levelSelector:Prisma/Assets/Scripts/Laser/AimShootingMultiTouch.cs
+
         
     }
 
