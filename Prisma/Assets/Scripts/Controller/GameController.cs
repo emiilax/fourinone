@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class GameController : NetworkBehaviour {
 
@@ -63,8 +64,7 @@ public class GameController : NetworkBehaviour {
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
 
-		// Resets the default values for multiplayer and change back to lobby scene.
-		MyNetworkLobbyManager.singelton.resetFromSinglePlayer ();
+		SceneManager.LoadScene ("LevelSelector");
 
 	}
 

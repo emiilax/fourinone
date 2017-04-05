@@ -41,6 +41,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private int defaultMinPlayer;
 
+	private int playerid;
+
 	// Initialization of the singelton
 	void Awake() {
 		//If we don't currently have a game control...
@@ -227,9 +229,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId){
 
-		int index = conn.connectionId;
+		playerid = conn.connectionId;
 
-		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[index], Quaternion.identity);
+		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[playerid], Quaternion.identity);
 
 		return player;
 	}
@@ -299,18 +301,29 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	}
 
-	/* Action handler for button to start a 1-player game */
+	/* Action handler for button to go to the level selector for single player */
 	public void SingleGameButtonPressed() {
+
 		minPlayers = 1;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
-		playScene = "SinglePlayerLevel1";
+		playScene = "LevelSelector";
 
 		gameObject.SetActive (false);
 		StartHost ();
+
+	}
+
+	/* Setup the values for 1-player game and starts it */
+	public void startSinglePlayer(string sceneName) {
+
+		ServerChangeScene(sceneName);
+		//SceneManager.LoadScene (sceneName);
+
 	}
 
 	/* Set the value back to the original value for multiplayer */ 
 	public void resetFromSinglePlayer() {
+		
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
 		playScene = "MoveObjectsOnline";
