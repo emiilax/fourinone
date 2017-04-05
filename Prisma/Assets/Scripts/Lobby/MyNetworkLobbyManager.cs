@@ -41,6 +41,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private int defaultMinPlayer;
 
+	private int playerid;
+
 	// Initialization of the singelton
 	void Awake() {
 		//If we don't currently have a game control...
@@ -230,9 +232,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId){
 
-		int index = conn.connectionId;
+		playerid = conn.connectionId;
 
-		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[index], Quaternion.identity);
+		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[playerid], Quaternion.identity);
 
 		return player;
 	}
@@ -316,8 +318,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	/* Setup the values for 1-player game and starts it */
 	public void startSinglePlayer(string sceneName) {
-		
-		SceneManager.LoadScene (sceneName);
+
+		ServerChangeScene(sceneName);
+		//SceneManager.LoadScene (sceneName);
 
 	}
 
