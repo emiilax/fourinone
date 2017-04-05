@@ -306,7 +306,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		minPlayers = 1;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
-		playScene = "LevelSelector";
+		playScene = "LevelSelectorSP";
 
 		gameObject.SetActive (false);
 		StartHost ();
@@ -314,7 +314,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 	/* Setup the values for 1-player game and starts it */
-	public void startSinglePlayer(string sceneName) {
+	public void StartSinglePlayer(string sceneName) {
 
 		ServerChangeScene(sceneName);
 		//SceneManager.LoadScene (sceneName);
@@ -322,11 +322,11 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 	/* Set the value back to the original value for multiplayer */ 
-	public void resetFromSinglePlayer() {
+	public void ResetFromSinglePlayer() {
 		
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
-		playScene = "MoveObjectsOnline";
+		playScene = "LevelSelectorMP";
 
 		gameObject.SetActive (true);
 		StopHost();

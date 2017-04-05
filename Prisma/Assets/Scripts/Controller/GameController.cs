@@ -25,8 +25,7 @@ public class GameController : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 		
-		instance = this;
-
+		Debug.Log ("IsServer: " + isServer);
 		listOfKeys = GameObject.FindGameObjectsWithTag("Key");
 		Debug.Log ("NbrOfKeys: " + listOfKeys.Length);
 
@@ -63,9 +62,7 @@ public class GameController : NetworkBehaviour {
 		
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
-
-		SceneManager.LoadScene ("LevelSelector");
-
+		NetworkManager.singleton.ServerChangeScene ("LevelSelectorSp");
 	}
 
 }
