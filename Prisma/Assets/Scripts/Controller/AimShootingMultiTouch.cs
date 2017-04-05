@@ -50,7 +50,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
    
 
-    void Start() { touchMap = new Dictionary<int, TouchTracker>(); }
+	void Start() { touchMap = new Dictionary<int, TouchTracker>();DontDestroyOnLoad (gameObject);}
 
 
     public override void OnStartLocalPlayer()
@@ -114,7 +114,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
         laser.SetPosition(0, laser.transform.position);
 
         laser.enabled = false;
-        enabled = false;
+        //enabled = false; <-- Was there any purpose for this?
     }
 
     // Init all player stuff
@@ -142,7 +142,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		aimingCircle.transform.position = GOpos;
 		Instantiate (aimingCircle);
-		DontDestroyOnLoad (gameObject);
 
     }
 
