@@ -8,9 +8,15 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	public static LevelSelectorController instance;
 
+	// The standard UI
+	public GameObject levelMenu;
+
 	// The different panels of the different game modes.
 	public GameObject singlePlayerPanel;
 	public GameObject multiPlayerPanel;
+
+	// The panel for the clients that are not the server
+	public GameObject clientPanel;
 
 	// The current gamemode. SinglePlayer or MultiPlayer.
 	public string gameMode;
@@ -38,10 +44,17 @@ public class LevelSelectorController : NetworkBehaviour {
 
 		} else if (gameMode == "MultiPlayer") {
 
-			multiPlayerPanel.SetActive (true);
+			if (isServer) {
+				multiPlayerPanel.SetActive (true);
+			} else {
+				clientPanel.SetActive (true);
+				levelMenu.SetActive (false);
+				multiPlayerPanel.SetActive (false);
+			}
+
 			singlePlayerPanel.SetActive (false);
 
-		}
+		} 
 
 	}
 	
