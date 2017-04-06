@@ -52,7 +52,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (!isServer)
 			return;
 
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.CancelConnection ();
 	
 	}
@@ -60,7 +60,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	public void ButtonNextLevel(){
 		if (!isServer)
 			return;
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 	}
 
@@ -69,7 +69,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (!isServer)
 			return;
 
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
 	}
 }
