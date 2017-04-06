@@ -30,7 +30,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		// If the player has run out of health...
 		if(GameController.instance.GameFinished())
 		{
-			Debug.Log ("in here");
+			//Debug.Log ("in here");
 			anim.SetTrigger ("LevelCompleteHost");
 			RpcShowAnimation ();
 

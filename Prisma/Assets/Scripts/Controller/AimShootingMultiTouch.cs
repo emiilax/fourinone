@@ -409,12 +409,12 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		}
 
 
-
+		/*
 		if (counter < 2) {
 			counter++;
 			return;
 		}
-		counter = 0;
+		counter = 0;*/
 
 
         if (laser.enabled) {
