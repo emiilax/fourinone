@@ -62,7 +62,7 @@ public class GameController : NetworkBehaviour {
 		
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
-		NetworkManager.singleton.ServerChangeScene ("LevelSelectorSp");
+		NetworkManager.singleton.ServerChangeScene ("LevelSelector");
 	}
 
 }

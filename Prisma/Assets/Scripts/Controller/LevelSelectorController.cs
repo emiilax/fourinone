@@ -8,6 +8,17 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	public static LevelSelectorController instance;
 
+	// The standard UI
+	public GameObject levelMenu;
+
+	// The different panels of the different game modes.
+	public GameObject singlePlayerPanel;
+	public GameObject multiPlayerPanel;
+
+	// The panel for the clients that are not the server
+	public GameObject clientPanel;
+
+	// The current gamemode. SinglePlayer or MultiPlayer.
 	public string gameMode;
 
 	void Awake() {
@@ -23,15 +34,28 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if(SceneManager.GetActiveScene ().name.Equals("LevelSelectorMP")){
-			this.gameMode = "MultiPlayer";
-		}else if(SceneManager.GetActiveScene ().name.Equals("LevelSelectorSP")){
-			this.gameMode = "SinglePlayer";
-		}else{
-			Debug.Log("Forgot to set levelselectors in LevelSelectController");
-			this.gameMode = null;
-		}
-		
+
+		gameMode = MyNetworkLobbyManager.singelton.gameMode;
+
+		if (gameMode == "SinglePlayer") {
+
+			singlePlayerPanel.SetActive (true);
+			multiPlayerPanel.SetActive (false);
+
+		} else if (gameMode == "MultiPlayer") {
+
+			if (isServer) {
+				multiPlayerPanel.SetActive (true);
+			} else {
+				clientPanel.SetActive (true);
+				levelMenu.SetActive (false);
+				multiPlayerPanel.SetActive (false);
+			}
+
+			singlePlayerPanel.SetActive (false);
+
+		} 
+
 	}
 	
 	// Update is called once per frame
@@ -43,12 +67,14 @@ public class LevelSelectorController : NetworkBehaviour {
 
 		if (gameMode == "SinglePlayer") {
 
-			MyNetworkLobbyManager.singelton.StartSinglePlayer (sceneName);
+			MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
 			
 		} else if (gameMode == "MultiPlayer") {
+			
 			if (isServer) {
 				MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
 			}
+
 		}
 		
 	}

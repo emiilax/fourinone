@@ -27,6 +27,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	// Displays when something went wrong
 	public PlayerDisconnectPanel disconnectScreen;
 
+	public string gameMode;
+
 	private ulong currentMatchID; 
 
 	private bool isHost = false;
@@ -69,6 +71,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		lobbySelectionPanel.gameObject.SetActive (false);
 
 		currentPanel = mainMenuPanel;
+
+		gameMode = "MultiPlayer";
 
 		defaultMinPlayer = minPlayers;
 
@@ -306,18 +310,10 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		minPlayers = 1;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
-		playScene = "LevelSelectorSP";
+		gameMode = "SinglePlayer";
 
 		gameObject.SetActive (false);
 		StartHost ();
-
-	}
-
-	/* Setup the values for 1-player game and starts it */
-	public void StartSinglePlayer(string sceneName) {
-
-		ServerChangeScene(sceneName);
-		//SceneManager.LoadScene (sceneName);
 
 	}
 
@@ -326,7 +322,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
-		playScene = "LevelSelectorMP";
+		gameMode = "SinglePlayer";
 
 		gameObject.SetActive (true);
 		StopHost();
