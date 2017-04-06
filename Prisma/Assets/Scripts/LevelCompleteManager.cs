@@ -8,6 +8,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 
 	public string currentScene;
 	public string nextScene;
+	public GameObject game;
 
 
 	Animator anim;                          // Reference to the animator component.
@@ -32,15 +33,18 @@ public class LevelCompleteManager : NetworkBehaviour {
 		{
 			//Debug.Log ("in here");
 			anim.SetTrigger ("LevelCompleteHost");
-			RpcShowAnimation ();
 
+			RpcShowAnimation ();
+			game.SetActive (false);
 		}
 	}
 
 	[ClientRpc]
 	void RpcShowAnimation(){
 		// ... tell the animator the game is over.
-
+		if (isServer)
+			return;
+		
 		anim.SetTrigger ("LevelCompleteClient");
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
