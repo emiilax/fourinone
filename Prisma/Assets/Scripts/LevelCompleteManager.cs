@@ -35,7 +35,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 			anim.SetTrigger ("LevelCompleteHost");
 
 			RpcShowAnimation ();
-			game.SetActive (false);
+			//game.SetActive (false);
 		}
 	}
 
@@ -56,6 +56,9 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (!isServer)
 			return;
 
+
+		RpcSendMessage("ButtonBackToLobbypressed");
+
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.CancelConnection ();
 	
@@ -64,6 +67,10 @@ public class LevelCompleteManager : NetworkBehaviour {
 	public void ButtonNextLevel(){
 		if (!isServer)
 			return;
+
+		RpcSendMessage("ButtonNextLevelPressed");
+
+
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 	}
@@ -72,9 +79,18 @@ public class LevelCompleteManager : NetworkBehaviour {
 	public void ButtonRestartLevel(){
 		if (!isServer)
 			return;
-
+		
+		RpcSendMessage("ButtonRestartLevelpressed");
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
+	}
+
+
+	[ClientRpc]
+	void RpcSendMessage(string str){
+	
+		Debug.Log (str);
+
 	}
 }
 
