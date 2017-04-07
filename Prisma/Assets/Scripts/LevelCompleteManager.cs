@@ -19,8 +19,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 	{		
 		// Set up the reference.
 		anim = GetComponent <Animator> ();
-		currentScene = "MPLevel1";
-		nextScene = "MPLevel2";
+		currentScene = "2Plvl1";
+		nextScene = "2Plvl2";
 	}
 		
 	void Update ()
