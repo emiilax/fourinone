@@ -19,6 +19,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 	{		
 		// Set up the reference.
 		anim = GetComponent <Animator> ();
+		currentScene = "MPLevel1";
+		nextScene = "MPLevel2";
 	}
 		
 	void Update ()
@@ -31,11 +33,15 @@ public class LevelCompleteManager : NetworkBehaviour {
 		// If the player has run out of health...
 		if(GameController.instance.GameFinished())
 		{
+
+			if (isServer) {
+			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
+			}
 			//Debug.Log ("in here");
 			anim.SetTrigger ("LevelCompleteHost");
 
 			RpcShowAnimation ();
-			//game.SetActive (false);
+
 		}
 	}
 
@@ -55,8 +61,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 
 		if (!isServer)
 			return;
-
-
+		
+		//anim.gameObject.SetActive (false);
 		RpcSendMessage("ButtonBackToLobbypressed");
 
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
@@ -70,9 +76,11 @@ public class LevelCompleteManager : NetworkBehaviour {
 
 		RpcSendMessage("ButtonNextLevelPressed");
 
-
+		RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+		anim.gameObject.SetActive (false);
 		MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
+		//MyNetworkLobbyManager.singelton.gameObject.SetActive (false);
 	}
 
 

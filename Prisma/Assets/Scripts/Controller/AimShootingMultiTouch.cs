@@ -86,7 +86,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			{
 				offset = cam.gameObject.transform.position - gameObject.transform.position;
 				float camDist = offset.sqrMagnitude;
-				Debug.Log("CAMDIST" + (camDist - dist));
+				//Debug.Log("CAMDIST" + (camDist - dist));
 				if (camDist < dist)
 				{
 					dist = camDist;
@@ -96,7 +96,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		}
 
 		//This aparantley is how you chose your active camera...
-		Debug.Log("Camera: " + playerCamera.ToString());
+		//Debug.Log("Camera: " + playerCamera.ToString());
 		playerCamera.enabled = false;
 		playerCamera.enabled = true;
 

@@ -43,6 +43,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private int playerid;
 
+
 	// Initialization of the singelton
 	void Awake() {
 		//If we don't currently have a game control...
@@ -200,6 +201,11 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		}
 	}
 
+	public override void OnServerSceneChanged (string sceneName)
+	{
+		base.OnServerSceneChanged (sceneName);
+		Debug.Log ("OnServerSceneChanged");
+	}
 
 	/* When you connect to the lobby, show loading screen with the amount of players */ 
 	public override void OnLobbyClientConnect(NetworkConnection conn){
@@ -242,6 +248,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		// Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
 		Debug.Log ("All ready");
 
+
+
 		base.OnLobbyServerPlayersReady ();
 		gameObject.SetActive (false);
 
@@ -252,8 +260,6 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public override void OnLobbyServerDisconnect(NetworkConnection conn){
 		base.OnLobbyServerDisconnect (conn);
 		Debug.Log ("Server disconnect");
-
-		//ChangePanel (lobbySelectionPanel);
 
 		gameObject.SetActive (true);
 
@@ -320,6 +326,15 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		//SceneManager.LoadScene (sceneName);
 
 	}
+
+	public override void ServerChangeScene (string sceneName)
+	{
+		
+		base.ServerChangeScene (sceneName);
+
+		Debug.Log ("ServerChangeScene");
+	}
+		
 
 	/* Set the value back to the original value for multiplayer */ 
 	public void ResetFromSinglePlayer() {
