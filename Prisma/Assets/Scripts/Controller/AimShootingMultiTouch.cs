@@ -379,7 +379,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			SetCamera ();
 		}
 		//Debug.Log ("SPAM");
-        if (Input.GetButton ("Fire1")) {
+		if (Input.GetButton ("Fire1") && Input.touchCount == 0) {
 			
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
@@ -399,7 +399,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 			UpdateTouchMap (mousePosition, mousePhase, mouseFingerId);
 
-		} else if (Input.GetMouseButtonUp(0)){
+		} else if (Input.GetMouseButtonUp(0) && mousePhase != TouchPhase.Ended){
 
 
 			mousePhase = TouchPhase.Ended;
@@ -433,7 +433,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     }
 
 	private void UpdateTouchMap(Vector3 position, TouchPhase phase, int fingerId){
-			
+		
 		if (!touchMap.ContainsKey(fingerId))
 		{
 			touchMap[fingerId] = new TouchTracker();

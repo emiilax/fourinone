@@ -22,6 +22,8 @@ public class MirrorTouchController :  AbstractTouchController
     // Use this for initialization
      void Start() {
         selectionIndicator = new TouchSelectionIndicator(selectionSprite, gameObject);
+		gameObject.GetComponent<LineRenderer> ().sortingLayerName = "Foreground";
+		gameObject.GetComponent<LineRenderer> ().sortingOrder = 2;
 		fadeEnumerator = FadeOut ();
         SetControllerAlpha(0.0f);
         ResetControllerPositions();
