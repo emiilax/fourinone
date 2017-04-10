@@ -12,7 +12,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [SerializeField]
     float keyShutDownDelay = 0.1f;
 
-	public GameObject aimingCircle;
 
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
@@ -140,8 +139,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
         CalculateOffsetAngle();
 
 
-		aimingCircle.transform.position = GOpos;
-		Instantiate (aimingCircle);
+
 
     }
 
