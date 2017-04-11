@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TouchSelectionIndicator  {
+	
     private SpriteRenderer selectedRenderer;
     private GameObject selectedRendererObject;
 
@@ -22,7 +23,7 @@ public class TouchSelectionIndicator  {
 
     public void ShowSelected()
     {
-      //  GUILog.Log("show selected");
+		GUILog.Log("show selected at " + selectedRendererObject.transform.position.ToString());
         selectedRenderer.enabled = true;
     }
 
