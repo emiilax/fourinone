@@ -15,18 +15,20 @@ public class TouchSelectionIndicator  {
         selectedRendererObject.transform.localScale = gameObject.transform.localScale;
         selectedRendererObject.transform.parent = gameObject.transform;
         selectedRenderer = selectedRendererObject.AddComponent<SpriteRenderer>();
-        selectedRenderer.sortingLayerName = "Foreground";
-        //selectedRenderer.sortingOrder = 2;
+        selectedRenderer.sortingLayerName = "Default";
+        selectedRenderer.sortingOrder = 2;
         selectedRenderer.sprite = selectedSprite;
         selectedRenderer.enabled = false;
     }
 
     public void ShowSelected()
     {
-		GUILog.Log("show selected at " + selectedRendererObject.transform.position.ToString());
         selectedRenderer.enabled = true;
     }
 
+	public void SetColor(Color color){
+		selectedRenderer.color = color;
+	}
 
     public void HideSelected()
     {
