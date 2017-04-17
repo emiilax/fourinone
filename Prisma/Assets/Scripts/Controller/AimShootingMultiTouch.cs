@@ -102,8 +102,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	}
 
 	public void OnChangeLevel(){
-		Debug.Log ("BAAA NNAAA NNA");
-		SetCamera ();
+		if (isLocalPlayer) {
+			Debug.Log ("BANGARANGADAGN");
+			SetCamera ();
+		}
 	}
 
 

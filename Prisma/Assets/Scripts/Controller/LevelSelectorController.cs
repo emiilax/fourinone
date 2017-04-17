@@ -21,6 +21,9 @@ public class LevelSelectorController : NetworkBehaviour {
 	//the current active level
 	public GameObject currentLevel;
 
+	//common multiplayer objects
+	public GameObject mpCommons;
+
 	// The different panels of the different game modes.
 	public GameObject singlePlayerPanel;
 	public GameObject multiPlayerPanel;
@@ -80,48 +83,49 @@ public class LevelSelectorController : NetworkBehaviour {
 
 
 
-	public void LevelSelected(string sceneName) {
-
-		if (gameMode == "SinglePlayer") {
-
-			MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
-			
-		} else if (gameMode == "MultiPlayer") {
-			
-			if (isServer) {
-				//MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
-
-				ToggleSelector ();
-
-
-
-
-
-				GameObject[] players;
-				players = GameObject.FindGameObjectsWithTag ("Player");
-				foreach (GameObject player in players) {
-					player.SendMessage ("OnChangeLevel");
-				}
-
-			}
-
+	public void LevelSelected(GameObject level) {
+		if (isServer) {
+			ToggleSelector ();
+			ToggleMpCommons();
+			ChangeLevel(level);
+			TriggerChangeLevel ();
 		}
-		
 	}
 
+	//Triggers the OnChangeLevel message for all players
+	//[ClientRpc]
+	private void TriggerChangeLevel(){
+		GameObject[] players;
+		players = GameObject.FindGameObjectsWithTag ("Player");
+		foreach (GameObject player in players) {
+			player.SendMessage ("OnChangeLevel");
+		}
+	}
+		
 
 	//changes the current level
-	private void changeLevel(GameObject nextLevel){
-		currentLevel.gameObject.SetActive (false);
+	//[ClientRpc]
+	private void ChangeLevel(GameObject nextLevel){
+		if(currentLevel != null){
+			currentLevel.gameObject.SetActive (false);
+		}
 		nextLevel.gameObject.SetActive (true);
+		currentLevel = nextLevel;
 	}
 
 	//turns the levelselector view on or off
-	private void ToggleSelector(){
+	//[ClientRpc]
+	private void ToggleSelector()
+	{
 		List<GameObject> l1 = getFirstChildren (gameObject);
 		GameObject lvlselector = l1 [0];
 		lvlselector.SetActive (!lvlselector.activeSelf);
-		
+	}
+
+	//Toggles all common multiplayer objects
+	//[ClientRpc]
+	private void ToggleMpCommons(){
+		mpCommons.SetActive (!mpCommons.activeSelf);
 	}
 
 	//returns a list of all the first level children in a gameobject
