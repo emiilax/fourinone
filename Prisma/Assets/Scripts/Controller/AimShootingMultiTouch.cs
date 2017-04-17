@@ -71,7 +71,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     }
 
 	// This sets playercamera as the camera closest to your spawnposition.
-	private void SetCamera(){
+	public void SetCamera(){
 		float dist;
 		Vector3 offset;
 		Camera[] cameras = new Camera[Camera.allCamerasCount];
@@ -101,6 +101,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	}
 
+	public void OnChangeLevel(){
+		Debug.Log ("BAAA NNAAA NNA");
+		SetCamera ();
+	}
 
 
     public override void OnStartClient()
@@ -373,15 +377,16 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		if (!isLocalPlayer) { return;  }
 		if (playerCamera == null) {
-			Debug.Log ("NO CAMERA WTF");
 			SetCamera ();
 		}
-		//Debug.Log ("SPAM");
+
 		if (Input.GetButton ("Fire1") && Input.touchCount == 0) {
+			
 			
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
 			if (mousePhase == TouchPhase.Ended) {
+				Debug.Log ("SPAM");
 				//GUILog.Log ("began");
 				mousePhase = TouchPhase.Began;
 				lastMousePosition = mousePosition;

@@ -26,7 +26,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	void Update ()
 	{
 
-		if (!isServer)
+		//if (!isServer) TODO ENABLE
 			return;
 
 
