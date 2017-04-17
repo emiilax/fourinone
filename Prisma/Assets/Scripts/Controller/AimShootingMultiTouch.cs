@@ -370,6 +370,9 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+		if (MyNetworkLobbyManager.singelton.playScene == "SyncScreen") {
+			return;
+		}
 
 		if (!isLocalPlayer) { return;  }
 		if (playerCamera == null) {
@@ -415,7 +418,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		counter = 0;*/
 
 
-        if (laser.enabled) {
+		if (laser.enabled) {
 			
             FireLaser(laserAim);
 

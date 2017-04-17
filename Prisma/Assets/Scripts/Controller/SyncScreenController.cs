@@ -3,29 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SyncScreenController : MonoBehaviour {
+public class SyncScreenController : NetworkBehaviour {
 
-	public static SyncScreenController instance;
 
 	void Awake() {
-		//If we don't currently have a game control...
-		if (instance == null)
-			//...set this one to be it...
-			instance = this;
-		//...otherwise...
-		else if(instance != this)
-			//...destroy this one because it is a duplicate.
-			Destroy (gameObject);
+
+		EnablePlayer (false);
+
 	}
 		
 
 	// Use this for initialization
 	void Start () {
 
+		EnablePlayer (false);
+
 	}
-	
-	// Update is called once per frame
-	void Update () {
 		
+		
+	// Enable or disable the player's prefabs.
+	// Important to only change the children of the playerprefab so it can initialize the right spawn positions. 
+	void EnablePlayer(bool b) {
+
+		foreach (Renderer r in MyNetworkLobbyManager.singelton.gamePlayerPrefab.GetComponentsInChildren<Renderer>()) {
+			Debug.Log ("[SyncScreen]: In EnablePlayer()");
+			r.GetComponent<Renderer> ().enabled = b;
+		}
+	}
+
+	public void ReadyButtonPressed() {
+		Debug.Log ("[SyncScreen]: PlayedID: ");
+	}
+
+	void OnDestroy() {
+		EnablePlayer (true);
 	}
 }

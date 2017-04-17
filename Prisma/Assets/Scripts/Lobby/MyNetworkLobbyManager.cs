@@ -317,6 +317,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		minPlayers = 1;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
 		gameMode = "SinglePlayer";
+		playScene = "LevelSelector";
 
 		gameObject.SetActive (false);
 		StartHost ();
@@ -347,6 +348,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
 		gameMode = "MultiPlayer";
+		playScene = "SyncScreen";
 
 		gameObject.SetActive (true);
 		StopHost();
