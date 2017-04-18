@@ -56,6 +56,9 @@ public class LevelSelectorController : NetworkBehaviour {
 
 		} 
 
+		// Has to put here because otherwise it will activate too fast in SyncScreen
+		SyncScreenController.instance.EnablePlayer (true);
+
 	}
 	
 	// Update is called once per frame

@@ -370,7 +370,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-		if (MyNetworkLobbyManager.singelton.playScene == "SyncScreen") {
+		if (MyNetworkLobbyManager.networkSceneName == "SyncScreen") {
 			return;
 		}
 
