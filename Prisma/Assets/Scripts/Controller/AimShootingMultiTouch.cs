@@ -103,7 +103,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	public void OnChangeLevel(){
 		if (isLocalPlayer) {
-			Debug.Log ("BANGARANGADAGN");
 			SetCamera ();
 		}
 	}
@@ -337,6 +336,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	IEnumerator KeyIsHit(GameObject key){
 		GameObject door = key.GetComponent<KeyScript> ().door; 
+		Debug.Log (door.name);
 
 		RpcSetObjectEnabled(door, false);
 		GameController.instance.KeyIsHit (key, true);
@@ -388,7 +388,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
 			if (mousePhase == TouchPhase.Ended) {
-				Debug.Log ("SPAM");
 				//GUILog.Log ("began");
 				mousePhase = TouchPhase.Began;
 				lastMousePosition = mousePosition;
@@ -528,7 +527,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [ClientRpc]
     void RpcSetObjectEnabled(GameObject go, bool b)
     {
-		
+		Debug.Log (go.name);
         go.SetActive(b);
 
     }

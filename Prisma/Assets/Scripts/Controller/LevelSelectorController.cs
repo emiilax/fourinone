@@ -80,42 +80,22 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 
-
-
-
 	public void LevelSelected(GameObject level) {
 		if (isServer) {
-			ToggleSelector ();
-			ToggleMpCommons();
-			ChangeLevel(level);
-			TriggerChangeLevel ();
-		}
-	}
-
-	//Triggers the OnChangeLevel message for all players
-	//[ClientRpc]
-	private void TriggerChangeLevel(){
-		GameObject[] players;
-		players = GameObject.FindGameObjectsWithTag ("Player");
-		foreach (GameObject player in players) {
-			player.SendMessage ("OnChangeLevel");
+			RpcToggleSelector ();
+			if (!mpCommons.activeSelf) {
+				RpcToggleMpCommons ();
+			}
+			Debug.Log (level.name);
+			RpcChangeLevel(level.name);
+			RpcTriggerChangeLevel ();
 		}
 	}
 		
 
-	//changes the current level
-	//[ClientRpc]
-	private void ChangeLevel(GameObject nextLevel){
-		if(currentLevel != null){
-			currentLevel.gameObject.SetActive (false);
-		}
-		nextLevel.gameObject.SetActive (true);
-		currentLevel = nextLevel;
-	}
-
 	//turns the levelselector view on or off
-	//[ClientRpc]
-	private void ToggleSelector()
+	[ClientRpc]
+	private void RpcToggleSelector()
 	{
 		List<GameObject> l1 = getFirstChildren (gameObject);
 		GameObject lvlselector = l1 [0];
@@ -123,9 +103,33 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 	//Toggles all common multiplayer objects
-	//[ClientRpc]
-	private void ToggleMpCommons(){
+	[ClientRpc]
+	private void RpcToggleMpCommons(){
 		mpCommons.SetActive (!mpCommons.activeSelf);
+	}
+
+	//used because only some things can be sent ofer RPC calls.
+	[ClientRpc]
+	private void RpcChangeLevel(string nextLevel){
+		ChangeLevel(mpLevels.transform.Find(nextLevel).gameObject);
+	}
+		
+	//changes the current level
+	public void ChangeLevel(GameObject nextLevel){
+		if(currentLevel != null){
+			currentLevel.gameObject.SetActive (false);
+		}
+		nextLevel.gameObject.SetActive (true);
+		currentLevel = nextLevel;
+	}
+	//Triggers the OnChangeLevel message for all players
+	[ClientRpc]
+	private void RpcTriggerChangeLevel(){
+		GameObject[] players;
+		players = GameObject.FindGameObjectsWithTag ("Player");
+		foreach (GameObject player in players) {
+			player.SendMessage ("OnChangeLevel");
+		}
 	}
 
 	//returns a list of all the first level children in a gameobject
