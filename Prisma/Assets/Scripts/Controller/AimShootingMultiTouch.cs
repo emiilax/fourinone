@@ -49,7 +49,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
    
 
-	void Start() { touchMap = new Dictionary<int, TouchTracker>();DontDestroyOnLoad (gameObject);}
+	void Start() { touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject);*/}
 
 
     public override void OnStartLocalPlayer()
@@ -336,9 +336,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	IEnumerator KeyIsHit(GameObject key){
 		GameObject door = key.GetComponent<KeyScript> ().door; 
-		Debug.Log (door.name);
 
+		Debug.Log (door.name + "KeyisHit");
 		RpcSetObjectEnabled(door, false);
+		Debug.Log (GameController.instance.gameObject.name);
 		GameController.instance.KeyIsHit (key, true);
 
 		//is this creating stackoverflow?
@@ -348,7 +349,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			yield return new WaitForSeconds(0.1f);
 		}
 
-
+		Debug.Log ("POTATO");
 		RpcSetObjectEnabled (door, true);
 
 	}
@@ -376,7 +377,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
 		if (!isLocalPlayer) { return;  }
 		if (playerCamera == null) {
 			SetCamera ();
@@ -527,7 +527,12 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [ClientRpc]
     void RpcSetObjectEnabled(GameObject go, bool b)
     {
-		Debug.Log (go.name);
+		if (go == null) {
+			Debug.Log ("GO IS NULL WHAT IS EVEN HAPPENING");
+			return;
+		}
+		Debug.Log (b + "");
+		Debug.Log (go.name + "tomten");
         go.SetActive(b);
 
     }
