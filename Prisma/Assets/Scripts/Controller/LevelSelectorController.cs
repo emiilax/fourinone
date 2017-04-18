@@ -82,6 +82,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	public void LevelSelected(GameObject level) {
 		if (isServer) {
+			RpcDeactivateLevels ();
 			RpcToggleSelector ();
 			if (!mpCommons.activeSelf) {
 				RpcToggleMpCommons ();
@@ -92,6 +93,17 @@ public class LevelSelectorController : NetworkBehaviour {
 		}
 	}
 		
+	//makes sure all levels are inactive before chosing a level
+	//they have to be active prior due to not beince properly instanced otherwise
+	[ClientRpc]
+	private void RpcDeactivateLevels(){
+		foreach (GameObject level in mpLevelList) {
+			if (level.activeSelf) {
+				level.SetActive (false);
+			}
+		}
+	}
+
 
 	//turns the levelselector view on or off
 	[ClientRpc]
@@ -122,13 +134,24 @@ public class LevelSelectorController : NetworkBehaviour {
 		nextLevel.gameObject.SetActive (true);
 		currentLevel = nextLevel;
 	}
+
 	//Triggers the OnChangeLevel message for all players
-	[ClientRpc]
+	/*[ClientRpc]
 	private void RpcTriggerChangeLevel(){
 		GameObject[] players;
 		players = GameObject.FindGameObjectsWithTag ("Player");
 		foreach (GameObject player in players) {
 			player.SendMessage ("OnChangeLevel");
+		}
+	}*/
+
+	//triggers OnChangeLevel message, required for messages to be able to reach inactive components
+	[ClientRpc]
+	private void RpcTriggerChangeLevel(){
+		Debug.Log (transform.parent.name);
+		Transform[] allGameObjects = transform.parent.GetComponentsInChildren<Transform> (true);
+		foreach (Transform tf in allGameObjects) {
+			tf.gameObject.SendMessage ("OnChangeLevel",null,SendMessageOptions.DontRequireReceiver);
 		}
 	}
 
@@ -146,6 +169,8 @@ public class LevelSelectorController : NetworkBehaviour {
 		}
 		return list;
 	}
+
+
 				
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {

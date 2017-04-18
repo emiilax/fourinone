@@ -26,7 +26,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	void Update ()
 	{
 
-		//if (!isServer) TODO ENABLE
+		//if (!isServer) TODO enable
 			return;
 
 
@@ -44,6 +44,11 @@ public class LevelCompleteManager : NetworkBehaviour {
 
 		}
 	}
+
+	public void OnChangeLevel(){
+		Debug.Log ("HARD WORK WORK");
+	}
+
 
 	[ClientRpc]
 	void RpcShowAnimation(){

@@ -348,8 +348,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		{
 			yield return new WaitForSeconds(0.1f);
 		}
-
-		Debug.Log ("POTATO");
+			
 		RpcSetObjectEnabled (door, true);
 
 	}
@@ -531,8 +530,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			Debug.Log ("GO IS NULL WHAT IS EVEN HAPPENING");
 			return;
 		}
-		Debug.Log (b + "");
-		Debug.Log (go.name + "tomten");
         go.SetActive(b);
 
     }

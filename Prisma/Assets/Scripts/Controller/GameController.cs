@@ -9,7 +9,7 @@ public class GameController : NetworkBehaviour {
 
 	public static GameController instance;
 
-	private GameObject[] listOfKeys;
+	private List<GameObject> listOfKeys;
 
 	void Awake() {
 		//If we don't currently have a game control...
@@ -20,15 +20,26 @@ public class GameController : NetworkBehaviour {
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
 			Destroy (gameObject);
+		
 	}
 
 	// Use this for initialization
 	void Start () {
-		
+		listOfKeys = new List<GameObject> ();
 		Debug.Log ("IsServer: " + isServer);
-		listOfKeys = GameObject.FindGameObjectsWithTag("Key");
-		Debug.Log ("NbrOfKeys: " + listOfKeys.Length);
 
+	}
+
+	public void OnChangeLevel(){
+		GameObject[] allKeys = GameObject.FindGameObjectsWithTag("Key");
+		List<GameObject> gameKeys = new List<GameObject> ();
+		foreach (GameObject key in allKeys) {
+			if (key.activeInHierarchy) {
+				gameKeys.Add (key);
+			}
+		}
+		listOfKeys = gameKeys;
+		Debug.Log (listOfKeys.Count);
 	}
 	
 	// Update is called once per frame
