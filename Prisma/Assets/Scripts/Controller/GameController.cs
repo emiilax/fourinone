@@ -8,6 +8,7 @@ public class GameController : NetworkBehaviour {
 
 
 	public static GameController instance;
+	private bool gameActive = false;
 
 	private List<GameObject> listOfKeys;
 
@@ -40,6 +41,7 @@ public class GameController : NetworkBehaviour {
 		}
 		listOfKeys = gameKeys;
 		Debug.Log (listOfKeys.Count);
+		gameActive = true;
 	}
 	
 	// Update is called once per frame
@@ -61,6 +63,9 @@ public class GameController : NetworkBehaviour {
 	}
 
 	public bool GameFinished(){
+		if (!gameActive) {
+			return false;
+		}
 
 		foreach (GameObject go in listOfKeys) {
 			if (!go.GetComponent<KeyScript> ().unlocked)

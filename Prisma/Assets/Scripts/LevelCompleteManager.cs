@@ -9,7 +9,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	public string currentScene;
 	public string nextScene;
 	public GameObject game;
-
+	public LevelSelectorController lvlselector;
 
 	Animator anim;                          // Reference to the animator component.
 	float restartTimer;                     // Timer to count up to restarting the level
@@ -26,7 +26,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	void Update ()
 	{
 
-		//if (!isServer) TODO enable
+		if (!isServer)
 			return;
 
 
@@ -46,7 +46,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	}
 
 	public void OnChangeLevel(){
-		Debug.Log ("HARD WORK WORK");
+
 	}
 
 
@@ -98,8 +98,12 @@ public class LevelCompleteManager : NetworkBehaviour {
 			return;
 		
 		RpcSendMessage("ButtonRestartLevelpressed");
+		lvlselector.RpcTriggerChangeLevel ();
+		gameObject.SetActive (false);
+
+
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
+		//MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
 	}
 
 

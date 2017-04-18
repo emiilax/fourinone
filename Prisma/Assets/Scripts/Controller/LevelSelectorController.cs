@@ -147,8 +147,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	//triggers OnChangeLevel message, required for messages to be able to reach inactive components
 	[ClientRpc]
-	private void RpcTriggerChangeLevel(){
-		Debug.Log (transform.parent.name);
+	public void RpcTriggerChangeLevel(){
 		Transform[] allGameObjects = transform.parent.GetComponentsInChildren<Transform> (true);
 		foreach (Transform tf in allGameObjects) {
 			tf.gameObject.SendMessage ("OnChangeLevel",null,SendMessageOptions.DontRequireReceiver);
