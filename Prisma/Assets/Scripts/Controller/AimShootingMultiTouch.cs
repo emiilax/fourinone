@@ -49,7 +49,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
    
 
-	void Start() { touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject);*/}
+	void Start() { touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject)*/;}
 
 
     public override void OnStartLocalPlayer()

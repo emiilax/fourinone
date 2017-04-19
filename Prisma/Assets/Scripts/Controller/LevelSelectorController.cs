@@ -79,8 +79,12 @@ public class LevelSelectorController : NetworkBehaviour {
 		
 	}
 
+	public void LevelSelectedSP(string sceneName){
+		MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
+	}
 
 	public void LevelSelected(GameObject level) {
+
 		if (isServer) {
 			RpcDeactivateLevels ();
 			RpcToggleSelector ();
