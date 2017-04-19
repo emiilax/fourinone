@@ -16,7 +16,7 @@ public class LevelSelectorController : NetworkBehaviour {
 	public GameObject mpLevels;
 
 	//List of all the multiplayer levels
-	private List<GameObject> mpLevelList;
+	public List<GameObject> mpLevelList;
 
 	//the current active level
 	public GameObject currentLevel;
@@ -107,7 +107,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	//turns the levelselector view on or off
 	[ClientRpc]
-	private void RpcToggleSelector()
+	public void RpcToggleSelector()
 	{
 		List<GameObject> l1 = getFirstChildren (gameObject);
 		GameObject lvlselector = l1 [0];
@@ -122,7 +122,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	//used because only some things can be sent ofer RPC calls.
 	[ClientRpc]
-	private void RpcChangeLevel(string nextLevel){
+	public void RpcChangeLevel(string nextLevel){
 		ChangeLevel(mpLevels.transform.Find(nextLevel).gameObject);
 	}
 		
@@ -134,16 +134,7 @@ public class LevelSelectorController : NetworkBehaviour {
 		nextLevel.gameObject.SetActive (true);
 		currentLevel = nextLevel;
 	}
-
-	//Triggers the OnChangeLevel message for all players
-	/*[ClientRpc]
-	private void RpcTriggerChangeLevel(){
-		GameObject[] players;
-		players = GameObject.FindGameObjectsWithTag ("Player");
-		foreach (GameObject player in players) {
-			player.SendMessage ("OnChangeLevel");
-		}
-	}*/
+		
 
 	//triggers OnChangeLevel message, required for messages to be able to reach inactive components
 	[ClientRpc]

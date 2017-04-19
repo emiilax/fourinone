@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine.Networking;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class LevelCompleteManager : NetworkBehaviour {
 
@@ -55,7 +57,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		// ... tell the animator the game is over.
 		if (isServer)
 			return;
-		
+
 		anim.SetTrigger ("LevelCompleteClient");
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
@@ -70,13 +72,19 @@ public class LevelCompleteManager : NetworkBehaviour {
 		//anim.gameObject.SetActive (false);
 		RpcSendMessage("ButtonBackToLobbypressed");
 
-		if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
+		lvlselector.RpcTriggerChangeLevel ();
+		lvlselector.RpcToggleSelector ();
+		RpcSetTrigger ("Hidden");
+
+
+
+	/*	if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
 			MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
 		} else {
 			//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 			MyNetworkLobbyManager.singelton.CancelConnection ();	
 		}
-	
+	*/
 	}
 
 	public void ButtonNextLevel(){
@@ -86,10 +94,13 @@ public class LevelCompleteManager : NetworkBehaviour {
 		RpcSendMessage("ButtonNextLevelPressed");
 
 		RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
-		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		anim.gameObject.SetActive (false);
-		MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
-		//MyNetworkLobbyManager.singelton.gameObject.SetActive (false);
+		GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
+		lvlselector.RpcChangeLevel (nextLevel.name);
+		lvlselector.RpcTriggerChangeLevel ();
+		RpcSetTrigger ("Hidden");
+
+		//anim.gameObject.SetActive (false);
+		//MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 	}
 
 
@@ -99,8 +110,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		
 		RpcSendMessage("ButtonRestartLevelpressed");
 		lvlselector.RpcTriggerChangeLevel ();
-		gameObject.SetActive (false);
-
+		RpcSetTrigger ("Hidden");
 
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		//MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
@@ -113,6 +123,11 @@ public class LevelCompleteManager : NetworkBehaviour {
 		Debug.Log (str);
 
 	}
+	[ClientRpc]
+	void RpcSetTrigger(string str){
+		anim.SetTrigger (str);
+	}
+		
 }
 
 

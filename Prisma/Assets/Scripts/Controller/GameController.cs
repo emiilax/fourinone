@@ -32,6 +32,7 @@ public class GameController : NetworkBehaviour {
 	}
 
 	public void OnChangeLevel(){
+		gameActive = false;
 		GameObject[] allKeys = GameObject.FindGameObjectsWithTag("Key");
 		List<GameObject> gameKeys = new List<GameObject> ();
 		foreach (GameObject key in allKeys) {
@@ -39,8 +40,10 @@ public class GameController : NetworkBehaviour {
 				gameKeys.Add (key);
 			}
 		}
+		foreach (GameObject key in gameKeys) {
+			key.GetComponent<KeyScript> ().unlocked = false;
+		}
 		listOfKeys = gameKeys;
-		Debug.Log (listOfKeys.Count);
 		gameActive = true;
 	}
 	
@@ -72,6 +75,8 @@ public class GameController : NetworkBehaviour {
 				return false;
 		}
 
+		Debug.Log ("GAME IS FINISHED");
+		gameActive = false;
 		return true;
 
 	}
