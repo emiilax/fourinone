@@ -8,7 +8,7 @@ public class SyncScreenController : NetworkBehaviour {
 	public static SyncScreenController instance;
 
 	private bool[] isReadyBtnPressed;
-	private GameObject[] players;
+	public GameObject[] players;
 
 	void Awake() {
 
@@ -41,28 +41,24 @@ public class SyncScreenController : NetworkBehaviour {
 		foreach (GameObject player in players) {
 			foreach (SpriteRenderer r in player.GetComponentsInChildren<SpriteRenderer>()) {
 				r.enabled = b;
-				Debug.Log ("[SyncScreen]: disable " + b);
-	
 			}
 		}
 
 	}
 
 	// When ready-button is pressed. True = opacity 50%. False = opacity 100%. 
-	public void ReadyBtnPressed(GameObject g) {
+	public void ReadyBtnPressed(int id) {
 
-		int i = int.Parse (g.name);
+		Debug.Log ("Player id: " + id);
 
-		if (i > isReadyBtnPressed.Length) {
+		if (id > isReadyBtnPressed.Length) {
 			return;
 		}
 
-		if (!isReadyBtnPressed [i]) {
-			isReadyBtnPressed [i] = true;
-			g.GetComponent<Renderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.5f);
+		if (!isReadyBtnPressed [id]) {
+			isReadyBtnPressed [id] = true;
 		} else {
-			isReadyBtnPressed [i] = false;
-			g.GetComponent<Renderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+			isReadyBtnPressed [id] = false;
 		}
 
 		// Check if all the button is pressed i.e all players are ready. 

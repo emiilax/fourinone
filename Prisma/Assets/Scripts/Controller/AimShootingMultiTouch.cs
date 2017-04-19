@@ -499,14 +499,18 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	}
 
-
-
     // Tells Server to sync laser on clients 
     [Command]
     void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos)
     {
         RpcSynchLaser(player, laserPos, nrOfPos);
     }
+
+	// Tells the server that a player is ready in SyncScreen
+	[Command]
+	public void CmdReadyBtnPressed(int id) {
+		SyncScreenController.instance.ReadyBtnPressed(id);
+	}
 
 
     /* ---- ClientRPC Calls -----*/
