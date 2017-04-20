@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class testglow : MonoBehaviour {
+public class DisappearingDoorParticles : MonoBehaviour {
     public ParticleSystem particles;
     // Use this for initialization
     void Start () {
