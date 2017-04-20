@@ -94,6 +94,11 @@ public class LevelCompleteManager : NetworkBehaviour {
 		RpcSendMessage("ButtonNextLevelPressed");
 
 		RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
+		if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
+			Debug.Log ("potato");
+			ButtonBackToLobby ();
+			return;
+		}
 		GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
 		lvlselector.RpcChangeLevel (nextLevel.name);
 		lvlselector.RpcTriggerChangeLevel ();
