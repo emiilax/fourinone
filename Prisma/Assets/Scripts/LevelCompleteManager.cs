@@ -72,8 +72,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 		//anim.gameObject.SetActive (false);
 		RpcSendMessage("ButtonBackToLobbypressed");
 
-		lvlselector.RpcTriggerChangeLevel ();
-		lvlselector.RpcToggleSelector ();
+		lvlselector.TriggerChangeLevel ();
+		lvlselector.ToggleSelector ();
 		RpcSetTrigger ("Hidden");
 
 
@@ -100,8 +100,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 			return;
 		}
 		GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
-		lvlselector.RpcChangeLevel (nextLevel.name);
-		lvlselector.RpcTriggerChangeLevel ();
+		lvlselector.ChangeLevel (nextLevel.name);
+		lvlselector.TriggerChangeLevel ();
 		RpcSetTrigger ("Hidden");
 
 		//anim.gameObject.SetActive (false);
@@ -114,7 +114,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 			return;
 		
 		RpcSendMessage("ButtonRestartLevelpressed");
-		lvlselector.RpcTriggerChangeLevel ();
+		lvlselector.TriggerChangeLevel ();
 		RpcSetTrigger ("Hidden");
 
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);

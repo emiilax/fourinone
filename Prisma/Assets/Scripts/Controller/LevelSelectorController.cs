@@ -157,19 +157,28 @@ public class LevelSelectorController : NetworkBehaviour {
 	public void OnVoteComplete(NetworkMessage netMsg){
 		string level = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log ("launch level " + level);
+		DeactivateLevels ();
+		ToggleSelector ();
+		if (!mpCommons.activeSelf) {
+			ToggleMpCommons ();
+		}
+		Debug.Log (level);
+		ChangeLevel (level);
+		TriggerChangeLevel ();
+
 	}
 
 	public void LevelSelected(GameObject level) {
 		if (gameMode == "SinglePlayer") {
 			if (isServer) {
-				RpcDeactivateLevels ();
-				RpcToggleSelector ();
+				DeactivateLevels ();
+				ToggleSelector ();
 				if (!mpCommons.activeSelf) {
-					RpcToggleMpCommons ();
+					ToggleMpCommons ();
 				}
 				Debug.Log (level.name);
-				RpcChangeLevel (level.name);
-				RpcTriggerChangeLevel ();
+				ChangeLevel (level.name);
+				TriggerChangeLevel ();
 			}
 		} else if (gameMode == "MultiPlayer") {
 			GUILog.Log ("selected level");
@@ -181,11 +190,10 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 
-
 	//makes sure all levels are inactive before chosing a level
 	//they have to be active prior due to not beince properly instanced otherwise
-	[ClientRpc]
-	private void RpcDeactivateLevels(){
+
+	private void DeactivateLevels(){
 		foreach (GameObject level in mpLevelList) {
 			if (level.activeSelf) {
 				level.SetActive (false);
@@ -195,8 +203,8 @@ public class LevelSelectorController : NetworkBehaviour {
 
 
 	//turns the levelselector view on or off
-	[ClientRpc]
-	public void RpcToggleSelector()
+
+	public void ToggleSelector()
 	{
 		List<GameObject> l1 = getFirstChildren (gameObject);
 		GameObject lvlselector = l1 [0];
@@ -204,14 +212,14 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 	//Toggles all common multiplayer objects
-	[ClientRpc]
-	private void RpcToggleMpCommons(){
+
+	private void ToggleMpCommons(){
 		mpCommons.SetActive (!mpCommons.activeSelf);
 	}
 
 	//used because only some things can be sent ofer RPC calls.
-	[ClientRpc]
-	public void RpcChangeLevel(string nextLevel){
+
+	public void ChangeLevel(string nextLevel){
 		ChangeLevel(mpLevels.transform.Find(nextLevel).gameObject);
 	}
 		
@@ -226,8 +234,8 @@ public class LevelSelectorController : NetworkBehaviour {
 		
 
 	//triggers OnChangeLevel message, required for messages to be able to reach inactive components
-	[ClientRpc]
-	public void RpcTriggerChangeLevel(){
+
+	public void TriggerChangeLevel(){
 		Transform[] allGameObjects = transform.parent.GetComponentsInChildren<Transform> (true);
 		foreach (Transform tf in allGameObjects) {
 			tf.gameObject.SendMessage ("OnChangeLevel",null,SendMessageOptions.DontRequireReceiver);
@@ -253,7 +261,6 @@ public class LevelSelectorController : NetworkBehaviour {
 				
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
-
 		// Resets the default values for multiplayer and change back to lobby scene.
 		MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
 
