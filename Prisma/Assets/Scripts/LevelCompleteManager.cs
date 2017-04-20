@@ -11,6 +11,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	public string currentScene;
 	public string nextScene;
 	public GameObject game;
+	GameObject hostPanel;
 	LevelSelectorController lvlselector;
 
 	Animator anim;                          // Reference to the animator component.
@@ -37,6 +38,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
 		}
 		lvlselector = GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
+		hostPanel = GameObject.Find ("GUIPanelHost");
 	}
 
 
@@ -53,9 +55,12 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 			if (isServer) {
 			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
+
 			}
 			//Debug.Log ("in here");
-			anim.SetTrigger ("LevelCompleteHost");
+			GUILog.Log("game finnished");
+			//GameObject.Find ("GUIPanelHost").SetActive (true);
+
 
 			RpcShowAnimation ();
 
@@ -69,9 +74,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 	[ClientRpc]
 	void RpcShowAnimation(){
+		GUILog.Log ("showing animation");
 		// ... tell the animator the game is over.
-		if (isServer)
-			return;
+		//if (isServer)
+		//	return;
 
 		anim.SetTrigger ("LevelCompleteHost");
 		// .. increment a timer to count up to restarting.
@@ -139,12 +145,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			//GameObject.Find ("GUIPanelHost").SetActive (false);
 
 			lvlselector.TriggerChangeLevel ();
-			lvlselector.DeactivateLevels ();
 			lvlselector.ToggleSelector ();
 		}
 		anim.SetTrigger ("Hidden");
-		//GameObject.Find ("GUIPanelHost").SetActive (false);
-
+		GameObject.Find ("GUIPanelHost").GetComponent<Canvas>().enabled = false;
 	}
 
 

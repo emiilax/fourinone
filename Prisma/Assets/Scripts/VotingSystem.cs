@@ -40,6 +40,7 @@ public class VotingSystem {
 	}
 
 	public void OnVoteComplete(NetworkMessage netMsg){
+		
 		string winner = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log (winner);
 		listener.OnVoteComplete (winner);
@@ -68,6 +69,7 @@ public class VotingSystem {
 			}
 			if (unanimous) {
 				NetworkServer.SendToAll (voteCompleteMsg, new StringMessage(firstVote));
+				votes.Clear ();
 			}
 		}
 
