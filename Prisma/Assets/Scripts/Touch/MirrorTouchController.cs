@@ -43,7 +43,6 @@ public class MirrorTouchController :  AbstractTouchController
 	void OnCollisionEnter2D(Collision2D col)
 	{
 		selectionIndicator.SetColor (Color.red);
-		//lastNonOverlappingPosition = gameObject.transform.position;
 		overlaps++;
 		GUILog.Log("collided");	
 	}
@@ -195,7 +194,6 @@ public class MirrorTouchController :  AbstractTouchController
     {
         if(!ctrlLeft.GetComponent<MirrorSideTouchController>().BeingDragged() && !ctrlRight.GetComponent<MirrorSideTouchController>().BeingDragged())
         {
-			GUILog.Log ("reset");
             Vector3 offset = ctrlLeft.transform.position - transform.position;
             ctrlLeft.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
 

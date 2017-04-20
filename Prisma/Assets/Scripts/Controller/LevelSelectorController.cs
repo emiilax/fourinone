@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
 
 public class LevelSelectorController : NetworkBehaviour {
 
@@ -34,6 +35,22 @@ public class LevelSelectorController : NetworkBehaviour {
 	// The current gamemode. SinglePlayer or MultiPlayer.
 	public string gameMode;
 
+	// number of players in the current game
+	private int numPlayers;
+
+	// Our connectionId should not change during game
+	private int connId;
+
+	NetworkClient client;
+
+	// id of the level vote network message
+	const short LevelVoteMsg = 1000;
+	const short LevelVoteCompleteMsg = 1001;
+	// connection ids and names of levels selected by players. Theses are only used by the server.
+	private Dictionary<int, string> votes;
+	//private List<int> ids;
+	//private List<string> votedLevels;
+
 	void Awake() {
 		//If we don't currently have a game control...
 		if (instance == null)
@@ -47,7 +64,16 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		
 
+		if (isServer) {
+			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
+			if (gameMode == "MultiPlayer") {
+				votes = new Dictionary<int, string> ();
+				numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+
+			}
+		}
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
 
 		if (gameMode == "SinglePlayer") {
@@ -56,7 +82,18 @@ public class LevelSelectorController : NetworkBehaviour {
 			multiPlayerPanel.SetActive (false);
 
 		} else if (gameMode == "MultiPlayer") {
-			
+			multiPlayerPanel.SetActive (true);
+
+
+			//if (!isServer) {
+			NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
+			client = MyNetworkLobbyManager.singelton.client;
+			connId = client.connection.connectionId;
+			client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
+			votes = new Dictionary<int, string> ();
+			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+			//}
+			/*
 			if (isServer) {
 				multiPlayerPanel.SetActive (true);
 			} else {
@@ -64,7 +101,7 @@ public class LevelSelectorController : NetworkBehaviour {
 				levelMenu.SetActive (false);
 				multiPlayerPanel.SetActive (false);
 			}
-
+			*/
 			singlePlayerPanel.SetActive (false);
 
 			mpLevelList = getFirstChildren (mpLevels);
@@ -83,20 +120,68 @@ public class LevelSelectorController : NetworkBehaviour {
 		MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
 	}
 
-	public void LevelSelected(GameObject level) {
-
-		if (isServer) {
-			RpcDeactivateLevels ();
-			RpcToggleSelector ();
-			if (!mpCommons.activeSelf) {
-				RpcToggleMpCommons ();
-			}
-			Debug.Log (level.name);
-			RpcChangeLevel(level.name);
-			RpcTriggerChangeLevel ();
-		}
+	public void SendVote(string level){
+		//client.Send ();
+		client.Send(LevelVoteMsg, new StringMessage(connId.ToString() + " " + level));
 	}
-		
+
+	public void OnLevelVoteCast(NetworkMessage netMsg){
+		string vote = netMsg.ReadMessage<StringMessage>().value;
+		GUILog.Log ("recieved vote " + vote);
+		var idAndLevel = vote.Split ();
+		int id = int.Parse(idAndLevel[0]);
+		string level = idAndLevel [1];
+		votes [id] = level;
+		if (votes.Count == numPlayers) {
+			string firstVote = null;
+			bool unanimous = true;
+			foreach(KeyValuePair<int, string> entry in votes)
+			{
+				if (firstVote == null) {
+					firstVote = entry.Value;
+				} else {
+					if (firstVote != entry.Value) {
+						unanimous = false;
+						break;
+					} 
+				}
+				// do something with entry.Value or entry.Key
+			}
+			if (unanimous) {
+				NetworkServer.SendToAll (LevelVoteCompleteMsg, new StringMessage(firstVote));
+			}
+		}
+
+	}
+
+	public void OnVoteComplete(NetworkMessage netMsg){
+		string level = netMsg.ReadMessage<StringMessage>().value;
+		GUILog.Log ("launch level " + level);
+	}
+
+	public void LevelSelected(GameObject level) {
+		if (gameMode == "SinglePlayer") {
+			if (isServer) {
+				RpcDeactivateLevels ();
+				RpcToggleSelector ();
+				if (!mpCommons.activeSelf) {
+					RpcToggleMpCommons ();
+				}
+				Debug.Log (level.name);
+				RpcChangeLevel (level.name);
+				RpcTriggerChangeLevel ();
+			}
+		} else if (gameMode == "MultiPlayer") {
+			GUILog.Log ("selected level");
+			SendVote (level.name);
+			//CmdCastVote (MyNetworkLobbyManager.singelton.client.connection.connectionId, level.name);
+
+		}
+
+	}
+
+
+
 	//makes sure all levels are inactive before chosing a level
 	//they have to be active prior due to not beince properly instanced otherwise
 	[ClientRpc]
