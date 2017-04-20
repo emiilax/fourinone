@@ -83,9 +83,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		
 		//anim.gameObject.SetActive (false);
 		//RpcSendMessage("ButtonBackToLobbypressed");
-
-		lvlselector.TriggerChangeLevel ();
-		lvlselector.ToggleSelector ();
+		vote.CastVote ("next");
+		//lvlselector.TriggerChangeLevel ();
+		//lvlselector.ToggleSelector ();
 		//RpcSetTrigger ("Hidden");
 
 	}
@@ -106,7 +106,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		//	return;
 		
 		//RpcSendMessage("ButtonRestartLevelpressed");
-		lvlselector.TriggerChangeLevel ();
+		vote.CastVote ("restart");
+
 		//RpcSetTrigger ("Hidden");
 
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
@@ -127,8 +128,19 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
 			lvlselector.ChangeLevel (nextLevel.name);
 			lvlselector.TriggerChangeLevel ();
-			anim.SetTrigger ("Hidden");
+
+			//anim.SetTrigger ("Hidden");
+			//gameObject.SetActive (false);
+		}else if (action.Equals ("restart")) {
+			GUILog.Log ("restarting");
+			lvlselector.TriggerChangeLevel ();
 		}
+		else if(action.Equals("menu")){
+			GameObject.Find ("GUIPanelHost").SetActive (false);
+			lvlselector.TriggerChangeLevel ();
+			lvlselector.ToggleSelector ();
+		}
+		GameObject.Find ("GUIPanelHost").SetActive (false);
 
 	}
 
