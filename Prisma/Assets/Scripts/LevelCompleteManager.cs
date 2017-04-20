@@ -68,7 +68,6 @@ public class LevelCompleteManager : NetworkBehaviour {
 				Debug.Log ("Austronaut show animation");
 				g.GetComponent<AustronautManager> ().ShowAnimation ();
 			}
-
 		}
 
 		// ... tell the animator the game is over.
@@ -148,6 +147,20 @@ public class LevelCompleteManager : NetworkBehaviour {
 	}
 	[ClientRpc]
 	void RpcSetTrigger(string str){
+
+		if (str.Equals ("Hidden")) {
+			GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+
+
+			foreach(GameObject g in austronauts){
+
+				if (g.activeInHierarchy) {
+					
+					g.GetComponent<AustronautManager> ().HideAnimation ();
+				}
+			}
+		}
+
 		anim.SetTrigger (str);
 	}
 		

@@ -67,9 +67,10 @@ public class LevelSelectorController : NetworkBehaviour {
 
 			singlePlayerPanel.SetActive (false);
 
-			mpLevelList = getFirstChildren (mpLevels);
+
 				
-		} 
+		}
+		mpLevelList = getFirstChildren (mpLevels);
 
 	}
 		
@@ -79,9 +80,6 @@ public class LevelSelectorController : NetworkBehaviour {
 		
 	}
 
-	public void LevelSelectedSP(string sceneName){
-		MyNetworkLobbyManager.singelton.ServerChangeScene (sceneName);
-	}
 
 	public void LevelSelected(GameObject level) {
 
@@ -159,6 +157,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 			} else if (tf.parent.gameObject.Equals (gameObj)) {
 				list.Add (tf.gameObject);
+				Debug.Log (tf.gameObject.name);
 			}
 		}
 		return list;

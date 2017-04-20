@@ -28,5 +28,9 @@ public class AustronautManager : NetworkBehaviour {
 		anim.SetTrigger ("LevelComplete");
 	}
 
+	public void HideAnimation(){
+		anim.SetTrigger ("Hidden");
+	}
+
 
 }
