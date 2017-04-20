@@ -40,6 +40,9 @@ public class LevelCompleteManager : NetworkBehaviour {
 			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 			}
 			//Debug.Log ("in here");
+
+
+
 			anim.SetTrigger ("LevelCompleteHost");
 
 			RpcShowAnimation ();
@@ -54,6 +57,20 @@ public class LevelCompleteManager : NetworkBehaviour {
 
 	[ClientRpc]
 	void RpcShowAnimation(){
+
+
+		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+
+
+		foreach(GameObject g in austronauts){
+
+			if (g.activeInHierarchy) {
+				Debug.Log ("Austronaut show animation");
+				g.GetComponent<AustronautManager> ().ShowAnimation ();
+			}
+
+		}
+
 		// ... tell the animator the game is over.
 		if (isServer)
 			return;

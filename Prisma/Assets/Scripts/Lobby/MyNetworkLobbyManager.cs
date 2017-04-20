@@ -208,7 +208,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public override void OnServerSceneChanged (string sceneName)
 	{
 		base.OnServerSceneChanged (sceneName);
-		Debug.Log ("OnServerSceneChanged");
+//		Debug.Log ("OnServerSceneChanged");
 	}
 
 	/* When you connect to the lobby, show loading screen with the amount of players */ 
