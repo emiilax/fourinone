@@ -8,8 +8,9 @@ public class GameController : NetworkBehaviour {
 
 
 	public static GameController instance;
+	private bool gameActive = false;
 
-	private GameObject[] listOfKeys;
+	private List<GameObject> listOfKeys;
 
 	void Awake() {
 		//If we don't currently have a game control...
@@ -20,15 +21,30 @@ public class GameController : NetworkBehaviour {
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
 			Destroy (gameObject);
+		
 	}
 
 	// Use this for initialization
 	void Start () {
-		
+		listOfKeys = new List<GameObject> ();
 		Debug.Log ("IsServer: " + isServer);
-		listOfKeys = GameObject.FindGameObjectsWithTag("Key");
-		Debug.Log ("NbrOfKeys: " + listOfKeys.Length);
 
+	}
+
+	public void OnChangeLevel(){
+		gameActive = false;
+		GameObject[] allKeys = GameObject.FindGameObjectsWithTag("Key");
+		List<GameObject> gameKeys = new List<GameObject> ();
+		foreach (GameObject key in allKeys) {
+			if (key.activeInHierarchy) {
+				gameKeys.Add (key);
+			}
+		}
+		foreach (GameObject key in gameKeys) {
+			key.GetComponent<KeyScript> ().unlocked = false;
+		}
+		listOfKeys = gameKeys;
+		gameActive = true;
 	}
 	
 	// Update is called once per frame
@@ -36,7 +52,7 @@ public class GameController : NetworkBehaviour {
 
 
 	public void KeyIsHit(GameObject theKey, bool keyIsHit){
-
+		Debug.Log (theKey.name + "keyisHitGamecontroler");
 		// Safety first..
 		if (!theKey.CompareTag ("Key"))
 			return;
@@ -50,12 +66,17 @@ public class GameController : NetworkBehaviour {
 	}
 
 	public bool GameFinished(){
+		if (!gameActive) {
+			return false;
+		}
 
 		foreach (GameObject go in listOfKeys) {
 			if (!go.GetComponent<KeyScript> ().unlocked)
 				return false;
 		}
 
+		Debug.Log ("GAME IS FINISHED");
+		gameActive = false;
 		return true;
 
 	}

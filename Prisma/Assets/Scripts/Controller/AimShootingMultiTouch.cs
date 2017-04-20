@@ -49,7 +49,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
    
 
-	void Start() { touchMap = new Dictionary<int, TouchTracker>();DontDestroyOnLoad (gameObject);}
+	void Start() { touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject)*/;}
 
 
     public override void OnStartLocalPlayer()
@@ -71,7 +71,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     }
 
 	// This sets playercamera as the camera closest to your spawnposition.
-	private void SetCamera(){
+	public void SetCamera(){
 		float dist;
 		Vector3 offset;
 		Camera[] cameras = new Camera[Camera.allCamerasCount];
@@ -101,6 +101,11 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	}
 
+	public void OnChangeLevel(){
+		if (isLocalPlayer) {
+			SetCamera ();
+		}
+	}
 
 
     public override void OnStartClient()
@@ -332,7 +337,9 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	IEnumerator KeyIsHit(GameObject key){
 		GameObject door = key.GetComponent<KeyScript> ().door; 
 
+		Debug.Log (door.name + "KeyisHit");
 		RpcSetObjectEnabled(door, false);
+		Debug.Log (GameController.instance.gameObject.name);
 		GameController.instance.KeyIsHit (key, true);
 
 		//is this creating stackoverflow?
@@ -341,8 +348,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		{
 			yield return new WaitForSeconds(0.1f);
 		}
-
-
+			
 		RpcSetObjectEnabled (door, true);
 
 	}
@@ -370,14 +376,13 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
 		if (!isLocalPlayer) { return;  }
 		if (playerCamera == null) {
-			Debug.Log ("NO CAMERA WTF");
 			SetCamera ();
 		}
-		//Debug.Log ("SPAM");
+
 		if (Input.GetButton ("Fire1") && Input.touchCount == 0) {
+			
 			
 			Vector3 mousePosition = playerCamera.ScreenToWorldPoint (Input.mousePosition);
 
@@ -521,7 +526,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [ClientRpc]
     void RpcSetObjectEnabled(GameObject go, bool b)
     {
-		
+		if (go == null) {
+			Debug.Log ("GO IS NULL WHAT IS EVEN HAPPENING");
+			return;
+		}
         go.SetActive(b);
 
     }
