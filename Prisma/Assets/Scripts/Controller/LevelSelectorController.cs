@@ -184,7 +184,7 @@ public class LevelSelectorController : NetworkBehaviour {
 	//makes sure all levels are inactive before chosing a level
 	//they have to be active prior due to not beince properly instanced otherwise
 
-	private void DeactivateLevels(){
+	public void DeactivateLevels(){
 		foreach (GameObject level in mpLevelList) {
 			if (level.activeSelf) {
 				level.SetActive (false);

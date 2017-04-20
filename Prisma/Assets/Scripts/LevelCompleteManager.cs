@@ -128,19 +128,22 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
 			lvlselector.ChangeLevel (nextLevel.name);
 			lvlselector.TriggerChangeLevel ();
-
 			//anim.SetTrigger ("Hidden");
 			//gameObject.SetActive (false);
 		}else if (action.Equals ("restart")) {
+			//GameObject.Find ("GUIPanelHost").SetActive (true);
 			GUILog.Log ("restarting");
 			lvlselector.TriggerChangeLevel ();
 		}
 		else if(action.Equals("menu")){
-			GameObject.Find ("GUIPanelHost").SetActive (false);
+			//GameObject.Find ("GUIPanelHost").SetActive (false);
+
 			lvlselector.TriggerChangeLevel ();
+			lvlselector.DeactivateLevels ();
 			lvlselector.ToggleSelector ();
 		}
-		GameObject.Find ("GUIPanelHost").SetActive (false);
+		anim.SetTrigger ("Hidden");
+		//GameObject.Find ("GUIPanelHost").SetActive (false);
 
 	}
 
