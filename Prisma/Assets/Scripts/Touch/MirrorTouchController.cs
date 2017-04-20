@@ -14,27 +14,53 @@ public class MirrorTouchController :  AbstractTouchController
     protected bool abortFadeOut = false;
     protected IEnumerator fadeEnumerator;
     public float fadeOutTime = 1.5f;
-
+	private int overlaps; //number of colliders this collider is currently overlapping
     public Sprite selectionSprite;
 
+	private Vector3 lastNonOverlappingPosition;
+	private Vector3 lastPosition;
     private TouchSelectionIndicator selectionIndicator;
 
     // Use this for initialization
      void Start() {
         selectionIndicator = new TouchSelectionIndicator(selectionSprite, gameObject);
+		selectionIndicator.SetColor (Color.green);
 		gameObject.GetComponent<LineRenderer> ().sortingLayerName = "Foreground";
-		gameObject.GetComponent<LineRenderer> ().sortingOrder = 2;
-		fadeEnumerator = FadeOut ();
+		//gameObject.GetComponent<LineRenderer> ().sortingOrder = 2;
+		fadeEnumerator = FadeOut();
         SetControllerAlpha(0.0f);
         ResetControllerPositions();
-
     }
-	
+
 	// Update is called once per frame
-	void Update () {
-
-
+	void FixedUpdate () {
+		if (overlaps == 0) {
+			lastNonOverlappingPosition = lastPosition;
+			lastPosition = gameObject.transform.position;
+		}
     }
+
+	void OnCollisionEnter2D(Collision2D col)
+	{
+		selectionIndicator.SetColor (Color.red);
+		//lastNonOverlappingPosition = gameObject.transform.position;
+		overlaps++;
+		GUILog.Log("collided");	
+	}
+	void OnCollisionStay2D(Collision2D col)
+	{
+		//GUILog.Log("stay");	
+	}
+	void OnCollisionExit2D(Collision2D col)
+	{
+		overlaps--;
+		if (overlaps == 0) {
+			selectionIndicator.SetColor (Color.green);
+		}
+		GUILog.Log("exit");
+	}
+
+
     public override bool Selectable()
     {
         return Draggable();
@@ -81,26 +107,47 @@ public class MirrorTouchController :  AbstractTouchController
     {
         if (beingDragged)
         {
-            MoveGameObject(pos);
-            //GUILog.Log("hasAuthority=" + hasAuthority.ToString() + " isServer=" + isServer.ToString() + ", isLocalPlayer="+isLocalPlayer.ToString());
             player.GetComponent<AimShootingMultiTouch>().CmdMoveRotate(gameObject, gameObject.transform.position, gameObject.transform.rotation);
-            //CmdSyncTransform(gameObject, gameObject.transform.position, transform.rotation);
-            //ServercSyncTransform(gameObject.transform.position, transform.rotation);
-            ctrlLeft.GetComponent<MirrorSideTouchController>().MoveWithMirror(pos); 
-            ctrlRight.GetComponent<MirrorSideTouchController>().MoveWithMirror(pos);
+			MoveGameObject (pos);
+			MoveSideControlleraWithMirror(pos);
             UpdateLinePoints();
         }
     }
 
     public override void Release()
     {
-        selectionIndicator.HideSelected();
-        HideSideControllers();
-        ctrlLeft.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset(); 
-        ctrlRight.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset();
-        //GUILog.Log("release mirror");
+
         beingDragged = false;
+		selectionIndicator.HideSelected();
+		HideSideControllers();
+
+		ctrlLeft.GetComponent<MirrorSideTouchController> ().ReleaseWithoutReset (); 
+		ctrlRight.GetComponent<MirrorSideTouchController> ().ReleaseWithoutReset ();
+		if (overlaps > 0) {
+			ctrlLeft.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+			ctrlRight.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+
+			gameObject.transform.position = lastNonOverlappingPosition;
+
+			//ResetControllerPositions ();
+			MoveSideControlleraWithMirror (lastNonOverlappingPosition);
+			UpdateLinePoints();
+			ctrlLeft.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset (); 
+			ctrlRight.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset ();
+
+			//ctrlLeft.GetComponent<MirrorSideTouchController> ().Release (); 
+			//ctrlRight.GetComponent<MirrorSideTouchController> ().Release ();
+			//
+		} else {
+
+
+		}
     }
+
+	public void MoveSideControlleraWithMirror(Vector3 pos){
+		ctrlLeft.GetComponent<MirrorSideTouchController>().MoveWithMirror(pos); 
+		ctrlRight.GetComponent<MirrorSideTouchController>().MoveWithMirror(pos);
+	}
 
     public override bool Draggable()
     {
@@ -148,6 +195,7 @@ public class MirrorTouchController :  AbstractTouchController
     {
         if(!ctrlLeft.GetComponent<MirrorSideTouchController>().BeingDragged() && !ctrlRight.GetComponent<MirrorSideTouchController>().BeingDragged())
         {
+			GUILog.Log ("reset");
             Vector3 offset = ctrlLeft.transform.position - transform.position;
             ctrlLeft.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
 
@@ -156,10 +204,9 @@ public class MirrorTouchController :  AbstractTouchController
 
             UpdateLinePoints();
         }
-
-        
     }
-		
+
+
 
     public IEnumerator FadeOut()
     {

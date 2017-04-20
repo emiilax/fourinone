@@ -19,8 +19,8 @@ public class LevelCompleteManager : NetworkBehaviour {
 	{		
 		// Set up the reference.
 		anim = GetComponent <Animator> ();
-		currentScene = "MPLevel1";
-		nextScene = "MPLevel2";
+		//currentScene = "MPLevel1";
+		//nextScene = "MPLevel2";
 	}
 		
 	void Update ()
@@ -38,9 +38,9 @@ public class LevelCompleteManager : NetworkBehaviour {
 			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 			}
 			//Debug.Log ("in here");
-			anim.SetTrigger ("LevelCompleteHost");
+			anim.SetTrigger ("LevelComplete");
 
-			RpcShowAnimation ();
+			//RpcShowAnimation ();
 
 		}
 	}
@@ -51,7 +51,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (isServer)
 			return;
 		
-		anim.SetTrigger ("LevelCompleteClient");
+		//anim.SetTrigger ("LevelCompleteClient");
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
 	}
@@ -65,8 +65,12 @@ public class LevelCompleteManager : NetworkBehaviour {
 		//anim.gameObject.SetActive (false);
 		RpcSendMessage("ButtonBackToLobbypressed");
 
-		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		MyNetworkLobbyManager.singelton.CancelConnection ();
+		if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
+			MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
+		} else {
+			//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
+			MyNetworkLobbyManager.singelton.CancelConnection ();	
+		}
 	
 	}
 

@@ -346,7 +346,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		
 		minPlayers = defaultMinPlayer;
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
-		gameMode = "SinglePlayer";
+		gameMode = "MultiPlayer";
 
 		gameObject.SetActive (true);
 		StopHost();
