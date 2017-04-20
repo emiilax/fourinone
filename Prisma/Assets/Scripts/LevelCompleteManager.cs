@@ -11,7 +11,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	public string currentScene;
 	public string nextScene;
 	public GameObject game;
-	public LevelSelectorController lvlselector;
+	LevelSelectorController lvlselector;
 
 	Animator anim;                          // Reference to the animator component.
 	float restartTimer;                     // Timer to count up to restarting the level
@@ -36,6 +36,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		if (isServer) {
 			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
 		}
+		lvlselector = GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
 	}
 
 
@@ -115,7 +116,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 	public void OnVoteComplete(string action){
 		GUILog.Log ("recieved vote complete");
-		if (action.Equals ("next")) {
+
+		if (action.Equals ("next")) {			
+			GUILog.Log (lvlselector.currentLevel.ToString());
 			if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
 				Debug.Log ("potato");
 				ButtonBackToLobby ();
@@ -124,6 +127,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
 			lvlselector.ChangeLevel (nextLevel.name);
 			lvlselector.TriggerChangeLevel ();
+			anim.SetTrigger ("Hidden");
 		}
 
 	}

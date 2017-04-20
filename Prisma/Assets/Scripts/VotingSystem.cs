@@ -41,6 +41,7 @@ public class VotingSystem {
 
 	public void OnVoteComplete(NetworkMessage netMsg){
 		string winner = netMsg.ReadMessage<StringMessage>().value;
+		GUILog.Log (winner);
 		listener.OnVoteComplete (winner);
 	}
 	public void OnVoteCast(NetworkMessage netMsg){

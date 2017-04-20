@@ -86,7 +86,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 			singlePlayerPanel.SetActive (false);
 
-			mpLevelList = getFirstChildren (mpLevels);
+			mpLevelList = new List<GameObject>(GameObject.Find ("MultiPlayerLevelSelector").GetComponent<MultiPlayersLevels> ().levels);//getFirstChildren (mpLevels);
 
 
 			//if (!isServer) {
