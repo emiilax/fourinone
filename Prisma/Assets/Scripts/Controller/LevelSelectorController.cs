@@ -84,6 +84,10 @@ public class LevelSelectorController : NetworkBehaviour {
 		} else if (gameMode == "MultiPlayer") {
 			multiPlayerPanel.SetActive (true);
 
+			singlePlayerPanel.SetActive (false);
+
+			mpLevelList = getFirstChildren (mpLevels);
+
 
 			//if (!isServer) {
 			NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
@@ -92,20 +96,7 @@ public class LevelSelectorController : NetworkBehaviour {
 			client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
 			votes = new Dictionary<int, string> ();
 			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-			//}
-			/*
-			if (isServer) {
-				multiPlayerPanel.SetActive (true);
-			} else {
-				clientPanel.SetActive (true);
-				levelMenu.SetActive (false);
-				multiPlayerPanel.SetActive (false);
-			}
-			*/
-			singlePlayerPanel.SetActive (false);
 
-			mpLevelList = getFirstChildren (mpLevels);
-				
 		} 
 
 	}

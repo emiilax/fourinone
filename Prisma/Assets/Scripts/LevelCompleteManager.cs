@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LevelCompleteManager : NetworkBehaviour {
+public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 	public float restartDelay = 5f;         // Time to wait before restarting the level
 
@@ -16,6 +16,7 @@ public class LevelCompleteManager : NetworkBehaviour {
 	Animator anim;                          // Reference to the animator component.
 	float restartTimer;                     // Timer to count up to restarting the level
 
+	VotingSystem vote;
 
 	void Awake ()
 	{		
@@ -24,7 +25,20 @@ public class LevelCompleteManager : NetworkBehaviour {
 		//currentScene = "MPLevel1";
 		//nextScene = "MPLevel2";
 	}
-		
+	void Start(){
+		vote = new VotingSystem (
+			StaticVariables.FinnishedGameVoteMsg, 
+			StaticVariables.FinnishedGameVoteCompletedMsg,
+			MyNetworkLobbyManager.singleton.client,
+			MyNetworkLobbyManager.singleton.client.connection.connectionId,
+			this
+		);
+		if (isServer) {
+			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
+		}
+	}
+
+
 	void Update ()
 	{
 
@@ -58,67 +72,60 @@ public class LevelCompleteManager : NetworkBehaviour {
 		if (isServer)
 			return;
 
-		anim.SetTrigger ("LevelCompleteClient");
+		anim.SetTrigger ("LevelCompleteHost");
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
 	}
 
 
 	public void ButtonBackToLobby(){
-
-		if (!isServer)
-			return;
 		
 		//anim.gameObject.SetActive (false);
-		RpcSendMessage("ButtonBackToLobbypressed");
+		//RpcSendMessage("ButtonBackToLobbypressed");
 
 		lvlselector.TriggerChangeLevel ();
 		lvlselector.ToggleSelector ();
-		RpcSetTrigger ("Hidden");
+		//RpcSetTrigger ("Hidden");
 
-
-
-	/*	if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
-			MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
-		} else {
-			//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-			MyNetworkLobbyManager.singelton.CancelConnection ();	
-		}
-	*/
 	}
 
 	public void ButtonNextLevel(){
-		if (!isServer)
-			return;
+		vote.CastVote ("next");
+		//RpcSendMessage("ButtonNextLevelPressed");
 
-		RpcSendMessage("ButtonNextLevelPressed");
+		//RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
 
-		RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
-		if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
-			Debug.Log ("potato");
-			ButtonBackToLobby ();
-			return;
-		}
-		GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
-		lvlselector.ChangeLevel (nextLevel.name);
-		lvlselector.TriggerChangeLevel ();
-		RpcSetTrigger ("Hidden");
+		//RpcSetTrigger ("Hidden");
 
-		//anim.gameObject.SetActive (false);
-		//MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 	}
 
 
 	public void ButtonRestartLevel(){
-		if (!isServer)
-			return;
+		//if (!isServer)
+		//	return;
 		
-		RpcSendMessage("ButtonRestartLevelpressed");
+		//RpcSendMessage("ButtonRestartLevelpressed");
 		lvlselector.TriggerChangeLevel ();
-		RpcSetTrigger ("Hidden");
+		//RpcSetTrigger ("Hidden");
 
 		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
 		//MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
+	}
+
+
+	public void OnVoteComplete(string action){
+		GUILog.Log ("recieved vote complete");
+		if (action.Equals ("next")) {
+			if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
+				Debug.Log ("potato");
+				ButtonBackToLobby ();
+				return;
+			}
+			GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
+			lvlselector.ChangeLevel (nextLevel.name);
+			lvlselector.TriggerChangeLevel ();
+		}
+
 	}
 
 
