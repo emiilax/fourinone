@@ -88,7 +88,7 @@ public class LevelSelectorController : NetworkBehaviour {
 			singlePlayerPanel.SetActive (false);
 
 
-			mpLevelList = new List<GameObject>(GameObject.Find ("MultiPlayerLevelSelector").GetComponent<MultiPlayersLevels> ().levels);//getFirstChildren (mpLevels);
+
 
 
 			//if (!isServer) {
@@ -103,6 +103,8 @@ public class LevelSelectorController : NetworkBehaviour {
 			client.Send(IdMsg, new IntegerMessage(0));
 
 		} 
+
+		mpLevelList = getFirstChildren (mpLevels);
 
 
 	}

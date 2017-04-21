@@ -53,7 +53,7 @@ public class GameController : NetworkBehaviour {
 
 
 	public void KeyIsHit(GameObject theKey, bool keyIsHit){
-		Debug.Log (theKey.name + "keyisHitGamecontroler");
+		//Debug.Log (theKey.name + "keyisHitGamecontroler");
 		// Safety first..
 		if (!theKey.CompareTag ("Key"))
 			return;

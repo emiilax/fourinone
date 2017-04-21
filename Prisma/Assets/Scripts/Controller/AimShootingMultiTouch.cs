@@ -58,7 +58,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
         initPlayer();
 
-		Debug.Log ("here?");
+//		Debug.Log ("here?");
 
         //Debug.Log ("Assigned Screen: " + assignedScreen);
 		SetCamera();
@@ -337,9 +337,9 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	IEnumerator KeyIsHit(GameObject key){
 		GameObject door = key.GetComponent<KeyScript> ().door; 
 
-		Debug.Log (door.name + "KeyisHit");
+		//Debug.Log (door.name + "KeyisHit");
 		RpcSetObjectEnabled(door, false);
-		Debug.Log (GameController.instance.gameObject.name);
+		//Debug.Log (GameController.instance.gameObject.name);
 		GameController.instance.KeyIsHit (key, true);
 
 		//is this creating stackoverflow?

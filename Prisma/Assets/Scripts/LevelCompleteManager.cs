@@ -60,6 +60,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 			}
 			//Debug.Log ("in here");
+		
+
+			anim.SetTrigger ("LevelCompleteHost");
+
 			GUILog.Log("game finnished");
 			//GameObject.Find ("GUIPanelHost").SetActive (true);
 
@@ -76,12 +80,29 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 	[ClientRpc]
 	void RpcShowAnimation(){
-		GUILog.Log ("showing animation");
+
+
+		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+
+
+		foreach(GameObject g in austronauts){
+
+			if (g.activeInHierarchy) {
+				Debug.Log ("Austronaut show animation");
+				g.GetComponent<AustronautManager> ().ShowAnimation ();
+			}
+		}
+
+
+	
+
 		// ... tell the animator the game is over.
 		//if (isServer)
 		//	return;
 
-		anim.SetTrigger ("LevelCompleteHost");
+
+		anim.SetTrigger ("LevelCompleteClient");
+
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
 	}
@@ -172,6 +193,20 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 	[ClientRpc]
 	void RpcSetTrigger(string str){
+
+		if (str.Equals ("Hidden")) {
+			GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+
+
+			foreach(GameObject g in austronauts){
+
+				if (g.activeInHierarchy) {
+					
+					g.GetComponent<AustronautManager> ().HideAnimation ();
+				}
+			}
+		}
+
 		anim.SetTrigger (str);
 	}
 		
