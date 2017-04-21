@@ -14,11 +14,13 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	//The gameobject containing multiplayer levels,
 	//to be used to populate mpLevelList
-	public GameObject mpLevels;
+	public GameObject levels;
+	public MultiPlayersLevels mpLevels;
+	public MultiPlayersLevels spLevels;
 
 	//List of all the multiplayer levels
 	public List<GameObject> mpLevelList;
-
+	public List<GameObject> spLevelList;
 	//the current active level
 	public GameObject currentLevel;
 
@@ -68,14 +70,31 @@ public class LevelSelectorController : NetworkBehaviour {
 	void Start () {
 		if (isServer) {
 			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
-			if (gameMode == "MultiPlayer") {
-				votes = new Dictionary<int, string> ();
-				numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+			votes = new Dictionary<int, string> ();
+			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+			//if (gameMode == "MultiPlayer") {
+			//	votes = new Dictionary<int, string> ();
+			//	numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
 
 
-			}
+			//}
 		}
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
+
+		NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
+		NetworkServer.RegisterHandler(IdMsg, OnRequestId);
+		client = MyNetworkLobbyManager.singelton.client;
+		//connId = client.connection.connectionId;
+		client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
+		client.RegisterHandler (IdMsg, OnRecieveId);
+		votes = new Dictionary<int, string> ();
+		numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+		client.Send(IdMsg, new IntegerMessage(0));
+		mpLevels = GameObject.Find ("MultiPlayerLevelSelector").GetComponent<MultiPlayersLevels> ();
+		spLevels = GameObject.Find ("SinglePlayerLevelSelector").GetComponent<MultiPlayersLevels> ();
+		mpLevelList = new List<GameObject>(mpLevels.levels);//getFirstChildren (mpLevels);
+		spLevelList = new List<GameObject>(spLevels.levels);//getFirstChildren (mpLevels);
+
 
 		if (gameMode == "SinglePlayer") {
 
@@ -87,24 +106,8 @@ public class LevelSelectorController : NetworkBehaviour {
 
 			singlePlayerPanel.SetActive (false);
 
-
-
-
-
-			//if (!isServer) {
-			NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
-			NetworkServer.RegisterHandler(IdMsg, OnRequestId);
-			client = MyNetworkLobbyManager.singelton.client;
-			//connId = client.connection.connectionId;
-			client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
-			client.RegisterHandler (IdMsg, OnRecieveId);
-			votes = new Dictionary<int, string> ();
-			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-			client.Send(IdMsg, new IntegerMessage(0));
-
 		} 
 
-		mpLevelList = getFirstChildren (mpLevels);
 
 
 	}
@@ -165,6 +168,9 @@ public class LevelSelectorController : NetworkBehaviour {
 	public void OnVoteComplete(NetworkMessage netMsg){
 		string level = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log ("launch level " + level);
+		votes.Clear ();
+		spLevels.Reset();
+		mpLevels.Reset ();
 		DeactivateLevels ();
 		ToggleSelector ();
 		if (!mpCommons.activeSelf) {
@@ -175,9 +181,16 @@ public class LevelSelectorController : NetworkBehaviour {
 		TriggerChangeLevel ();
 
 	}
-
+	/*
+	public void OnChangeLevel(){
+		votes.Clear ();
+		spLevels.Reset();
+		mpLevels.Reset ();
+	}
+	*/
 	public void LevelSelected(GameObject level) {
 		if (gameMode == "SinglePlayer") {
+			/*
 			if (isServer) {
 				DeactivateLevels ();
 				ToggleSelector ();
@@ -188,6 +201,9 @@ public class LevelSelectorController : NetworkBehaviour {
 				ChangeLevel (level.name);
 				TriggerChangeLevel ();
 			}
+			*/
+			GUILog.Log ("selected level");
+			SendVote (level.name);
 		} else if (gameMode == "MultiPlayer") {
 			GUILog.Log ("selected level");
 			SendVote (level.name);
@@ -203,6 +219,11 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	public void DeactivateLevels(){
 		foreach (GameObject level in mpLevelList) {
+			if (level.activeSelf) {
+				level.SetActive (false);
+			}
+		}
+		foreach (GameObject level in spLevelList) {
 			if (level.activeSelf) {
 				level.SetActive (false);
 			}
@@ -228,7 +249,7 @@ public class LevelSelectorController : NetworkBehaviour {
 	//used because only some things can be sent ofer RPC calls.
 
 	public void ChangeLevel(string nextLevel){
-		ChangeLevel(mpLevels.transform.Find(nextLevel).gameObject);
+		ChangeLevel(levels.transform.Find(nextLevel).gameObject);
 	}
 		
 	//changes the current level

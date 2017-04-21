@@ -15,6 +15,8 @@ public class MultiPlayersLevels : MonoBehaviour {
 	public int padding;
 	public int lastId = -1;
 	LevelSelectorController sel;
+
+
 	void OnGUI() {
 		if (!initialized) {
 			style = new GUIStyle (GUI.skin.button);
@@ -42,7 +44,12 @@ public class MultiPlayersLevels : MonoBehaviour {
 			//selStrings [i] = levels [i].name;
 		}
 	}
-	
+
+	public void Reset(){
+		lastId = -1;
+		selGridInt = -1;
+	}
+
 	// Update is called once per frame
 	void Update () {
 		
