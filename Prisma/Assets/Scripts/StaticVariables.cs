@@ -16,7 +16,9 @@ public class StaticVariables : MonoBehaviour {
 	public const short LevelIdMsg = 2002;
 
 	public static short FinnishedGameVoteMsg = 1003;
+
 	public static short FinnishedGameVoteCompletedMsg = 1004;
-	public const short FinnishedIdMsg = 2005;
+	public const short FinnishedRecieveIdMsg = 2005;
+	public const short FinnishedRequestIdMsg = 2006;
 
 }

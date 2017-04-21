@@ -18,8 +18,6 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	float restartTimer;                     // Timer to count up to restarting the level
 
 	VotingSystem vote;
-	int hiddenHash = Animator.StringToHash("Hidden");
-	int showHash = Animator.StringToHash("LevelCompleteHost");
 	void Awake ()
 	{		
 		// Set up the reference.
@@ -31,7 +29,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
-			StaticVariables.FinnishedIdMsg,
+			StaticVariables.FinnishedRequestIdMsg,
+			StaticVariables.FinnishedRecieveIdMsg,
 			MyNetworkLobbyManager.singleton.client,
 			this
 		);
@@ -58,15 +57,11 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
 
 			}
-			//Debug.Log ("in here");
-		
 
-			anim.SetTrigger ("LevelCompleteHost");
+			//anim.SetTrigger ("LevelCompleteHost");
 
 			GUILog.Log("game finnished");
 			//GameObject.Find ("GUIPanelHost").SetActive (true);
-
-
 			RpcShowAnimation ();
 
 		}
@@ -79,7 +74,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 	[ClientRpc]
 	void RpcShowAnimation(){
-
+		//if(isServer)
 
 		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
 
@@ -92,15 +87,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			}
 		}
 
-
-	
-
-		// ... tell the animator the game is over.
-		//if (isServer)
-		//	return;
-
-
-		anim.SetTrigger ("LevelCompleteClient");
+		anim.SetTrigger ("LevelCompleteHost");
 
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
@@ -111,7 +98,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		
 		//anim.gameObject.SetActive (false);
 		//RpcSendMessage("ButtonBackToLobbypressed");
-		vote.CastVote ("next");
+		vote.CastVote ("menu");
 		//lvlselector.TriggerChangeLevel ();
 		//lvlselector.ToggleSelector ();
 		//RpcSetTrigger ("Hidden");
@@ -134,6 +121,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		//	return;
 		
 		//RpcSendMessage("ButtonRestartLevelpressed");
+
 		vote.CastVote ("restart");
 
 		//RpcSetTrigger ("Hidden");
@@ -147,6 +135,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 
 	public void OnVoteComplete(string action){
+		
 		GUILog.Log ("recieved vote complete");
 
 		if (action.Equals ("next")) {			
@@ -172,10 +161,13 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			lvlselector.TriggerChangeLevel ();
 			lvlselector.ToggleSelector ();
 		}
+
 		//anim.StopPlayback ();
 		//anim.ResetTrigger (showHash);
-		//anim.SetTrigger ("Hidden");
-		anim.Play ("Empty");
+		Debug.Log("inte kraschat");
+		Debug.Log("anim = " + anim.ToString());
+		anim.SetTrigger ("Hidden");
+		//anim.Play ("Empty");
 		GUILog.Log ("hid panel");
 		//anim.CrossFade ("Hidden", 0.1f);
 		//anim.enabled = false;
