@@ -370,7 +370,19 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+		// Playercontroller when player is in SyncScreen
 		if (MyNetworkLobbyManager.networkSceneName == "SyncScreen") {
+			if (isLocalPlayer && Input.GetMouseButtonDown (0)) {    
+				var ray = playerCamera.ScreenPointToRay (Input.mousePosition);
+				RaycastHit hit;
+				if (Physics.Raycast(ray, out hit, 100)) {
+					// whatever tag you are looking for on your game object
+					if(hit.collider.tag == "SyncScreenButton") {                         
+						CmdReadyBtnPressed (hit.collider.gameObject);
+					}
+				}    
+			}
+
 			return;
 		}
 
@@ -508,8 +520,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	// Tells the server that a player is ready in SyncScreen
 	[Command]
-	public void CmdReadyBtnPressed(int id) {
-		SyncScreenController.instance.ReadyBtnPressed(id);
+	public void CmdReadyBtnPressed(GameObject button) {
+		SyncScreenController.instance.ReadyBtnPressed(button);
 	}
 
 

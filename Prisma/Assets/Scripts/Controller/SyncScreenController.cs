@@ -8,6 +8,7 @@ public class SyncScreenController : NetworkBehaviour {
 	public static SyncScreenController instance;
 
 	private bool[] isReadyBtnPressed;
+
 	public GameObject[] players;
 
 	void Awake() {
@@ -47,9 +48,9 @@ public class SyncScreenController : NetworkBehaviour {
 	}
 
 	// When ready-button is pressed. True = opacity 50%. False = opacity 100%. 
-	public void ReadyBtnPressed(int id) {
+	public void ReadyBtnPressed(GameObject button) {
 
-		Debug.Log ("Player id: " + id);
+		var id = int.Parse(button.name);
 
 		if (id > isReadyBtnPressed.Length) {
 			return;

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SyncScreenButton : MonoBehaviour {
 
-	public int id;
 	bool isEnabled;
 
 	void Start() {
@@ -22,9 +21,6 @@ public class SyncScreenButton : MonoBehaviour {
 				gameObject.GetComponent<Renderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
 				isEnabled = false;
 			}
-
-			var player = SyncScreenController.instance.players [id].GetComponent<AimShootingMultiTouch> ();
-			player.CmdReadyBtnPressed (id);
 
 		}
 			
