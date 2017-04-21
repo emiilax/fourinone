@@ -44,6 +44,8 @@ public class LevelSelectorController : NetworkBehaviour {
 	NetworkClient client;
 
 	// id of the level vote network message
+	const short IdMsg = 2000;
+
 	const short LevelVoteMsg = 1000;
 	const short LevelVoteCompleteMsg = 1001;
 	// connection ids and names of levels selected by players. Theses are only used by the server.
@@ -64,13 +66,13 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
 
 		if (isServer) {
 			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
 			if (gameMode == "MultiPlayer") {
 				votes = new Dictionary<int, string> ();
 				numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+
 
 			}
 		}
@@ -86,28 +88,36 @@ public class LevelSelectorController : NetworkBehaviour {
 
 			singlePlayerPanel.SetActive (false);
 
-<<<<<<< HEAD
 
-				
-		}
-		mpLevelList = getFirstChildren (mpLevels);
-=======
 			mpLevelList = new List<GameObject>(GameObject.Find ("MultiPlayerLevelSelector").GetComponent<MultiPlayersLevels> ().levels);//getFirstChildren (mpLevels);
 
 
 			//if (!isServer) {
 			NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
+			NetworkServer.RegisterHandler(IdMsg, OnRequestId);
 			client = MyNetworkLobbyManager.singelton.client;
-			connId = client.connection.connectionId;
+			//connId = client.connection.connectionId;
 			client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
+			client.RegisterHandler (IdMsg, OnRecieveId);
 			votes = new Dictionary<int, string> ();
 			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
+			client.Send(IdMsg, new IntegerMessage(0));
 
 		} 
->>>>>>> voting
+
 
 	}
+
+	public void OnRequestId(NetworkMessage netMsg){
 		
+		NetworkServer.SendToClient(netMsg.conn.connectionId, IdMsg, new IntegerMessage(netMsg.conn.connectionId));
+	}
+
+	public void OnRecieveId(NetworkMessage netMsg){
+		int id = netMsg.ReadMessage<IntegerMessage> ().value;
+		GUILog.Log ("recieved id " + id.ToString());
+		connId = id;
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -121,6 +131,7 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 	public void OnLevelVoteCast(NetworkMessage netMsg){
+		
 		string vote = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log ("recieved vote " + vote);
 		var idAndLevel = vote.Split ();
@@ -144,6 +155,7 @@ public class LevelSelectorController : NetworkBehaviour {
 			}
 			if (unanimous) {
 				NetworkServer.SendToAll (LevelVoteCompleteMsg, new StringMessage(firstVote));
+
 			}
 		}
 

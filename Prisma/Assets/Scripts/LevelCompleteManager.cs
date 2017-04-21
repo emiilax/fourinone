@@ -18,7 +18,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	float restartTimer;                     // Timer to count up to restarting the level
 
 	VotingSystem vote;
-
+	int hiddenHash = Animator.StringToHash("Hidden");
+	int showHash = Animator.StringToHash("LevelCompleteHost");
 	void Awake ()
 	{		
 		// Set up the reference.
@@ -147,8 +148,14 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			lvlselector.TriggerChangeLevel ();
 			lvlselector.ToggleSelector ();
 		}
+		//anim.StopPlayback ();
+		anim.ResetTrigger (showHash);
 		anim.SetTrigger ("Hidden");
-		GameObject.Find ("GUIPanelHost").GetComponent<Canvas>().enabled = false;
+		anim.Play ("Empty");
+		GUILog.Log ("hid panel");
+		//anim.CrossFade ("Hidden", 0.1f);
+		//anim.enabled = false;
+		//GameObject.Find ("GUIPanelHost").GetComponent<Canvas>().enabled = false;
 	}
 
 
