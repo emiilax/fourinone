@@ -11,8 +11,7 @@ public class VotingSystem {
 
 	short voteMsg;
 	short voteCompleteMsg;
-	short requestIdMsg;
-	short recieveIdMsg;
+	short voteFailMsg;
 	// Our connectionId should not change during game
 	int connId;
 
@@ -23,18 +22,17 @@ public class VotingSystem {
 	IVoteListener listener;
 
 
-	public VotingSystem(short voteId, short voteCompleteId, short requestIdMsg, short recieveIdMsg, NetworkClient client, IVoteListener listener){
+	public VotingSystem(short voteId, short voteCompleteId, short voteFailId, int playerid, NetworkClient client, IVoteListener listener){
 		this.voteMsg = voteId;
 		this.voteCompleteMsg = voteCompleteId;
+		this.voteFailMsg = voteFailId;
 		this.client = client;
 		this.listener = listener;
-		this.requestIdMsg = requestIdMsg;
-		this.recieveIdMsg = recieveIdMsg;
+		this.connId = playerid;
+
 		NetworkServer.RegisterHandler(voteMsg, OnVoteCast);
-		NetworkServer.RegisterHandler(requestIdMsg, OnRequestId);
 		client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
-		client.RegisterHandler (recieveIdMsg, OnRecieveId);
-		client.Send(requestIdMsg, new IntegerMessage(0));
+		client.RegisterHandler (voteCompleteMsg, OnVoteFail);
 	}
 
 	public void setupServer(int numPlayers){
@@ -53,18 +51,15 @@ public class VotingSystem {
 		string winner = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log (winner);
 		listener.OnVoteComplete (winner);
+
 	}
 
-	public void OnRequestId(NetworkMessage netMsg){
-		NetworkServer.SendToClient(netMsg.conn.connectionId, recieveIdMsg, new IntegerMessage(netMsg.conn.connectionId));
-	}
+	public void OnVoteFail(NetworkMessage netMsg){
 
-	public void OnRecieveId(NetworkMessage netMsg){
-		int id = netMsg.ReadMessage<IntegerMessage> ().value;
+		string winner = netMsg.ReadMessage<StringMessage>().value;
+		GUILog.Log (winner);
+		listener.OnVoteFail ();
 
-		GUILog.Log (voteMsg.ToString());
-		connId = id;
-		GUILog.Log ("recieved id in votingsystem" + connId.ToString());
 	}
 
 	public void OnVoteCast(NetworkMessage netMsg){

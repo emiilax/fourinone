@@ -9,16 +9,11 @@ public class StaticVariables : MonoBehaviour {
 	public static Color COLOR_BLUE = new Color32( 0x53, 0x98, 0xA7 , 0xFF );
 	public static Color COLOR_GREEN = new Color32( 0x83, 0xB0, 0x6E , 0xFF );
 
-	public const short IdMsg = 2001;
+	public static short LevelVoteMsg                  = 1000;
+	public static short LevelVoteCompletedMsg         = 1001;
+	public static short LevelVoteFailMsg              = 1002;
 
-	public static short LevelVoteMsg = 1000;
-	public static short LevelVoteCompletedMsg = 1001;
-	public const short LevelIdMsg = 2002;
-
-	public static short FinnishedGameVoteMsg = 1003;
-
+	public static short FinnishedGameVoteMsg          = 1003;
 	public static short FinnishedGameVoteCompletedMsg = 1004;
-	public const short FinnishedRecieveIdMsg = 2005;
-	public const short FinnishedRequestIdMsg = 2006;
-
+	public static short FinnishVoteFailMsg              = 1005;
 }

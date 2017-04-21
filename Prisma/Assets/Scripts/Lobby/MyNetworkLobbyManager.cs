@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +12,22 @@ using AssemblyCSharp;
 public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	static public MyNetworkLobbyManager singelton;
+	/*
+	private static MyNetworkLobbyManager _singelton;
 
+	public static MyNetworkLobbyManager singelton
+	{
+		get
+		{
+			if(_singelton == null)
+			{
+				_singelton = GameObject.FindObjectOfType<MyNetworkLobbyManager>();
+			}
+
+			return _singelton;
+		}
+	}
+*/
 	// Menu with startbutton
 	public RectTransform mainMenuPanel;
 
@@ -44,6 +60,12 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	private int defaultMinPlayer;
 
 	private int playerid;
+
+	private Guid uuid;
+
+	private NodeID nodeId;
+
+
 
 
 	// Initialization of the singelton
@@ -79,6 +101,10 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		DontDestroyOnLoad(gameObject);
 
+	}
+
+	public int GetPlayerId(){
+		return (int)nodeId;
 	}
 
 	public void ChangePanel(RectTransform newPanel){
@@ -139,7 +165,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 						Debug.Log ("Joined Game. Server: " + m.name);
 						currentMatchID = (System.UInt64) m.networkId;
 						isHost = false;
-						matchMaker.JoinMatch (m.networkId, "", "", "", 0, 0, OnMatchJoined);
+						matchMaker.JoinMatch (m.networkId, "", "", "", 0, 0, OnMatchJoin);
 						return;
 
 					}// end if equals
@@ -154,7 +180,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 				true,
 				"", "", "", 0, 0,
 				OnMatchCreate);
-
+			
 			isHost = true;
 			Debug.Log ("Match created. Servername: " + lobbyName);
 
@@ -199,11 +225,18 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public override void OnMatchCreate (bool success, string extendedInfo, MatchInfo matchInfo)
 	{
 		base.OnMatchCreate (success, extendedInfo, matchInfo);
+		nodeId = matchInfo.nodeId;
 		currentMatchID = (System.UInt64)matchInfo.networkId;
 		if(!success){
 			Debug.LogError("Couldn't connect to match maker");
 		}
 	}
+
+	public void OnMatchJoin (bool success, string extendedInfo, MatchInfo matchInfo){
+		OnMatchJoined (success, extendedInfo, matchInfo);
+		nodeId = matchInfo.nodeId;
+	}
+
 
 	public override void OnServerSceneChanged (string sceneName)
 	{
@@ -240,7 +273,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId){
 
 		playerid = conn.connectionId;
-
+		GUILog.Log ("spawn id " + playerid);
 		GameObject player = GameObject.Instantiate (gamePlayerPrefab, playerSpawnPositions[playerid], Quaternion.identity);
 
 		return player;
@@ -334,7 +367,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override void ServerChangeScene (string sceneName)
 	{
-		
+		Application.LoadLevel(sceneName);
+		//NetworkManager.singleton.ServerChangeScene (sceneName);
 		base.ServerChangeScene (sceneName);
 
 		Debug.Log ("ServerChangeScene");

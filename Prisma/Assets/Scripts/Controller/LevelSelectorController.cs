@@ -5,22 +5,18 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
-public class LevelSelectorController : NetworkBehaviour {
+public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	public static LevelSelectorController instance;
 
 	// The standard UI
 	public GameObject levelMenu;
 
-	//The gameobject containing multiplayer levels,
-	//to be used to populate mpLevelList
-	public GameObject levels;
-	public MultiPlayersLevels mpLevels;
-	public MultiPlayersLevels spLevels;
 
 	//List of all the multiplayer levels
-	public List<GameObject> mpLevelList;
-	public List<GameObject> spLevelList;
+	private List<GameObject> mpLevelList;
+	private List<GameObject> spLevelList;
+
 	//the current active level
 	public GameObject currentLevel;
 
@@ -31,36 +27,28 @@ public class LevelSelectorController : NetworkBehaviour {
 	public GameObject singlePlayerPanel;
 	public GameObject multiPlayerPanel;
 
-	// The panel for the clients that are not the server
-	public GameObject clientPanel;
 
 	// The current gamemode. SinglePlayer or MultiPlayer.
-	public string gameMode;
+	private string gameMode;
 
-	// number of players in the current game
-	private int numPlayers;
-
-	// Our connectionId should not change during game
-	private int connId;
-
-	NetworkClient client;
-
-	// id of the level vote network message
-	const short IdMsg = 2000;
-
-	const short LevelVoteMsg = 1000;
-	const short LevelVoteCompleteMsg = 1001;
 	// connection ids and names of levels selected by players. Theses are only used by the server.
-	private Dictionary<int, string> votes;
-	//private List<int> ids;
-	//private List<string> votedLevels;
+	private VotingSystem vote;
+
+
+	public Texture2D defaultLevelThumbnail;
+	// State for the SelectionGrid
+	private bool initialized = false;
+	public int padding;
+	private int lastId = -1;
+	private GUIStyle style;
+	private List<GUIContent> contents;
+	private int selGridInt = -1;
+	private List<GameObject> guiLevels;
+	private bool showLevels;
 
 	void Awake() {
-		//If we don't currently have a game control...
 		if (instance == null)
-			//...set this one to be it...
 			instance = this;
-		//...otherwise...
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
 			Destroy (gameObject);
@@ -68,42 +56,39 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		showLevels = true;
+		vote = new VotingSystem (
+			StaticVariables.LevelVoteMsg, 
+			StaticVariables.LevelVoteCompletedMsg,
+			StaticVariables.LevelVoteFailMsg,
+			MyNetworkLobbyManager.singelton.GetPlayerId(),
+			MyNetworkLobbyManager.singleton.client,
+			this
+		);
+
 		if (isServer) {
-			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
-			votes = new Dictionary<int, string> ();
-			numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-			//if (gameMode == "MultiPlayer") {
-			//	votes = new Dictionary<int, string> ();
-			//	numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-
-
-			//}
+			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
 		}
+
+		GUILog.Log ("player id " + MyNetworkLobbyManager.singelton.GetPlayerId());
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
 
-		NetworkServer.RegisterHandler(LevelVoteMsg, OnLevelVoteCast);
-		NetworkServer.RegisterHandler(IdMsg, OnRequestId);
-		client = MyNetworkLobbyManager.singelton.client;
-		//connId = client.connection.connectionId;
-		client.RegisterHandler (LevelVoteCompleteMsg, OnVoteComplete);
-		client.RegisterHandler (IdMsg, OnRecieveId);
-		votes = new Dictionary<int, string> ();
-		numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-		client.Send(IdMsg, new IntegerMessage(0));
-		mpLevels = GameObject.Find ("MultiPlayerLevelSelector").GetComponent<MultiPlayersLevels> ();
-		spLevels = GameObject.Find ("SinglePlayerLevelSelector").GetComponent<MultiPlayersLevels> ();
-		mpLevelList = new List<GameObject>(mpLevels.levels);//getFirstChildren (mpLevels);
-		spLevelList = new List<GameObject>(spLevels.levels);//getFirstChildren (mpLevels);
 
 
+		mpLevelList = FindLevels ("MP");
+		spLevelList = FindLevels ("SP");
+
+		style = new GUIStyle ("button");
 		if (gameMode == "SinglePlayer") {
-
+			guiLevels = spLevelList;
+			contents = GetContents (spLevelList);
 			singlePlayerPanel.SetActive (true);
 			multiPlayerPanel.SetActive (false);
 
 		} else if (gameMode == "MultiPlayer") {
+			guiLevels = mpLevelList;
+			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
-
 			singlePlayerPanel.SetActive (false);
 
 		} 
@@ -112,15 +97,46 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	}
 
-	public void OnRequestId(NetworkMessage netMsg){
-		
-		NetworkServer.SendToClient(netMsg.conn.connectionId, IdMsg, new IntegerMessage(netMsg.conn.connectionId));
+	void OnGUI() {
+		if (showLevels) {
+			if (!initialized) {
+				style = new GUIStyle (GUI.skin.button);
+				style.margin = new RectOffset (48, 48, 48, 48);
+				style.imagePosition = ImagePosition.ImageAbove;
+				style.fontSize = 32;
+			}
+			selGridInt = GUI.SelectionGrid (new Rect (padding, padding, 1024 - padding * 2, 768 - padding * 2), selGridInt, contents.ToArray (), guiLevels.Count / 2, style);
+			if (lastId != selGridInt) {
+				LevelSelected (guiLevels [selGridInt]);
+				lastId = selGridInt;
+
+			}
+		}
 	}
 
-	public void OnRecieveId(NetworkMessage netMsg){
-		int id = netMsg.ReadMessage<IntegerMessage> ().value;
-		GUILog.Log ("recieved id " + id.ToString());
-		connId = id;
+	public void ShowLevelGrid(){
+		showLevels = true;
+	}
+
+	List<GUIContent> GetContents(List<GameObject> levels){
+		List<GUIContent> contents = new List<GUIContent> ();
+		foreach(GameObject level in levels){
+			
+			contents.Add (new GUIContent(level.name, defaultLevelThumbnail));
+		}
+		return contents;
+	}
+
+	List<GameObject> FindLevels(string type){
+		GameObject levels = GameObject.Find (type + "Levels");
+		List<GameObject> levelObjs = new List<GameObject>();
+		foreach(Transform trans in levels.transform)
+		{
+			GameObject level = trans.gameObject;
+			levelObjs.Add (level);
+		}
+		return levelObjs;
+
 	}
 	
 	// Update is called once per frame
@@ -129,48 +145,19 @@ public class LevelSelectorController : NetworkBehaviour {
 	}
 
 
-	public void SendVote(string level){
-		//client.Send ();
-		client.Send(LevelVoteMsg, new StringMessage(connId.ToString() + " " + level));
-	}
 
-	public void OnLevelVoteCast(NetworkMessage netMsg){
+	public void ServerVoteComplete (string winner){
+		//do nothing
+	}
+	public void OnVoteFail(){
 		
-		string vote = netMsg.ReadMessage<StringMessage>().value;
-		GUILog.Log ("recieved vote " + vote);
-		var idAndLevel = vote.Split ();
-		int id = int.Parse(idAndLevel[0]);
-		string level = idAndLevel [1];
-		votes [id] = level;
-		if (votes.Count == numPlayers) {
-			string firstVote = null;
-			bool unanimous = true;
-			foreach(KeyValuePair<int, string> entry in votes)
-			{
-				if (firstVote == null) {
-					firstVote = entry.Value;
-				} else {
-					if (firstVote != entry.Value) {
-						unanimous = false;
-						break;
-					} 
-				}
-				// do something with entry.Value or entry.Key
-			}
-			if (unanimous) {
-				NetworkServer.SendToAll (LevelVoteCompleteMsg, new StringMessage(firstVote));
-
-			}
-		}
-
 	}
 
-	public void OnVoteComplete(NetworkMessage netMsg){
-		string level = netMsg.ReadMessage<StringMessage>().value;
+	public void OnVoteComplete(string level){
+		selGridInt = -1;
+		lastId = selGridInt;
+		showLevels = false;
 		GUILog.Log ("launch level " + level);
-		votes.Clear ();
-		spLevels.Reset();
-		mpLevels.Reset ();
 		DeactivateLevels ();
 		ToggleSelector ();
 		if (!mpCommons.activeSelf) {
@@ -181,36 +168,10 @@ public class LevelSelectorController : NetworkBehaviour {
 		TriggerChangeLevel ();
 
 	}
-	/*
-	public void OnChangeLevel(){
-		votes.Clear ();
-		spLevels.Reset();
-		mpLevels.Reset ();
-	}
-	*/
+
+
 	public void LevelSelected(GameObject level) {
-		if (gameMode == "SinglePlayer") {
-			/*
-			if (isServer) {
-				DeactivateLevels ();
-				ToggleSelector ();
-				if (!mpCommons.activeSelf) {
-					ToggleMpCommons ();
-				}
-				Debug.Log (level.name);
-				ChangeLevel (level.name);
-				TriggerChangeLevel ();
-			}
-			*/
-			GUILog.Log ("selected level");
-			SendVote (level.name);
-		} else if (gameMode == "MultiPlayer") {
-			GUILog.Log ("selected level");
-			SendVote (level.name);
-			//CmdCastVote (MyNetworkLobbyManager.singelton.client.connection.connectionId, level.name);
-
-		}
-
+		vote.CastVote (level.name);
 	}
 
 
@@ -238,6 +199,7 @@ public class LevelSelectorController : NetworkBehaviour {
 		List<GameObject> l1 = getFirstChildren (gameObject);
 		GameObject lvlselector = l1 [0];
 		lvlselector.SetActive (!lvlselector.activeSelf);
+
 	}
 
 	//Toggles all common multiplayer objects
@@ -249,7 +211,7 @@ public class LevelSelectorController : NetworkBehaviour {
 	//used because only some things can be sent ofer RPC calls.
 
 	public void ChangeLevel(string nextLevel){
-		ChangeLevel(levels.transform.Find(nextLevel).gameObject);
+		ChangeLevel(guiLevels.Find(obj => obj.name == nextLevel));
 	}
 		
 	//changes the current level
