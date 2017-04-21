@@ -272,45 +272,43 @@ public class AimShootingMultiTouch : NetworkBehaviour
         {
             if (hit.collider)
             {
-                if (hit.collider.tag.Equals("Wall"))
-                {
+				if (hit.collider.tag.Equals ("Wall")) {
 
-                    laser.SetPosition(ptNum, hit.point);
-                    //isHit = true;
-                    break;
-                }
-                else if (hit.collider.tag.Equals("Mirror"))
-                {
-                    // Debug.Log(bounceNum);
-                    if (bounceNum == maxBounces)
-                    {
-                        laser.SetPosition(ptNum, hit.point);
-                        //isHit = true;
-                        break;
-                    }
-                    laser.SetPosition(ptNum, hit.point);
-                    //isHit = true;
+					laser.SetPosition (ptNum, hit.point);
+					//isHit = true;
+					break;
+				} else if (hit.collider.tag.Equals ("Mirror")) {
+					// Debug.Log(bounceNum);
+					if (bounceNum == maxBounces) {
+						laser.SetPosition (ptNum, hit.point);
+						//isHit = true;
+						break;
+					}
+					laser.SetPosition (ptNum, hit.point);
+					//isHit = true;
 
-                    Vector3 origin = laser.GetPosition(ptNum - 1);
-                    Vector3 hitPoint = hit.point;
-                    Vector3 incoming = hitPoint - origin;
-                    Vector3 normal = new Vector3(hit.normal.x, hit.normal.y, 0);
-                    Vector3 reflected = Vector3.Reflect(incoming, hit.normal);
+					Vector3 origin = laser.GetPosition (ptNum - 1);
+					Vector3 hitPoint = hit.point;
+					Vector3 incoming = hitPoint - origin;
+					Vector3 normal = new Vector3 (hit.normal.x, hit.normal.y, 0);
+					Vector3 reflected = Vector3.Reflect (incoming, hit.normal);
 
-                    ray = new Ray2D(hitPoint, reflected);
-                    hit = RayCastExcludingControllers(hitPoint + offsetReflection * normal, reflected);
-                    ptNum++;
-                    laser.numPositions++;
-                    bounceNum++;
-                }
-                else if (hit.collider.tag.Equals("Key"))
-                {
-                    laser.SetPosition(ptNum, hit.point);
+					ray = new Ray2D (hitPoint, reflected);
+					hit = RayCastExcludingControllers (hitPoint + offsetReflection * normal, reflected);
+					ptNum++;
+					laser.numPositions++;
+					bounceNum++;
+				} else if (hit.collider.tag.Equals ("Key")) {
+					laser.SetPosition (ptNum, hit.point);
                     
-                    //StartCoroutine(KeyIsHit(hit.collider.gameObject.GetComponent<KeyScript>().door));
-					CmdKeyIsHit(hit.collider.gameObject);
-                    break;
-                }
+					//StartCoroutine(KeyIsHit(hit.collider.gameObject.GetComponent<KeyScript>().door));
+					CmdKeyIsHit (hit.collider.gameObject);
+					break;
+				} else {
+					laser.SetPosition (ptNum, hit.point);
+					//isHit = true;
+					break;
+				}
 
 
             }
