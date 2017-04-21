@@ -32,6 +32,7 @@ public class GameController : NetworkBehaviour {
 	}
 
 	public void OnChangeLevel(){
+		Debug.Log ("changing level in game controller");
 		gameActive = false;
 		GameObject[] allKeys = GameObject.FindGameObjectsWithTag("Key");
 		List<GameObject> gameKeys = new List<GameObject> ();
@@ -80,6 +81,8 @@ public class GameController : NetworkBehaviour {
 		return true;
 
 	}
+
+
 		
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
