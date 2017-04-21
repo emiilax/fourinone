@@ -11,7 +11,8 @@ public class VotingSystem {
 
 	short voteMsg;
 	short voteCompleteMsg;
-	short idMsg;
+	short requestIdMsg;
+	short recieveIdMsg;
 	// Our connectionId should not change during game
 	int connId;
 
@@ -22,25 +23,28 @@ public class VotingSystem {
 	IVoteListener listener;
 
 
-	public VotingSystem(short voteId, short voteCompleteId, short idMsg, NetworkClient client, IVoteListener listener){
+	public VotingSystem(short voteId, short voteCompleteId, short requestIdMsg, short recieveIdMsg, NetworkClient client, IVoteListener listener){
 		this.voteMsg = voteId;
 		this.voteCompleteMsg = voteCompleteId;
 		this.client = client;
 		this.listener = listener;
-		this.idMsg = idMsg;
+		this.requestIdMsg = requestIdMsg;
+		this.recieveIdMsg = recieveIdMsg;
 		NetworkServer.RegisterHandler(voteMsg, OnVoteCast);
-		NetworkServer.RegisterHandler(idMsg, OnRequestId);
+		NetworkServer.RegisterHandler(requestIdMsg, OnRequestId);
 		client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
-		client.RegisterHandler (idMsg, OnRecieveId);
-		client.Send(idMsg, new IntegerMessage(0));
+		client.RegisterHandler (recieveIdMsg, OnRecieveId);
+		client.Send(requestIdMsg, new IntegerMessage(0));
 	}
 
 	public void setupServer(int numPlayers){
 		votes = new Dictionary<int, string> ();
 		this.numPlayers = numPlayers;
 	}
+
 	//strings are used to represent a vote
 	public void CastVote(string vote){
+		GUILog.Log ("sending with id " + connId.ToString());
 		client.Send(voteMsg, new StringMessage(connId.ToString() + " " + vote));
 	}
 
@@ -52,13 +56,15 @@ public class VotingSystem {
 	}
 
 	public void OnRequestId(NetworkMessage netMsg){
-		NetworkServer.SendToClient(netMsg.conn.connectionId, idMsg, new IntegerMessage(netMsg.conn.connectionId));
+		NetworkServer.SendToClient(netMsg.conn.connectionId, recieveIdMsg, new IntegerMessage(netMsg.conn.connectionId));
 	}
 
 	public void OnRecieveId(NetworkMessage netMsg){
 		int id = netMsg.ReadMessage<IntegerMessage> ().value;
-		GUILog.Log ("recieved id in votingsystem" + id.ToString());
+
+		GUILog.Log (voteMsg.ToString());
 		connId = id;
+		GUILog.Log ("recieved id in votingsystem" + connId.ToString());
 	}
 
 	public void OnVoteCast(NetworkMessage netMsg){

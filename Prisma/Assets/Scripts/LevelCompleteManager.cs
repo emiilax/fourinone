@@ -31,7 +31,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
-			StaticVariables.FinnishedIdMsg,
+			StaticVariables.FinnishedRequestIdMsg,
+			StaticVariables.FinnishedRecieveIdMsg,
 			MyNetworkLobbyManager.singleton.client,
 			this
 		);
@@ -113,6 +114,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		//	return;
 		
 		//RpcSendMessage("ButtonRestartLevelpressed");
+
 		vote.CastVote ("restart");
 
 		//RpcSetTrigger ("Hidden");

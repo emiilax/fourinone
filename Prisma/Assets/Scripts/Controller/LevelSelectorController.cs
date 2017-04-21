@@ -66,7 +66,6 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
 		if (isServer) {
 			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
 			if (gameMode == "MultiPlayer") {
