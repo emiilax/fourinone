@@ -4,6 +4,8 @@ using UnityEngine;
 
 public interface IVoteListener  {
 
-	// Use this for initialization
 	void OnVoteComplete(string winner);
+
+	void ServerVoteComplete (string winner);
+
 }

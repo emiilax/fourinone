@@ -31,8 +31,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
+			StaticVariables.FinnishedIdMsg,
 			MyNetworkLobbyManager.singleton.client,
-			MyNetworkLobbyManager.singleton.client.connection.connectionId,
 			this
 		);
 		if (isServer) {
@@ -121,6 +121,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		//MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
 	}
 
+	public void ServerVoteComplete(string winner){
+		anim.SetTrigger ("Hidden");
+	}
 
 	public void OnVoteComplete(string action){
 		GUILog.Log ("recieved vote complete");
@@ -149,8 +152,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			lvlselector.ToggleSelector ();
 		}
 		//anim.StopPlayback ();
-		anim.ResetTrigger (showHash);
-		anim.SetTrigger ("Hidden");
+		//anim.ResetTrigger (showHash);
+		//anim.SetTrigger ("Hidden");
 		anim.Play ("Empty");
 		GUILog.Log ("hid panel");
 		//anim.CrossFade ("Hidden", 0.1f);
