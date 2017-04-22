@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine.Networking;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,18 +15,29 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	GameObject hostPanel;
 	LevelSelectorController lvlselector;
 
+	public GameObject selectedButton;
+	public GameObject nextButton;
+	public GameObject menuButton;
+	public GameObject restartButton;
+	public GameObject textObj;
+
+	Text text;
+	string defaultText;
+	string voteFailtext = "Alla måste välja samma!";
+
 	Animator anim;                          // Reference to the animator component.
 	float restartTimer;                     // Timer to count up to restarting the level
 
 	VotingSystem vote;
 	void Awake ()
-	{		
-		// Set up the reference.
+	{
 		anim = GetComponent <Animator> ();
-		//currentScene = "MPLevel1";
-		//nextScene = "MPLevel2";
 	}
+
 	void Start(){
+		text = textObj.GetComponent<Text> ();
+		defaultText = text.text;
+		selectedButton.SetActive (false);
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
@@ -47,21 +59,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 		if (!isServer)
 			return;
-
-
-		// If the player has run out of health...
+		
 		if(GameController.instance.GameFinished())
 		{
-
-			if (isServer) {
-			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
-
-			}
-
-			//anim.SetTrigger ("LevelCompleteHost");
-
-			GUILog.Log("game finnished");
-			//GameObject.Find ("GUIPanelHost").SetActive (true);
 			RpcShowAnimation ();
 
 		}
@@ -95,15 +95,21 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 
 	public void ButtonBackToLobby(){
+		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("menu");
 	}
 
 	public void ButtonNextLevel(){
+		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("next");
 
 	}
 
 	public void ButtonRestartLevel(){
+		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("restart");
 	}
 
@@ -112,11 +118,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 
 	public void OnVoteFail(){
-		
+		text.text = voteFailtext;
 	}
 
 	public void OnVoteComplete(string action){
-
 		if (action.Equals ("next")) {
 			next ();
 		}else if (action.Equals ("restart")) {
@@ -126,6 +131,8 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			menu ();
 		}
 		anim.SetTrigger ("Hidden");
+		selectedButton.SetActive (false);
+		text.text = defaultText;
 	}
 
 	void menu(){
@@ -139,14 +146,12 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 
 	void next(){
-		if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
+		GameObject nextLevel = lvlselector.SetNextLevel ();
+		if (nextLevel == null) {
 			Debug.Log ("potato");
 			menu ();
 			return;
 		}
-		GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
-		lvlselector.ChangeLevel (nextLevel.name);
-		lvlselector.TriggerChangeLevel ();
 	}
 
 	[ClientRpc]

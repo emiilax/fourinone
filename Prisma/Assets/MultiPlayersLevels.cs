@@ -12,7 +12,7 @@ public class MultiPlayersLevels : MonoBehaviour {
 	private GUIContent[] contents;
 	public GUIStyle style;
 	private bool initialized = false;
-	private bool showLevels;
+
 	public int padding;
 	public int lastId = -1;
 	LevelSelectorController sel;
@@ -27,7 +27,7 @@ public class MultiPlayersLevels : MonoBehaviour {
 		}
 		selGridInt = GUI.SelectionGrid(new Rect(padding,padding,1024-padding*2,768-padding*2),selGridInt, contents, levels.Length/2, style);
 		if (lastId != selGridInt) {
-			sel.LevelSelected (levels[selGridInt]);
+			sel.LevelSelected (selGridInt);
 			lastId = selGridInt;
 
 		}
@@ -41,7 +41,6 @@ public class MultiPlayersLevels : MonoBehaviour {
 		foreach(Transform trans in levels.transform)
 		{
 			GameObject level = trans.gameObject;
-
 		}
 
 	}

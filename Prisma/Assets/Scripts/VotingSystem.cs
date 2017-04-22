@@ -32,7 +32,7 @@ public class VotingSystem {
 
 		NetworkServer.RegisterHandler(voteMsg, OnVoteCast);
 		client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
-		client.RegisterHandler (voteCompleteMsg, OnVoteFail);
+		client.RegisterHandler (voteFailMsg, OnVoteFail);
 	}
 
 	public void setupServer(int numPlayers){
@@ -85,9 +85,13 @@ public class VotingSystem {
 				// do something with entry.Value or entry.Key
 			}
 			if (unanimous) {
-				NetworkServer.SendToAll (voteCompleteMsg, new StringMessage(firstVote));
+				GUILog.Log ("successful vote");
+				NetworkServer.SendToAll (voteCompleteMsg, new StringMessage (firstVote));
 				votes.Clear ();
 				listener.ServerVoteComplete (firstVote);
+			} else {
+				GUILog.Log ("failed vote");
+				NetworkServer.SendToAll (voteFailMsg, new StringMessage ("."));
 			}
 		}
 

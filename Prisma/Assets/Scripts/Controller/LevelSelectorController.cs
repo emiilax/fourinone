@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
@@ -28,8 +29,10 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	public GameObject multiPlayerPanel;
 
 	//The text objects for displaying text at the top of the level selector view
-	public GameObject text;
-
+	private string defaultText = "Välj bana:";
+	private string voteFailText = "Alla måste välja samma bana!";
+	public GameObject textObject;
+	private Text text;
 	// The current gamemode. SinglePlayer or MultiPlayer.
 	private string gameMode;
 
@@ -38,6 +41,14 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 
 	public Texture2D defaultLevelThumbnail;
+
+	//currently playable levels in the chosen game mode
+	private List<GameObject> currentLevels;
+
+
+	//index in currentLevels of the level active now
+	private int currentLevelIdx = -1;
+
 	// State for the SelectionGrid
 	private bool initialized = false;
 	public int padding;
@@ -45,7 +56,6 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	private GUIStyle style;
 	private List<GUIContent> contents;
 	private int selGridInt = -1;
-	private List<GameObject> guiLevels;
 	private bool showLevels;
 
 	void Awake() {
@@ -58,6 +68,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	// Use this for initialization
 	void Start () {
+		text = textObject.GetComponent<Text> ();
+		text.text = defaultText;
 		showLevels = true;
 		vote = new VotingSystem (
 			StaticVariables.LevelVoteMsg, 
@@ -82,13 +94,13 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 		style = new GUIStyle ("button");
 		if (gameMode == "SinglePlayer") {
-			guiLevels = spLevelList;
+			currentLevels = spLevelList;
 			contents = GetContents (spLevelList);
 			singlePlayerPanel.SetActive (true);
 			multiPlayerPanel.SetActive (false);
 
 		} else if (gameMode == "MultiPlayer") {
-			guiLevels = mpLevelList;
+			currentLevels = mpLevelList;
 			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
@@ -107,9 +119,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 				style.imagePosition = ImagePosition.ImageAbove;
 				style.fontSize = 32;
 			}
-			selGridInt = GUI.SelectionGrid (new Rect (padding, padding, 1024 - padding * 2, 768 - padding * 2), selGridInt, contents.ToArray (), guiLevels.Count / 2, style);
+			selGridInt = GUI.SelectionGrid (new Rect (padding, padding, 1024 - padding * 2, 768 - padding * 2), selGridInt, contents.ToArray (), currentLevels.Count / 2, style);
 			if (lastId != selGridInt) {
-				LevelSelected (guiLevels [selGridInt]);
+				LevelSelected (selGridInt);
 				lastId = selGridInt;
 
 			}
@@ -152,28 +164,43 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		//do nothing
 	}
 	public void OnVoteFail(){
-		
+		text.text = voteFailText;
 	}
 
-	public void OnVoteComplete(string level){
+	public GameObject SetNextLevel(){
+		if (currentLevels == null || currentLevels [currentLevelIdx + 1] == null) {
+			return null;
+		} else {
+			currentLevelIdx++;
+			//currentLevel = currentLevels [currentLevelIdx];
+			ChangeLevel (currentLevels[currentLevelIdx]);
+			TriggerChangeLevel ();
+			return currentLevels [currentLevelIdx];
+		}
+
+	}
+
+	public void OnVoteComplete(string levelIdx){
+		currentLevelIdx = int.Parse( levelIdx );
 		selGridInt = -1;
 		lastId = selGridInt;
 		showLevels = false;
-		GUILog.Log ("launch level " + level);
+		GUILog.Log ("launch level " + levelIdx);
 		DeactivateLevels ();
 		ToggleSelector ();
 		if (!mpCommons.activeSelf) {
 			ToggleMpCommons ();
 		}
-		Debug.Log (level);
-		ChangeLevel (level);
+		//Debug.Log (level);
+		ChangeLevel (currentLevels[currentLevelIdx]);
 		TriggerChangeLevel ();
+		text.text = defaultText;
 
 	}
 
 
-	public void LevelSelected(GameObject level) {
-		vote.CastVote (level.name);
+	public void LevelSelected(int levelIdx) {
+		vote.CastVote (levelIdx.ToString());
 	}
 
 
@@ -198,10 +225,10 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	public void ToggleSelector()
 	{
-		List<GameObject> l1 = getFirstChildren (gameObject);
-		GameObject lvlselector = l1 [0];
-		lvlselector.SetActive (!lvlselector.activeSelf);
-
+		//List<GameObject> l1 = getFirstChildren (gameObject);
+		//GameObject lvlselector = l1 [0];
+		//lvlselector.SetActive (!lvlselector.activeSelf);
+		gameObject.SetActive (!gameObject.activeSelf);
 	}
 
 	//Toggles all common multiplayer objects
@@ -213,7 +240,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	//used because only some things can be sent ofer RPC calls.
 
 	public void ChangeLevel(string nextLevel){
-		ChangeLevel(guiLevels.Find(obj => obj.name == nextLevel));
+		ChangeLevel(currentLevels.Find(obj => obj.name == nextLevel));
 	}
 		
 	//changes the current level
@@ -263,8 +290,14 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	// Action handler for back-button for multiPlayer to last scene.
 	public void MultiPLayerBackButtonPressed() {
-
 	}
 
+	public void BackButtonPressed() {
+		if (gameMode == "SinglePlayer") {
+			SinglePlayerBackButtonPressed ();
+		} else {
+			MultiPLayerBackButtonPressed ();
+		}
+	}
 
 }
