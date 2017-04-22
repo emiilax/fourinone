@@ -208,7 +208,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	//they have to be active prior due to not beince properly instanced otherwise
 
 	public void DeactivateLevels(){
-		foreach (GameObject level in mpLevelList) {
+		/*foreach (GameObject level in mpLevelList) {
 			if (level.activeSelf) {
 				level.SetActive (false);
 			}
@@ -217,7 +217,13 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			if (level.activeSelf) {
 				level.SetActive (false);
 			}
+		}*/
+		foreach (GameObject level in getFirstChildren(levels)) {
+			if (level.activeSelf) {
+				level.SetActive (false);
+			}
 		}
+
 	}
 
 
