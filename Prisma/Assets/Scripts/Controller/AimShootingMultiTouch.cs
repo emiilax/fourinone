@@ -15,9 +15,13 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
-    private LineRenderer laser;
+	public LineRenderer laser;
     
 	public bool isHit;
+
+	public GameObject playerSprites;
+
+	public Material[] laserMaterials = new Material [4];
 
     private Vector3 offset;
 
@@ -49,19 +53,25 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
    
 
-	void Start() { touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject)*/;}
+	void Start() { 
+
+		touchMap = new Dictionary<int, TouchTracker>();/*DontDestroyOnLoad (gameObject)*/;
+	}
 
 
     public override void OnStartLocalPlayer()
     {
         enabled = true;
 
-        initPlayer();
+        InitPlayerSprite();
 
-//		Debug.Log ("here?");
 
-        //Debug.Log ("Assigned Screen: " + assignedScreen);
 		SetCamera();
+
+		//Debug.Log ("Assigned screen: " + assignedScreen);
+		laser.material = laserMaterials[(int) assignedScreen - 1];
+
+		CmdChangeLaserMaterial(gameObject, (int)assignedScreen);
 
         //This aparantley is how you chose your active camera...
         playerCamera.enabled = false;
@@ -69,6 +79,24 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
         
     }
+
+	[Command]
+	void CmdChangeLaserMaterial(GameObject player, int playerScreen){
+		
+		RpcChangeLaserMaterial (player, playerScreen);
+
+	}
+
+	[ClientRpc]
+	void RpcChangeLaserMaterial(GameObject player, int playerscreen){
+		if (isLocalPlayer)
+			return;
+
+		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer>();
+
+		activeLaser.material = laserMaterials [playerscreen - 1];
+	}
+
 
 	// This sets playercamera as the camera closest to your spawnposition.
 	public void SetCamera(){
@@ -107,24 +135,28 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		}
 	}
 
-
+	public Material test;
     public override void OnStartClient()
     {
-        laser = gameObject.GetComponentInChildren<LineRenderer>();
+		
+
+	
+
         laser.sortingLayerName = "Midground";
 
-//        Debug.Log(gameObject.transform.position + "playerposition");
-//        Debug.Log(laser.transform.position + "laserposition");
+
         laser.SetPosition(0, laser.transform.position);
 
+
+
         laser.enabled = false;
-        //enabled = false; <-- Was there any purpose for this?
+        //enabled = false; <-- Was there any purpose for this? 
     }
 
+
+
     // Init all player stuff
-    private void initPlayer()
-    {
-	//	Debug.Log ("BANANA");
+    private void InitPlayerSprite() {
 
         Vector3 GOpos = gameObject.transform.position;
 
@@ -139,20 +171,27 @@ public class AimShootingMultiTouch : NetworkBehaviour
             assignedScreen = (GOpos.y > 0) ? 2 : 4;
         }
 
-        FlipSprite();
+        SetSprite();
 
         CalculateOffsetAngle();
-
-
-
-
     }
 
-    // Flips the sprite depending in the assigned screen
-    private void FlipSprite()
-    {
 
-        SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer>();
+
+
+    // Flips the sprite depending in the assigned screen
+    private void SetSprite()
+    {
+		
+		GameObject[] playersprites = getFirstChildren (playerSprites).ToArray();
+
+		foreach (GameObject ps in playersprites) {
+			ps.SetActive (false);
+		}
+
+		playersprites [(int)assignedScreen-1].SetActive (true);
+
+		SpriteRenderer sr = playersprites [(int)assignedScreen-1].GetComponent<SpriteRenderer>();
 
         if (assignedScreen == 2)
         {
@@ -181,23 +220,18 @@ public class AimShootingMultiTouch : NetworkBehaviour
         // To get the angle of the laser when pointing 45 degreese, you could get the 
         // centerposition and the corner off the sprite where the laser should shoot from
 
-        if (assignedScreen == 1 || assignedScreen == 4)
-        {
-            x = gameObject.transform.position.x + (rt.rect.width / 2);
+        if (assignedScreen == 1 || assignedScreen == 4){
+            x = gameObject.transform.position.x + 1;
         }
-        else
-        {
-            x = gameObject.transform.position.x - (rt.rect.width / 2);
+        else{
+            x = gameObject.transform.position.x - 1;
         }
 
-        if (assignedScreen == 1 || assignedScreen == 2)
-        {
-            y = gameObject.transform.position.y - (rt.rect.height / 2);
-
-        }
-        else
-        {
-            y = gameObject.transform.position.y + (rt.rect.height / 2);
+		if (assignedScreen == 1 || assignedScreen == 2) {
+            y = gameObject.transform.position.y - 1;
+		}
+        else {
+            y = gameObject.transform.position.y + 1;
         }
 
         Vector3 GOpos = gameObject.transform.position;
@@ -216,10 +250,10 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 
 
-
     public void SetLaserEnabled(bool enable)
     {
-        laser.enabled = enable;
+		
+		laser.enabled = enable;
         CmdSetLaserEnabled(enable);
     }
 
@@ -247,8 +281,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
     // Method for firing the laser
     private void FireLaser(Vector3 mousePosition)
     {
-
-
         //Vector3 mousePosition = playerCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector3 playerPosition = gameObject.transform.position;
         Vector3 direction = new Vector3(mousePosition.x - playerPosition.x, mousePosition.y - playerPosition.y, 0);
@@ -326,7 +358,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
         laser.GetPositions(laserPositions);
 
 
-
+		CmdChangeLaserMaterial(gameObject, (int)assignedScreen);
         CmdSynchLaser(gameObject, laserPositions, laser.numPositions);
 
     }
@@ -366,10 +398,26 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
     }
 
+
+	private List<GameObject> getFirstChildren(GameObject gameObj){
+		List<GameObject> list = new List<GameObject> ();
+		//gets all components
+		Transform[] allcomponents = gameObj.GetComponentsInChildren<Transform> (true);
+		foreach (Transform tf in allcomponents) {
+			if (tf.gameObject.Equals (gameObj)) { //top level object do nothing
+
+			} else if (tf.parent.gameObject.Equals (gameObj)) {
+				list.Add (tf.gameObject);
+				Debug.Log (tf.gameObject.name);
+			}
+		}
+		return list;
+	}
+
+
 	TouchPhase mousePhase = TouchPhase.Ended;
 	private int mouseFingerId = 999; // Will work as long as there are less than 999 fingers on the iPad simultaneously
 	Vector3 lastMousePosition;
-	int counter = 0;
 
     // Update is called once per frame
     void Update()
@@ -408,14 +456,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			UpdateTouchMap (Vector3.zero, mousePhase, mouseFingerId);
 
 		}
-
-
-		/*
-		if (counter < 2) {
-			counter++;
-			return;
-		}
-		counter = 0;*/
 
 
         if (laser.enabled) {
@@ -549,11 +589,29 @@ public class AimShootingMultiTouch : NetworkBehaviour
         {
             return;
         }
+
+		//GameObject playersLasers = player.GetComponent<AimShootingMultiTouch> ().playerLasers;
+
+
         LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer>();
+
+		
         activeLaser.numPositions = nrOfPos;
         activeLaser.SetPositions(laserPos);
 
     }
+
+	private LineRenderer GetActiveLaser(GameObject playerlasers){
+
+		foreach(GameObject child in getFirstChildren(playerlasers)){
+			if (child.activeInHierarchy) {
+				return child.GetComponent<LineRenderer> ();
+			}
+		}
+
+		return null;
+	}
+
 
 	[ClientRpc]
 	void RpcMoveRotate(GameObject GO, Vector3 pos, Quaternion rotation)
