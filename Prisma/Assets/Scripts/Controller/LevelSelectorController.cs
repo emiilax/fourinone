@@ -27,6 +27,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	public GameObject singlePlayerPanel;
 	public GameObject multiPlayerPanel;
 
+	//The text objects for displaying text at the top of the level selector view
+	public GameObject text;
 
 	// The current gamemode. SinglePlayer or MultiPlayer.
 	private string gameMode;
