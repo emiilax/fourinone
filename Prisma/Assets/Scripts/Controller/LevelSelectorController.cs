@@ -68,6 +68,7 @@ public class LevelSelectorController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
 		if (isServer) {
 			//NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
 			votes = new Dictionary<int, string> ();
@@ -75,9 +76,8 @@ public class LevelSelectorController : NetworkBehaviour {
 			//if (gameMode == "MultiPlayer") {
 			//	votes = new Dictionary<int, string> ();
 			//	numPlayers = MyNetworkLobbyManager.singleton.numPlayers;
-
-
 			//}
+
 		}
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
 
@@ -107,8 +107,6 @@ public class LevelSelectorController : NetworkBehaviour {
 			singlePlayerPanel.SetActive (false);
 
 		} 
-
-
 
 	}
 
