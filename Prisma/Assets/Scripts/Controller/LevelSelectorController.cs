@@ -68,6 +68,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	// Use this for initialization
 	void Start () {
+
 		text = textObject.GetComponent<Text> ();
 		text.text = defaultText;
 		showLevels = true;
@@ -106,8 +107,6 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			singlePlayerPanel.SetActive (false);
 
 		} 
-
-
 
 	}
 
