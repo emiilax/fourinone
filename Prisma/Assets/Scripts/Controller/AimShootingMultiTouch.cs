@@ -385,7 +385,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 					CmdReadyBtnPressed (hit.collider.gameObject);
 					return;
 				} else if (hit.collider.tag == "TutorialButton") {
-					TutorialManager.instance.HideTutorialButtonPressed ();
+					LevelSelectorController.instance.currentLevel.GetComponentInChildren<TutorialManager> (true).HideTutorialButtonPressed ();
 				}
 			}    
 		}
