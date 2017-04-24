@@ -10,6 +10,7 @@ public class SyncScreenController : NetworkBehaviour {
 	private bool[] isReadyBtnPressed;
 
 	public GameObject[] players;
+	public GameObject[] playerController;
 
 	void Awake() {
 
@@ -28,10 +29,17 @@ public class SyncScreenController : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
-		isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+		if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
+			gameObject.SetActive (false);
+		} else {
+			gameObject.SetActive (true);
 
-		EnablePlayer (false);
+			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
+			playerController = GameObject.FindGameObjectsWithTag("TouchController");
+			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+
+			EnablePlayer (false);
+		}
 	}
 
 
@@ -45,6 +53,14 @@ public class SyncScreenController : NetworkBehaviour {
 			}
 		}
 
+		EnablePlayerController (b);
+
+	}
+
+	public void EnablePlayerController(bool b) {
+		foreach (GameObject controller in playerController) {
+			controller.SetActive (b);
+		}
 	}
 
 	// When ready-button is pressed
@@ -74,10 +90,9 @@ public class SyncScreenController : NetworkBehaviour {
 
 	void startGame() {
 
-		MyNetworkLobbyManager.singelton.ServerChangeScene ("LevelSelector");
-
-		// Put this in LevelSelectorController because it eanabled it too fast
-		//EnablePlayer (true);
+		LevelSelectorController.instance.ToggleSelector ();
+		EnablePlayer (true);
+		gameObject.SetActive (false);
 
 	}
 }

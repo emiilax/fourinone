@@ -383,7 +383,6 @@ public class AimShootingMultiTouch : NetworkBehaviour
 				// In syncscreen
 				if (hit.collider.tag == "SyncScreenButton") {                         
 					CmdReadyBtnPressed (hit.collider.gameObject);
-					return;
 				} else if (hit.collider.tag == "TutorialButton") {
 					LevelSelectorController.instance.currentLevel.GetComponentInChildren<TutorialManager> (true).HideTutorialButtonPressed ();
 				}

@@ -105,7 +105,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
-
+			DeactivateLevels ();
+			ToggleSelector ();
 		} 
 
 	}
