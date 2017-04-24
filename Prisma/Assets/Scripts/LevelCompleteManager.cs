@@ -37,7 +37,6 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	void Start(){
 		text = textObj.GetComponent<Text> ();
 		defaultText = text.text;
-		selectedButton.SetActive (false);
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
@@ -62,6 +61,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		
 		if(GameController.instance.GameFinished())
 		{
+			
 			RpcShowAnimation ();
 
 		}
@@ -101,14 +101,14 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 
 	public void ButtonNextLevel(){
-		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.transform.position = nextButton.transform.position;
 		selectedButton.SetActive (true);
 		vote.CastVote ("next");
 
 	}
 
 	public void ButtonRestartLevel(){
-		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.transform.position = restartButton.transform.position;
 		selectedButton.SetActive (true);
 		vote.CastVote ("restart");
 	}
