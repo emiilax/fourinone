@@ -10,7 +10,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     [SerializeField]
     float shutDownDelay = 0.3f;
     [SerializeField]
-    float keyShutDownDelay = 0.1f;
+	float keyShutDownDelay = 2f;
 
 
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
@@ -71,7 +71,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		//Debug.Log ("Assigned screen: " + assignedScreen);
 		laser.material = laserMaterials[(int) assignedScreen - 1];
 
-		CmdChangeLaserMaterial(gameObject, (int)assignedScreen);
+
 
         //This aparantley is how you chose your active camera...
         playerCamera.enabled = false;
@@ -80,22 +80,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
         
     }
 
-	[Command]
-	void CmdChangeLaserMaterial(GameObject player, int playerScreen){
-		
-		RpcChangeLaserMaterial (player, playerScreen);
 
-	}
-
-	[ClientRpc]
-	void RpcChangeLaserMaterial(GameObject player, int playerscreen){
-		if (isLocalPlayer)
-			return;
-
-		LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer>();
-
-		activeLaser.material = laserMaterials [playerscreen - 1];
-	}
 
 
 	// This sets playercamera as the camera closest to your spawnposition.
@@ -192,6 +177,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		playersprites [(int)assignedScreen-1].SetActive (true);
 
 		SpriteRenderer sr = playersprites [(int)assignedScreen-1].GetComponent<SpriteRenderer>();
+
+		sr.sortingLayerName = "Midground";
 
         if (assignedScreen == 2)
         {
@@ -358,14 +345,14 @@ public class AimShootingMultiTouch : NetworkBehaviour
         laser.GetPositions(laserPositions);
 
 
-		CmdChangeLaserMaterial(gameObject, (int)assignedScreen);
-        CmdSynchLaser(gameObject, laserPositions, laser.numPositions);
+
+		CmdSynchLaser(gameObject, laserPositions, laser.numPositions, (int)assignedScreen);
 
     }
 
 
-	IEnumerator KeyIsHit(GameObject key){
-		GameObject door = key.GetComponent<KeyScript> ().door; 
+	void KeyIsHit(GameObject key){
+		//GameObject door = key.GetComponent<KeyScript> ().door; 
 
 
 		//Debug.Log (door.name + "KeyisHit");
@@ -374,7 +361,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		RpcHitkey (key);
 
-		GameController.instance.KeyIsHit (key, true);
+		//GameController.instance.KeyIsHit (key, true);
 
 		//is this creating stackoverflow?
 		/*KeyShutOffTimer = Time.time + keyShutDownDelay;
@@ -384,7 +371,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		}
 			
 		RpcSetObjectEnabled (door, true);*/
-		return null;
+		//return null;
 	}
 
 	[ClientRpc]
@@ -560,15 +547,15 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	[Command]
 	void CmdKeyIsHit(GameObject key){
 
-		StartCoroutine (KeyIsHit (key));
+		KeyIsHit (key);
 
 	}
 
     // Tells Server to sync laser on clients 
     [Command]
-    void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos)
+	void CmdSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos, int assScreen)
     {
-        RpcSynchLaser(player, laserPos, nrOfPos);
+        RpcSynchLaser(player, laserPos, nrOfPos, assScreen);
     }
 
 	// Tells the server that a player is ready in SyncScreen
@@ -612,7 +599,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 
     [ClientRpc]
-    void RpcSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos)
+    void RpcSynchLaser(GameObject player, Vector3[] laserPos, int nrOfPos, int assScreen)
     {
         if (isLocalPlayer)
         {
@@ -623,7 +610,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 
         LineRenderer activeLaser = player.GetComponentInChildren<LineRenderer>();
-
+		activeLaser.material = laserMaterials [assScreen - 1];
 		
         activeLaser.numPositions = nrOfPos;
         activeLaser.SetPositions(laserPos);

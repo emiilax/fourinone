@@ -18,12 +18,25 @@ public class KeyScript : MonoBehaviour {
 
 	public void HitKey(double hitTime){
 		time = hitTime;
+
 	}
 
-	void update(){
-		if (unlocked && Time.time > time) {
+	void Update(){
+
+		if(!door){
+			return;
+		}
+
+		if (Time.time > time) {
+
 			door.SetActive (true);
 			unlocked = false;
+			//Debug.Log ("Show door");
+		} else {
+
+			door.SetActive (false);
+			unlocked = true;
+			//Debug.Log ("Hide door");
 		}
 	}
 

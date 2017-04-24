@@ -16,6 +16,5 @@ public class DisappearingDoorParticles : MonoBehaviour {
     void OnDisable() {
         particles.Play();
 		//TODO enable
-        Debug.Log("Particles active");
     }
 }
