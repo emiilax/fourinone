@@ -367,22 +367,30 @@ public class AimShootingMultiTouch : NetworkBehaviour
 	IEnumerator KeyIsHit(GameObject key){
 		GameObject door = key.GetComponent<KeyScript> ().door; 
 
+
 		//Debug.Log (door.name + "KeyisHit");
-		RpcSetObjectEnabled(door, false);
+		//RpcSetObjectEnabled(door, false);
 		//Debug.Log (GameController.instance.gameObject.name);
+
+		RpcHitkey (key);
+
 		GameController.instance.KeyIsHit (key, true);
 
 		//is this creating stackoverflow?
-		KeyShutOffTimer = Time.time + keyShutDownDelay;
+		/*KeyShutOffTimer = Time.time + keyShutDownDelay;
 		while(Time.time < KeyShutOffTimer)
 		{
 			yield return new WaitForSeconds(0.5f);
 		}
 			
-		RpcSetObjectEnabled (door, true);
-
+		RpcSetObjectEnabled (door, true);*/
+		return null;
 	}
 
+	[ClientRpc]
+	void RpcHitkey (GameObject key){
+		key.GetComponent<KeyScript> ().HitKey (Time.time + keyShutDownDelay);
+	}
 
     // Function used to rotate the player sprite depending on laser-angle
     private void RotateSprite(Vector3 direction)
