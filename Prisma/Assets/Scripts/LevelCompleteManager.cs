@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine.Networking;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,23 +15,33 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	GameObject hostPanel;
 	LevelSelectorController lvlselector;
 
+	public GameObject selectedButton;
+	public GameObject nextButton;
+	public GameObject menuButton;
+	public GameObject restartButton;
+	public GameObject textObj;
+
+	Text text;
+	string defaultText;
+	string voteFailtext = "Alla måste välja samma!";
+
 	Animator anim;                          // Reference to the animator component.
 	float restartTimer;                     // Timer to count up to restarting the level
 
 	VotingSystem vote;
 	void Awake ()
-	{		
-		// Set up the reference.
+	{
 		anim = GetComponent <Animator> ();
-		//currentScene = "MPLevel1";
-		//nextScene = "MPLevel2";
 	}
+
 	void Start(){
+		text = textObj.GetComponent<Text> ();
+		defaultText = text.text;
 		vote = new VotingSystem (
 			StaticVariables.FinnishedGameVoteMsg, 
 			StaticVariables.FinnishedGameVoteCompletedMsg,
-			StaticVariables.FinnishedRequestIdMsg,
-			StaticVariables.FinnishedRecieveIdMsg,
+			StaticVariables.FinnishVoteFailMsg,
+			MyNetworkLobbyManager.singelton.GetPlayerId(),
 			MyNetworkLobbyManager.singleton.client,
 			this
 		);
@@ -47,21 +58,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 		if (!isServer)
 			return;
-
-
-		// If the player has run out of health...
+		
 		if(GameController.instance.GameFinished())
 		{
-
-			if (isServer) {
-			//	MyNetworkLobbyManager.singelton.ServerChangeScene (nextScene);
-
-			}
-
-			//anim.SetTrigger ("LevelCompleteHost");
-
-			GUILog.Log("game finnished");
-			//GameObject.Find ("GUIPanelHost").SetActive (true);
+			
 			RpcShowAnimation ();
 
 		}
@@ -95,85 +95,64 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
 
 	public void ButtonBackToLobby(){
-		
-		//anim.gameObject.SetActive (false);
-		//RpcSendMessage("ButtonBackToLobbypressed");
+		selectedButton.transform.position = menuButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("menu");
-		//lvlselector.TriggerChangeLevel ();
-		//lvlselector.ToggleSelector ();
-		//RpcSetTrigger ("Hidden");
-
 	}
 
 	public void ButtonNextLevel(){
+		selectedButton.transform.position = nextButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("next");
-		//RpcSendMessage("ButtonNextLevelPressed");
-
-		//RpcSendMessage (MyNetworkLobbyManager.singelton.ToString());
-
-		//RpcSetTrigger ("Hidden");
 
 	}
 
-
 	public void ButtonRestartLevel(){
-		//if (!isServer)
-		//	return;
-		
-		//RpcSendMessage("ButtonRestartLevelpressed");
-
+		selectedButton.transform.position = restartButton.transform.position;
+		selectedButton.SetActive (true);
 		vote.CastVote ("restart");
-
-		//RpcSetTrigger ("Hidden");
-
-		//MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		//MyNetworkLobbyManager.singelton.ServerChangeScene (currentScene);
 	}
 
 	public void ServerVoteComplete(string winner){
 		anim.SetTrigger ("Hidden");
 	}
 
-	public void OnVoteComplete(string action){
-		
-		GUILog.Log ("recieved vote complete");
-
-		if (action.Equals ("next")) {			
-			GUILog.Log (lvlselector.currentLevel.ToString());
-			if (lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel == null) {
-				Debug.Log ("potato");
-				ButtonBackToLobby ();
-				return;
-			}
-			GameObject nextLevel = lvlselector.currentLevel.GetComponent<LevelVariables> ().nextLevel;
-			lvlselector.ChangeLevel (nextLevel.name);
-			lvlselector.TriggerChangeLevel ();
-			//anim.SetTrigger ("Hidden");
-			//gameObject.SetActive (false);
-		}else if (action.Equals ("restart")) {
-			//GameObject.Find ("GUIPanelHost").SetActive (true);
-			GUILog.Log ("restarting");
-			lvlselector.TriggerChangeLevel ();
-		}
-		else if(action.Equals("menu")){
-			//GameObject.Find ("GUIPanelHost").SetActive (false);
-
-			lvlselector.TriggerChangeLevel ();
-			lvlselector.ToggleSelector ();
-		}
-
-		//anim.StopPlayback ();
-		//anim.ResetTrigger (showHash);
-		Debug.Log("inte kraschat");
-		Debug.Log("anim = " + anim.ToString());
-		anim.SetTrigger ("Hidden");
-		//anim.Play ("Empty");
-		GUILog.Log ("hid panel");
-		//anim.CrossFade ("Hidden", 0.1f);
-		//anim.enabled = false;
-		//GameObject.Find ("GUIPanelHost").GetComponent<Canvas>().enabled = false;
+	public void OnVoteFail(){
+		text.text = voteFailtext;
 	}
 
+	public void OnVoteComplete(string action){
+		if (action.Equals ("next")) {
+			next ();
+		}else if (action.Equals ("restart")) {
+			restart ();
+		}
+		else if(action.Equals("menu")){
+			menu ();
+		}
+		anim.SetTrigger ("Hidden");
+		selectedButton.SetActive (false);
+		text.text = defaultText;
+	}
+
+	void menu(){
+		lvlselector.TriggerChangeLevel ();
+		lvlselector.ToggleSelector ();
+		lvlselector.ShowLevelGrid ();
+	}
+
+	void restart(){
+		lvlselector.TriggerChangeLevel ();
+	}
+
+	void next(){
+		GameObject nextLevel = lvlselector.SetNextLevel ();
+		if (nextLevel == null) {
+			Debug.Log ("potato");
+			menu ();
+			return;
+		}
+	}
 
 	[ClientRpc]
 	void RpcSendMessage(string str){

@@ -16,14 +16,19 @@ public class MirrorTouchController :  AbstractTouchController
     public float fadeOutTime = 1.5f;
 	private int overlaps; //number of colliders this collider is currently overlapping
     public Sprite selectionSprite;
-
+	private Vector3 startPos;
 	private Vector3 lastNonOverlappingPosition;
 	private Vector3 lastPosition;
     private TouchSelectionIndicator selectionIndicator;
 
     // Use this for initialization
+	void Awake(){
+		selectionIndicator = new TouchSelectionIndicator(selectionSprite, gameObject);
+		startPos = transform.position;
+	}
      void Start() {
-        selectionIndicator = new TouchSelectionIndicator(selectionSprite, gameObject);
+		
+
 		selectionIndicator.SetColor (Color.green);
 		gameObject.GetComponent<LineRenderer> ().sortingLayerName = "Foreground";
 		//gameObject.GetComponent<LineRenderer> ().sortingOrder = 2;
@@ -58,7 +63,24 @@ public class MirrorTouchController :  AbstractTouchController
 		}
 		GUILog.Log("exit");
 	}
-
+	void OnEnable() {
+		transform.position = startPos;
+		GUILog.Log("reset mirror");
+		overlaps = 0;
+		selectionIndicator.SetColor (Color.green);
+	}
+	void OnDisable() {
+		transform.position = startPos;
+		GUILog.Log("reset mirror");
+		overlaps = 0;
+		selectionIndicator.SetColor (Color.green);
+	}
+	public void OnChangeLevel(){
+		transform.position = startPos;
+		GUILog.Log("reset mirror");
+		overlaps = 0;
+		selectionIndicator.SetColor (Color.green);
+	}
 
     public override bool Selectable()
     {

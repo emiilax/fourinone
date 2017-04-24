@@ -45,6 +45,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private int playerid;
 
+	private NodeID nodeId;
+
 
 	// Initialization of the singelton
 	void Awake() {
@@ -94,7 +96,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		currentPanel = newPanel;
 
 	}
-
+	public int GetPlayerId(){
+		return (int)nodeId;
+	}
 	public void ShowPromptWindow(PromptWindow prompt, bool active){
 
 		ButtonsInteractiable (!active);
@@ -139,7 +143,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 						Debug.Log ("Joined Game. Server: " + m.name);
 						currentMatchID = (System.UInt64) m.networkId;
 						isHost = false;
-						matchMaker.JoinMatch (m.networkId, "", "", "", 0, 0, OnMatchJoined);
+						matchMaker.JoinMatch (m.networkId, "", "", "", 0, 0, OnMatchJoin);
 						return;
 
 					}// end if equals
@@ -203,6 +207,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		if(!success){
 			Debug.LogError("Couldn't connect to match maker");
 		}
+		nodeId = matchInfo.nodeId;
+	}
+
+	public void OnMatchJoin (bool success, string extendedInfo, MatchInfo matchInfo)
+	{
+		OnMatchJoined (success, extendedInfo, matchInfo);
+		nodeId = matchInfo.nodeId;
 	}
 
 	public override void OnServerSceneChanged (string sceneName)
