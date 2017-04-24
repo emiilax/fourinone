@@ -376,7 +376,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		KeyShutOffTimer = Time.time + keyShutDownDelay;
 		while(Time.time < KeyShutOffTimer)
 		{
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.5f);
 		}
 			
 		RpcSetObjectEnabled (door, true);
