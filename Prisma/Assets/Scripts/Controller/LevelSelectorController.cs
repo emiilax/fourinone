@@ -13,6 +13,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	// The standard UI
 	public GameObject levelMenu;
 
+	// The SyncController
+	public GameObject syncScreen;
 
 	//List of all the multiplayer levels
 	private List<GameObject> mpLevelList;
@@ -34,7 +36,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	public GameObject textObject;
 	private Text text;
 	// The current gamemode. SinglePlayer or MultiPlayer.
-	private string gameMode;
+	public string gameMode;
 
 	// connection ids and names of levels selected by players. Theses are only used by the server.
 	private VotingSystem vote;
@@ -100,13 +102,17 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			singlePlayerPanel.SetActive (true);
 			multiPlayerPanel.SetActive (false);
 
+			syncScreen.SetActive (false);
+
 		} else if (gameMode == "MultiPlayer") {
 			currentLevels = mpLevelList;
 			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
+
 			DeactivateLevels ();
 			ToggleSelector ();
+			syncScreen.SetActive (true);
 		} 
 
 	}

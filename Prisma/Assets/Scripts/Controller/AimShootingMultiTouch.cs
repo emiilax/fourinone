@@ -382,7 +382,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			if (Physics.Raycast(ray, out hit, 100)) {
 				// In syncscreen
 				if (hit.collider.tag == "SyncScreenButton") {                         
-					CmdReadyBtnPressed (hit.collider.gameObject);
+					CmdReadyBtnPressed (gameObject, hit.collider.gameObject);
 				} else if (hit.collider.tag == "TutorialButton") {
 					LevelSelectorController.instance.currentLevel.GetComponentInChildren<TutorialManager> (true).HideTutorialButtonPressed ();
 				}
@@ -524,8 +524,18 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	// Tells the server that a player is ready in SyncScreen
 	[Command]
-	public void CmdReadyBtnPressed(GameObject button) {
-		SyncScreenController.instance.ReadyBtnPressed(button);
+	public void CmdReadyBtnPressed(GameObject player, GameObject button) {
+		SyncScreenController.instance.ReadyBtnPressed(player, button);
+	}
+
+	[Command]
+	public void CmdSyncScreenStartGame() {
+		RpcSyncScreenStartGame ();
+	}
+
+	[ClientRpc]
+	void RpcSyncScreenStartGame() {
+		SyncScreenController.instance.StartGame ();
 	}
 
 

@@ -28,11 +28,8 @@ public class SyncScreenController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
-		if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
-			gameObject.SetActive (false);
-		} else {
-			gameObject.SetActive (true);
+		
+		if (MyNetworkLobbyManager.singelton.gameMode == "MultiPlayer") {
 
 			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
 			playerController = GameObject.FindGameObjectsWithTag("TouchController");
@@ -64,7 +61,7 @@ public class SyncScreenController : NetworkBehaviour {
 	}
 
 	// When ready-button is pressed
-	public void ReadyBtnPressed(GameObject button) {
+	public void ReadyBtnPressed(GameObject player, GameObject button) {
 
 		var id = int.Parse(button.name);
 
@@ -84,15 +81,15 @@ public class SyncScreenController : NetworkBehaviour {
 				return;
 			}
 		}
-		startGame ();
 
+		player.GetComponent<AimShootingMultiTouch> ().CmdSyncScreenStartGame();
 	}
-
-	void startGame() {
+		
+	public void StartGame() {
 
 		LevelSelectorController.instance.ToggleSelector ();
 		EnablePlayer (true);
 		gameObject.SetActive (false);
-
+		
 	}
 }
