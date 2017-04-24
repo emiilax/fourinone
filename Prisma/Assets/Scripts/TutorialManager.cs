@@ -5,38 +5,41 @@ using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour {
 
-	public Text tutorialText;
+	public static TutorialManager instance;
 
+	public GameObject tutorialButton;
 	public GameObject tutorialPanel;
 
+	public Sprite hideTutorialButton;
+	public Sprite showTutorialButton;
+
+	void Awake() {
+		//If we don't currently have a game control...
+		if (instance == null)
+			//...set this one to be it...
+			instance = this;
+		//...otherwise...
+		else if(instance != this)
+			//...destroy this one because it is a duplicate.
+			Destroy (gameObject);
+
+	}
+
 	// Use this for initialization
-	IEnumerator Start () {
-
-		tutorialText.canvasRenderer.SetAlpha (0.0f);
-
-		FadeIn ();
-		yield return new WaitForSeconds (2.5f);
-		FadeOut ();
-		yield return new WaitForSeconds (2.5f);
-
-		tutorialPanel.SetActive (false);
-	}
-
-	void FadeIn () {
+	void Start () {
 		
-		tutorialText.CrossFadeAlpha (1.0f, 1.5f, false);
 
 	}
 
-	void FadeOut () {
+	public void HideTutorialButtonPressed () {
 
-		tutorialText.CrossFadeAlpha (0f, 2.5f, false);
-		
-	}
-
-	public void SkipButtonPressed () {
-
-		tutorialPanel.SetActive (false);
+		if (tutorialPanel.activeSelf) {
+			tutorialPanel.SetActive (false);
+			tutorialButton.GetComponent<SpriteRenderer> ().sprite = showTutorialButton;
+		} else {
+			tutorialPanel.SetActive (true);
+			tutorialButton.GetComponent<SpriteRenderer> ().sprite = hideTutorialButton;
+		}
 		
 	}
 }
