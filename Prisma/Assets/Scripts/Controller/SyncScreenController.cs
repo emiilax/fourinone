@@ -35,7 +35,7 @@ public class SyncScreenController : NetworkBehaviour {
 			playerController = GameObject.FindGameObjectsWithTag("TouchController");
 			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
 
-			EnablePlayer (false);
+			//EnablePlayer (false);
 		}
 	}
 

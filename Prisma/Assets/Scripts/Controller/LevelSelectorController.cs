@@ -110,9 +110,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
 
-			DeactivateLevels ();
-			ToggleSelector ();
-			syncScreen.SetActive (true);
+			//DeactivateLevels ();
+			//ToggleSelector ();
+			syncScreen.SetActive (false);
 		} 
 
 	}
