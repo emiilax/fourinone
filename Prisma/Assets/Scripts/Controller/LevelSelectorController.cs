@@ -69,7 +69,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	}
 
 	// Use this for initialization
-	void Start () {
+	IEnumerator Start () {
 
 		text = textObject.GetComponent<Text> ();
 		text.text = defaultText;
@@ -96,6 +96,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		spLevelList = FindLevels ("SP");
 
 		style = new GUIStyle ("button");
+
+		yield return new WaitForSeconds (7.0f);
+
 		if (gameMode == "SinglePlayer") {
 			currentLevels = spLevelList;
 			contents = GetContents (spLevelList);
@@ -110,9 +113,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
 
-			//DeactivateLevels ();
-			//ToggleSelector ();
-			syncScreen.SetActive (false);
+			DeactivateLevels ();
+			ToggleSelector ();
+			syncScreen.SetActive (true);
 		} 
 
 	}
