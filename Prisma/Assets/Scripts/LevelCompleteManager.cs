@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 
@@ -21,6 +22,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	public GameObject restartButton;
 	public GameObject textObj;
 
+
+
+
 	Text text;
 	string defaultText;
 	string voteFailtext = "Alla måste välja samma!";
@@ -35,6 +39,10 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	}
 
 	void Start(){
+
+
+		//Debug.Log ("SceneLoaded: " + SceneManager.sceneLoaded);
+
 		text = textObj.GetComponent<Text> ();
 		defaultText = text.text;
 		vote = new VotingSystem (

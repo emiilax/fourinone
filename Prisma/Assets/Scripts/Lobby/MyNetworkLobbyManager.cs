@@ -270,7 +270,19 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 
 	}
+		
+	int nbr = 0;
+	/*
+	public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer){
+		Debug.Log ("Server loaded scene for player");
 
+		nbr++;
+
+		LevelSelectorController.instance.allLoaded = (nbr == minPlayers);
+	
+
+		return base.OnLobbyServerSceneLoadedForPlayer (lobbyPlayer, gamePlayer);
+	}*/
 
 	public override void OnLobbyServerDisconnect(NetworkConnection conn){
 		base.OnLobbyServerDisconnect (conn);

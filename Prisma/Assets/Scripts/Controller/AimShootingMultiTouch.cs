@@ -13,6 +13,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     float keyShutDownDelay = 0.1f;
 
 
+
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
 	public LineRenderer laser;
@@ -408,7 +409,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 			} else if (tf.parent.gameObject.Equals (gameObj)) {
 				list.Add (tf.gameObject);
-				Debug.Log (tf.gameObject.name);
+				//Debug.Log (tf.gameObject.name);
 			}
 		}
 		return list;
@@ -440,9 +441,9 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 
 		if (!isLocalPlayer) { return;  }
-		if (playerCamera == null) {
+		/*if (playerCamera == null) {
 			SetCamera ();
-		}
+		}*/
 
 		if (Input.GetButton ("Fire1") && Input.touchCount == 0) {
 			

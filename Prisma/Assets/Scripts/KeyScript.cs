@@ -12,15 +12,15 @@ public class KeyScript : NetworkBehaviour {
 	public bool unlocked;
 
 	void Awake(){
-		Debug.Log ("I'm awake");
+		//Debug.Log ("I'm awake");
 
-		NetworkServer.Spawn (door);
+		//NetworkServer.Spawn (door);
 
 	}
 
 
 	public override void OnStartServer(){
-		Debug.Log ("now im active!");
+		//Debug.Log ("now im active!");
 	}
 
 

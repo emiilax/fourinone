@@ -58,6 +58,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	private int selGridInt = -1;
 	private bool showLevels;
 
+	public LevelSelectorController singelton;
+
+
 	void Awake() {
 		if (instance == null)
 			instance = this;
@@ -66,8 +69,13 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			Destroy (gameObject);
 	}
 
-	// Use this for initialization
-	void Start () {
+	[SyncVar(hook = "OnAllLoaded")]
+	public bool allLoaded = false;
+
+
+
+	public override void OnStartClient(){
+		Debug.Log ("onstartlocalplayer");
 
 		text = textObject.GetComponent<Text> ();
 		text.text = defaultText;
@@ -107,6 +115,30 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			singlePlayerPanel.SetActive (false);
 
 		} 
+	}
+
+	private void OnAllLoaded(bool trufal){
+		//if (!isServer)
+		//	return;
+		
+		allLoaded = trufal;
+
+		Debug.Log ("AllLoaded:" + allLoaded);
+
+
+	}
+
+	IEnumerator Delay(){
+		yield return new WaitForSeconds (3.5f);
+	}
+
+	// Use this for initialization
+	void Start () {
+
+		//Delay ();
+		singelton = this;
+
+		Debug.Log ("Start!");
 
 	}
 
@@ -257,9 +289,12 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	public void TriggerChangeLevel(){
 		Transform[] allGameObjects = transform.parent.GetComponentsInChildren<Transform> (true);
+
 		foreach (Transform tf in allGameObjects) {
 			tf.gameObject.SendMessage ("OnChangeLevel",null,SendMessageOptions.DontRequireReceiver);
 		}
+
+
 	}
 
 	//returns a list of all the first level children in a gameobject
