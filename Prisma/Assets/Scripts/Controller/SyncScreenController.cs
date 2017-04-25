@@ -7,9 +7,12 @@ public class SyncScreenController : NetworkBehaviour {
 
 	public static SyncScreenController instance;
 
+	public GameObject levelSelector;
+
 	private bool[] isReadyBtnPressed;
 
 	public GameObject[] players;
+	public GameObject[] playerController;
 
 	void Awake() {
 
@@ -28,10 +31,14 @@ public class SyncScreenController : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
-		isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+		if (MyNetworkLobbyManager.singelton.gameMode == "MultiPlayer") {
 
-		EnablePlayer (false);
+			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
+			playerController = GameObject.FindGameObjectsWithTag("TouchController");
+			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+
+			EnablePlayer (false);
+		}
 	}
 
 
@@ -45,10 +52,18 @@ public class SyncScreenController : NetworkBehaviour {
 			}
 		}
 
+		EnablePlayerController (b);
+
+	}
+
+	public void EnablePlayerController(bool b) {
+		foreach (GameObject controller in playerController) {
+			controller.SetActive (b);
+		}
 	}
 
 	// When ready-button is pressed
-	public void ReadyBtnPressed(GameObject button) {
+	public void ReadyBtnPressed(GameObject player, GameObject button) {
 
 		var id = int.Parse(button.name);
 
@@ -68,16 +83,21 @@ public class SyncScreenController : NetworkBehaviour {
 				return;
 			}
 		}
-		startGame ();
 
+		player.GetComponent<AimShootingMultiTouch> ().CmdSyncScreenStartGame();
 	}
 
-	void startGame() {
+	public void StartGame() {
+		GUILog.Log ("Im HERE1");
 
-		MyNetworkLobbyManager.singelton.ServerChangeScene ("LevelSelector");
 
-		// Put this in LevelSelectorController because it eanabled it too fast
-		//EnablePlayer (true);
+		levelSelector.GetComponent<LevelSelectorController> ().ToggleSelector ();
+		GUILog.Log ("Im HERE2");
+		EnablePlayer (true);
+		GUILog.Log ("Im HERE3");
+		gameObject.SetActive (false);
+
+		GUILog.Log ("Im HERE4");
 
 	}
 }

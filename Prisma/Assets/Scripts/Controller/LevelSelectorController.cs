@@ -13,6 +13,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	// The standard UI
 	public GameObject levelMenu;
 
+	// The SyncController
+	public GameObject syncScreen;
 
 	//List of all the multiplayer levels
 	private List<GameObject> mpLevelList;
@@ -108,11 +110,17 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			singlePlayerPanel.SetActive (true);
 			multiPlayerPanel.SetActive (false);
 
+			syncScreen.SetActive (false);
+
 		} else if (gameMode == "MultiPlayer") {
 			currentLevels = mpLevelList;
 			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
+
+			DeactivateLevels ();
+			ToggleSelector ();
+			syncScreen.SetActive (true);
 
 		} 
 	}
