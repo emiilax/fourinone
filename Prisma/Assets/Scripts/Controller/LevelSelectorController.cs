@@ -44,6 +44,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	public Texture2D defaultLevelThumbnail;
 
+	public Texture2D[] levelThumbnail = new Texture2D[5];
+
 	//currently playable levels in the chosen game mode
 	private List<GameObject> currentLevels;
 
@@ -78,37 +80,45 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	}
 
 
+	void Start(){
 
+		instance = this;
+
+
+	}
 
 
 	public override void OnStartClient(){
 		GUILog.Log ("onstartlocalplayer");
 
 		Debug.Log ("onstartclient");
-
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
 
+		spLevelList = FindLevels ("SP");
+		mpLevelList = FindLevels ("MP");
 		if (gameMode == "MultiPlayer") {
+
+			Debug.Log ("Multiplayer");
+
 			syncScreen.GetComponent<SyncScreenController> ().levelSelector = gameObject;
 
-			mpLevelList = FindLevels ("MP");
-			spLevelList = FindLevels ("SP");
-
 			DeactivateLevels ();
-
-			//DeactivateLevels ();
 			gameObject.SetActive (false);
 			GUILog.Log ("gameobject active: " + gameObject.activeSelf);
 			syncScreen.SetActive (true);
 
-		} else if (gameMode == "SinglePlayer"){
-			currentLevels = spLevelList;
-			contents = GetContents (spLevelList);
-			singlePlayerPanel.SetActive (true);
-			multiPlayerPanel.SetActive (false);
+		} 
+
+
+
+		if(gameMode == "SinglePlayer"){
+
+
+			StartLevelSelector ();
+
+
+
 		}
-
-
 
 	}
 
@@ -132,24 +142,25 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		}
 
 		GUILog.Log ("player id " + MyNetworkLobbyManager.singelton.GetPlayerId());
-		gameMode = MyNetworkLobbyManager.singelton.gameMode;
 
 
-
-		mpLevelList = FindLevels ("MP");
-		spLevelList = FindLevels ("SP");
 
 		style = new GUIStyle ("button");
 		if (gameMode == "SinglePlayer") {
 			
+			currentLevels = spLevelList;
 
-			//syncScreen.SetActive (false);
+			contents = GetContents (spLevelList);
+
+			Debug.Log ("contents: " + contents.Count);
+			//singlePlayerPanel.SetActive (true);
+			//multiPlayerPanel.SetActive (false);
+			syncScreen.SetActive (false);
 
 		} else if (gameMode == "MultiPlayer") {
 			currentLevels = mpLevelList;
 			contents = GetContents (mpLevelList);
-			multiPlayerPanel.SetActive (true);
-			singlePlayerPanel.SetActive (false);
+
 		} 
 	}
 
@@ -169,15 +180,6 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		yield return new WaitForSeconds (3.5f);
 	}
 
-	// Use this for initialization
-	void Start () {
-
-		//Delay ();
-		singelton = this;
-
-		Debug.Log ("Start!");
-
-	}
 
 	void OnGUI() {
 
@@ -189,7 +191,14 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 				style.imagePosition = ImagePosition.ImageAbove;
 				style.fontSize = 32;
 			}
-			selGridInt = GUI.SelectionGrid (new Rect (padding, padding, 1024 - padding * 2, 768 - padding * 2), selGridInt, contents.ToArray (), currentLevels.Count / 2, style);
+
+			int paddingleft = 200;
+			int paddingtop = 300;
+
+
+			int rows = (contents.ToArray ().Length / 3) + 1;
+
+			selGridInt = GUI.SelectionGrid (new Rect (paddingleft, paddingtop, 2048 - paddingleft*2, 390*rows), selGridInt, contents.ToArray (), 3, style);
 			if (lastId != selGridInt) {
 				LevelSelected (selGridInt);
 				lastId = selGridInt;
@@ -204,9 +213,12 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 	List<GUIContent> GetContents(List<GameObject> levels){
 		List<GUIContent> contents = new List<GUIContent> ();
+		int i = 0;
 		foreach(GameObject level in levels){
 			
-			contents.Add (new GUIContent(level.name, defaultLevelThumbnail));
+			//contents.Add (new GUIContent(level.name, defaultLevelThumbnail));
+			contents.Add (new GUIContent(levelThumbnail[i]));
+			i++;
 		}
 		return contents;
 	}

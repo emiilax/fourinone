@@ -145,14 +145,16 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 				
 				foreach (MatchInfoSnapshot m in matches) {
 
-					if (m.currentSize == 0 || m.currentSize == minPlayers) {
-						
-						ShowPromptWindow (promptConnectingToLobby, false);
-						ShowPromptWindow (promptLobbyFull, true);
-						return;
-					}
+
 
 					if(lobbyName.Equals(m.name)) {
+
+						if (m.currentSize == 0 || m.currentSize == minPlayers) {
+
+							ShowPromptWindow (promptConnectingToLobby, false);
+							ShowPromptWindow (promptLobbyFull, true);
+							return;
+						}
 
 						Debug.Log ("Joined Game. Server: " + m.name);
 						currentMatchID = (System.UInt64) m.networkId;

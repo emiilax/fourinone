@@ -194,6 +194,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 		SpriteRenderer sr = playersprites [(int)assignedScreen-1].GetComponent<SpriteRenderer>();
 
+		sr.sortingLayerName = "Midground";
+
         if (assignedScreen == 2)
         {
             sr.flipX = true;
