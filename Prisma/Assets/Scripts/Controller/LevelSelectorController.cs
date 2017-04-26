@@ -63,6 +63,12 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	public LevelSelectorController singelton;
 
 
+
+	[SyncVar(hook = "OnAllLoaded")]
+	public bool allLoaded = false;
+
+
+
 	void Awake() {
 		if (instance == null)
 			instance = this;
@@ -71,13 +77,43 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			Destroy (gameObject);
 	}
 
-	[SyncVar(hook = "OnAllLoaded")]
-	public bool allLoaded = false;
+
 
 
 
 	public override void OnStartClient(){
-		Debug.Log ("onstartlocalplayer");
+		GUILog.Log ("onstartlocalplayer");
+
+		Debug.Log ("onstartclient");
+
+		gameMode = MyNetworkLobbyManager.singelton.gameMode;
+
+		if (gameMode == "MultiPlayer") {
+			syncScreen.GetComponent<SyncScreenController> ().levelSelector = gameObject;
+
+			mpLevelList = FindLevels ("MP");
+			spLevelList = FindLevels ("SP");
+
+			DeactivateLevels ();
+
+			//DeactivateLevels ();
+			gameObject.SetActive (false);
+			GUILog.Log ("gameobject active: " + gameObject.activeSelf);
+			syncScreen.SetActive (true);
+
+		} else if (gameMode == "SinglePlayer"){
+			currentLevels = spLevelList;
+			contents = GetContents (spLevelList);
+			singlePlayerPanel.SetActive (true);
+			multiPlayerPanel.SetActive (false);
+		}
+
+
+
+	}
+
+	public void StartLevelSelector(){
+		
 
 		text = textObject.GetComponent<Text> ();
 		text.text = defaultText;
@@ -105,25 +141,18 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 
 		style = new GUIStyle ("button");
 		if (gameMode == "SinglePlayer") {
-			currentLevels = spLevelList;
-			contents = GetContents (spLevelList);
-			singlePlayerPanel.SetActive (true);
-			multiPlayerPanel.SetActive (false);
+			
 
-			syncScreen.SetActive (false);
+			//syncScreen.SetActive (false);
 
 		} else if (gameMode == "MultiPlayer") {
 			currentLevels = mpLevelList;
 			contents = GetContents (mpLevelList);
 			multiPlayerPanel.SetActive (true);
 			singlePlayerPanel.SetActive (false);
-
-			DeactivateLevels ();
-			ToggleSelector ();
-			syncScreen.SetActive (true);
-
 		} 
 	}
+
 
 	private void OnAllLoaded(bool trufal){
 		//if (!isServer)
@@ -151,6 +180,8 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	}
 
 	void OnGUI() {
+
+
 		if (showLevels) {
 			if (!initialized) {
 				style = new GUIStyle (GUI.skin.button);
@@ -268,7 +299,11 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		//List<GameObject> l1 = getFirstChildren (gameObject);
 		//GameObject lvlselector = l1 [0];
 		//lvlselector.SetActive (!lvlselector.activeSelf);
+
+	//	GUILog.Log ("Toggle selector, set: " + !gameObject.activeSelf);
 		gameObject.SetActive (!gameObject.activeSelf);
+
+	//	GUILog.Log ("Toggle selector(after), set: " + gameObject.activeSelf);
 	}
 
 	//Toggles all common multiplayer objects

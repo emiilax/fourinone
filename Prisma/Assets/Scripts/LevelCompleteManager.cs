@@ -41,6 +41,12 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	void Start(){
 
 
+
+	}
+
+
+	public override void OnStartClient ()
+	{
 		//Debug.Log ("SceneLoaded: " + SceneManager.sceneLoaded);
 
 		text = textObj.GetComponent<Text> ();
@@ -59,7 +65,6 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		lvlselector = GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
 		hostPanel = GameObject.Find ("GUIPanelHost");
 	}
-
 
 	void Update ()
 	{

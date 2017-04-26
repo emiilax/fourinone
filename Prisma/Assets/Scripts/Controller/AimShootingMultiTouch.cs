@@ -571,13 +571,14 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	[Command]
 	public void CmdSyncScreenStartGame() {
-		RpcSyncScreenStartGame ();
+		//RpcSyncScreenStartGame ();
+		SyncScreenController.instance.StartGame ();
 	}
 
 	[ClientRpc]
 	void RpcSyncScreenStartGame() {
 
-		SyncScreenController.instance.StartGame ();
+		//SyncScreenController.instance.StartGame ();
 	}
 
 
@@ -656,8 +657,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	void OnApplicationQuit(){
 		// Must make NetworkLobbyManager active to make it destroy match
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		MyNetworkLobbyManager.singelton.QuitGame ();
+		//MyNetworkLobbyManager.singelton.CancelConnection();
+	//	MyNetworkLobbyManager.singelton.QuitGame ();
 
 	}
 

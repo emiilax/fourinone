@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDisconnectPanel : PromptWindow {
+public class PromptPlayerDisconnect : PromptWindow {
 
 
 	public void OkButtonPressed(){

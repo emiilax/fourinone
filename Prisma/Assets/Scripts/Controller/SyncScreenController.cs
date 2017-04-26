@@ -20,6 +20,8 @@ public class SyncScreenController : NetworkBehaviour {
 		if (instance == null)
 			//...set this one to be it...
 			instance = this;
+
+
 		//...otherwise...
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
@@ -33,12 +35,17 @@ public class SyncScreenController : NetworkBehaviour {
 
 		if (MyNetworkLobbyManager.singelton.gameMode == "MultiPlayer") {
 
+			//levelSelector = GameObject.FindGameObjectWithTag ("LevelSelector");
+
+			GUILog.Log ("levelselector == null?: " + (levelSelector==null));
+
 			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
 			playerController = GameObject.FindGameObjectsWithTag("TouchController");
 			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
 
 			EnablePlayer (false);
 		}
+
 	}
 
 
@@ -88,16 +95,39 @@ public class SyncScreenController : NetworkBehaviour {
 	}
 
 	public void StartGame() {
-		GUILog.Log ("Im HERE1");
+		//GUILog.Log ("Im HERE1");
+
+		//levelSelector.SetActive (true);
+		//levelSelector.GetComponent<LevelSelectorController> ().ToggleSelector ();
+
+		//levelSelector.GetComponent<LevelSelectorController> ().ActivateMultiplayer();
+
+		RpcTest (gameObject);
+		//RpcSetLevelSelectorActive ();
 
 
-		levelSelector.GetComponent<LevelSelectorController> ().ToggleSelector ();
-		GUILog.Log ("Im HERE2");
+		//GUILog.Log ("Im HERE2");
+
+		//GUILog.Log ("Im HERE3");
+		//gameObject.SetActive (false);
+
+		//GUILog.Log ("Im HERE4");
+
+	}
+
+	[ClientRpc]
+	void RpcTest (GameObject syncscreen){
+
+		GUILog.Log ("Null? :" + (syncscreen.GetComponent<SyncScreenController>().levelSelector == null));
+		syncscreen.GetComponent<SyncScreenController>().levelSelector.SetActive(true);
+		syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().StartLevelSelector ();
+		//syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().multiPlayerPanel.SetActive (true);
+
+		GUILog.Log ("Levelselector ok!");
+
 		EnablePlayer (true);
-		GUILog.Log ("Im HERE3");
-		gameObject.SetActive (false);
+		GUILog.Log ("Enable player!");
 
-		GUILog.Log ("Im HERE4");
-
+		syncscreen.SetActive (false);
 	}
 }
