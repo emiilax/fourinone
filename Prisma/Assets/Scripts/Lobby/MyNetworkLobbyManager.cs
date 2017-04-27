@@ -231,9 +231,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 				{                    
 					this.matchMaker.DropConnection(connectedMatchInfo.networkId, connectedMatchInfo.nodeId, 0, OnDroppedDuplicateMatch);
 
-					ShowPromptWindow (waitingForPlayersScreen, false);
-					ShowPromptWindow (connectingScreen, true);
-					waitingForPlayersScreen.SetUpPanel (minPlayers);
+					ShowPromptWindow (promptWaitingForPlayers, false);
+					ShowPromptWindow (promptConnectingToLobby, true);
+					promptWaitingForPlayers.SetUpPanel (minPlayers);
 					CancelInvoke("GetServerListForCheck");
 				}
 				else
