@@ -12,7 +12,7 @@ public class AustronautManager : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		Debug.Log ("Austonaut start");
+		//Debug.Log ("Austonaut start");
 
 		anim = GetComponent <Animator> ();
 

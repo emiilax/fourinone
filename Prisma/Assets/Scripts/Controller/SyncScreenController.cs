@@ -7,9 +7,12 @@ public class SyncScreenController : NetworkBehaviour {
 
 	public static SyncScreenController instance;
 
+	public GameObject levelSelector;
+
 	private bool[] isReadyBtnPressed;
 
 	public GameObject[] players;
+	public GameObject[] playerController;
 
 	void Awake() {
 
@@ -17,6 +20,8 @@ public class SyncScreenController : NetworkBehaviour {
 		if (instance == null)
 			//...set this one to be it...
 			instance = this;
+
+
 		//...otherwise...
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
@@ -28,10 +33,19 @@ public class SyncScreenController : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
-		isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+		if (MyNetworkLobbyManager.singelton.gameMode == "MultiPlayer") {
 
-		EnablePlayer (false);
+			//levelSelector = GameObject.FindGameObjectWithTag ("LevelSelector");
+
+			GUILog.Log ("levelselector == null?: " + (levelSelector==null));
+
+			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
+			playerController = GameObject.FindGameObjectsWithTag("TouchController");
+			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
+
+			EnablePlayer (false);
+		}
+
 	}
 
 
@@ -45,10 +59,18 @@ public class SyncScreenController : NetworkBehaviour {
 			}
 		}
 
+		EnablePlayerController (b);
+
+	}
+
+	public void EnablePlayerController(bool b) {
+		foreach (GameObject controller in playerController) {
+			controller.SetActive (b);
+		}
 	}
 
 	// When ready-button is pressed
-	public void ReadyBtnPressed(GameObject button) {
+	public void ReadyBtnPressed(GameObject player, GameObject button) {
 
 		var id = int.Parse(button.name);
 
@@ -68,16 +90,44 @@ public class SyncScreenController : NetworkBehaviour {
 				return;
 			}
 		}
-		startGame ();
+
+		player.GetComponent<AimShootingMultiTouch> ().CmdSyncScreenStartGame();
+	}
+
+	public void StartGame() {
+		//GUILog.Log ("Im HERE1");
+
+		//levelSelector.SetActive (true);
+		//levelSelector.GetComponent<LevelSelectorController> ().ToggleSelector ();
+
+		//levelSelector.GetComponent<LevelSelectorController> ().ActivateMultiplayer();
+
+		RpcTest (gameObject);
+		//RpcSetLevelSelectorActive ();
+
+
+		//GUILog.Log ("Im HERE2");
+
+		//GUILog.Log ("Im HERE3");
+		//gameObject.SetActive (false);
+
+		//GUILog.Log ("Im HERE4");
 
 	}
 
-	void startGame() {
+	[ClientRpc]
+	void RpcTest (GameObject syncscreen){
 
-		MyNetworkLobbyManager.singelton.ServerChangeScene ("LevelSelector");
+		GUILog.Log ("Null? :" + (syncscreen.GetComponent<SyncScreenController>().levelSelector == null));
+		syncscreen.GetComponent<SyncScreenController>().levelSelector.SetActive(true);
+		syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().StartLevelSelector ();
+		//syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().multiPlayerPanel.SetActive (true);
 
-		// Put this in LevelSelectorController because it eanabled it too fast
-		//EnablePlayer (true);
+		GUILog.Log ("Levelselector ok!");
 
+		EnablePlayer (true);
+		GUILog.Log ("Enable player!");
+
+		syncscreen.SetActive (false);
 	}
 }

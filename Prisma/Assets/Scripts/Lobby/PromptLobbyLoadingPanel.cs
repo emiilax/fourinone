@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class LobbyLoadingPanel : PromptWindow {
+public class PromptLobbyLoadingPanel : PromptWindow {
 
 	/* UI Elements */
 	public Text playerCounter;

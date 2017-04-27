@@ -13,6 +13,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
     float keyShutDownDelay = 0.1f;
 
 
+
     LayerMask controllerLayerMask = ~(1 << 11); // Masks out layer 11 (the controller layer), used for raycasting laser without hitting the controllers
 
 	public LineRenderer laser;
@@ -192,6 +193,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		playersprites [(int)assignedScreen-1].SetActive (true);
 
 		SpriteRenderer sr = playersprites [(int)assignedScreen-1].GetComponent<SpriteRenderer>();
+
+		sr.sortingLayerName = "Midground";
 
         if (assignedScreen == 2)
         {
@@ -408,7 +411,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 			} else if (tf.parent.gameObject.Equals (gameObj)) {
 				list.Add (tf.gameObject);
-				Debug.Log (tf.gameObject.name);
+				//Debug.Log (tf.gameObject.name);
 			}
 		}
 		return list;
@@ -430,19 +433,18 @@ public class AimShootingMultiTouch : NetworkBehaviour
 			if (Physics.Raycast(ray, out hit, 100)) {
 				// In syncscreen
 				if (hit.collider.tag == "SyncScreenButton") {                         
-					CmdReadyBtnPressed (hit.collider.gameObject);
-					return;
+					CmdReadyBtnPressed (gameObject, hit.collider.gameObject);
 				} else if (hit.collider.tag == "TutorialButton") {
-					TutorialManager.instance.HideTutorialButtonPressed ();
+					LevelSelectorController.instance.currentLevel.GetComponentInChildren<TutorialManager> (true).HideTutorialButtonPressed ();
 				}
 			}    
 		}
 
 
 		if (!isLocalPlayer) { return;  }
-		if (playerCamera == null) {
+		/*if (playerCamera == null) {
 			SetCamera ();
-		}
+		}*/
 
 		if (Input.GetButton ("Fire1") && Input.touchCount == 0) {
 			
@@ -565,8 +567,20 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	// Tells the server that a player is ready in SyncScreen
 	[Command]
-	public void CmdReadyBtnPressed(GameObject button) {
-		SyncScreenController.instance.ReadyBtnPressed(button);
+	public void CmdReadyBtnPressed(GameObject player, GameObject button) {
+		SyncScreenController.instance.ReadyBtnPressed(player, button);
+	}
+
+	[Command]
+	public void CmdSyncScreenStartGame() {
+		//RpcSyncScreenStartGame ();
+		SyncScreenController.instance.StartGame ();
+	}
+
+	[ClientRpc]
+	void RpcSyncScreenStartGame() {
+
+		//SyncScreenController.instance.StartGame ();
 	}
 
 
@@ -645,8 +659,8 @@ public class AimShootingMultiTouch : NetworkBehaviour
 
 	void OnApplicationQuit(){
 		// Must make NetworkLobbyManager active to make it destroy match
-		MyNetworkLobbyManager.singelton.gameObject.SetActive (true);
-		MyNetworkLobbyManager.singelton.QuitGame ();
+		//MyNetworkLobbyManager.singelton.CancelConnection();
+	//	MyNetworkLobbyManager.singelton.QuitGame ();
 
 	}
 

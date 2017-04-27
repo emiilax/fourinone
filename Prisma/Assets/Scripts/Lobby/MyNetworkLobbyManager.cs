@@ -13,6 +13,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	static public MyNetworkLobbyManager singelton;
 
+	public Transform background;
+
 	// Menu with startbutton
 	public RectTransform mainMenuPanel;
 
@@ -20,13 +22,15 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public RectTransform lobbySelectionPanel;
 
 	// Displays amount of players connected
-	public LobbyLoadingPanel waitingForPlayersScreen;
+	public PromptLobbyLoadingPanel promptWaitingForPlayers;
 
 	// Displays when connecting to a server
-	public ConnectingPanel connectingScreen;
+	public PromptConnectingToLobby promptConnectingToLobby;
 
 	// Displays when something went wrong
-	public PlayerDisconnectPanel disconnectScreen;
+	public PromptPlayerDisconnect promptPlayerDisconnect;
+
+	public PromptLobbyFull promptLobbyFull;
 
 	public string gameMode;
 
@@ -98,6 +102,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public void ChangePanel(RectTransform newPanel){
 
+		if (!background.gameObject.activeSelf) {
+			background.gameObject.SetActive (true);
+		}
 
 		currentPanel.gameObject.SetActive (false);
 
@@ -130,10 +137,10 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public void ShowLoadingScreen(Color color){
 
-		waitingForPlayersScreen.SetColor (color);
-		connectingScreen.SetColor (color);
+		promptWaitingForPlayers.SetColor (color);
+		promptConnectingToLobby.SetColor (color);
 
-		ShowPromptWindow (connectingScreen, true);
+		ShowPromptWindow (promptConnectingToLobby, true);
 
 		StartMatchMaker ();
 		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, JoinOrCreateMatch);
@@ -160,6 +167,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 							bestId = m.networkId;
 							foundMatch = true;
 						}
+
 					}// end if equals
 				}// end if count
 				if (foundMatch)
@@ -266,12 +274,19 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 	/* Called when you want to destroy ther current matchmaker game is */
-	public override void OnDestroyMatch(bool success, string extendedInfo)
+	public void OnDestroyMatch(bool success, string extendedInfo)
 	{
+		Debug.Log ("OnDestroyMatch");
+
 		base.OnDestroyMatch(success, extendedInfo);
+
+
+		Debug.Log ("Removing Matchmaeker");
 		StopMatchMaker();
+		Debug.Log ("Stop host");
 		StopHost();
 		isHost = false;
+
 	}
 
 
@@ -314,22 +329,24 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		base.OnLobbyClientConnect (conn);
 
-		ShowPromptWindow (connectingScreen, false);
+		ShowPromptWindow (promptConnectingToLobby, false);
 
-		waitingForPlayersScreen.SetUpPanel (minPlayers);
+		promptWaitingForPlayers.SetUpPanel (minPlayers);
 
-		ShowPromptWindow (waitingForPlayersScreen, true);
+		ShowPromptWindow (promptWaitingForPlayers, true);
 
 
 		//Debug.Log ("Client connected to lobby");
 
 	}
 
+
 	/* called when the scene is changed (lobby -> game). Have to disable current screen */
 	public override void OnLobbyClientSceneChanged (NetworkConnection conn){
-		
+
 		base.OnLobbyClientSceneChanged (conn);
-		gameObject.SetActive (false);
+		HideAllPanels ();
+		//gameObject.SetActive (false);
 
 	}
 
@@ -353,23 +370,33 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		CancelInvoke("GetServerListForCheck");
 		Debug.Log ("All ready");
 		base.OnLobbyServerPlayersReady ();
-		gameObject.SetActive (false);
+		//gameObject.SetActive (false);
 
 
 	}
+		
 
-	//public void OnSetMatchAttributes()
+	/*
+	public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer){
+		Debug.Log ("Server loaded scene for player");
+
+		nbr++;
+
+		LevelSelectorController.instance.allLoaded = (nbr == minPlayers);
+	
 
 
 	public override void OnLobbyServerDisconnect(NetworkConnection conn){
 		base.OnLobbyServerDisconnect (conn);
 		Debug.Log ("Server disconnect");
 
-		gameObject.SetActive (true);
+		//gameObject.SetActive (true);
+		//Changed
+		ChangePanel (lobbySelectionPanel);
 
-		ShowPromptWindow (waitingForPlayersScreen, false);
+		ShowPromptWindow (promptWaitingForPlayers, false);
 
-		ShowPromptWindow (disconnectScreen, true);
+		ShowPromptWindow (promptPlayerDisconnect, true);
 
 		CancelConnection ();
 	}
@@ -383,9 +410,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	void OnApplicationQuit() {
 		//gameObject.SetActive (true);
 		if (isHost){
-			if (matchMaker != null)
-				Debug.Log ("Host: Destroy match");
-				matchMaker.DestroyMatch((NetworkID)currentMatchID, 0, OnDestroyMatch);
+			if (matchMaker != null) {
+				
+				//StopHost();
+				//isHost = false;
+				matchMaker.DestroyMatch ((NetworkID)currentMatchID, 0, OnDestroyMatch);
+				//StopMatchMaker();
+			}
 		}
 		Debug.Log("Application ending after " + Time.time + " seconds");
 	}
@@ -396,11 +427,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	{
 		base.OnClientDisconnect(conn);
 
-		ShowPromptWindow (waitingForPlayersScreen, false);
+		ShowPromptWindow (promptWaitingForPlayers, false);
 
-		ShowPromptWindow (disconnectScreen, true);
+		ShowPromptWindow (promptPlayerDisconnect, true);
 
-		gameObject.SetActive (true);
+		//Changed
+		ChangePanel (lobbySelectionPanel);
+		//gameObject.SetActive (true);
 	}
 
 
@@ -418,7 +451,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 6.5f, 0f));
 		gameMode = "SinglePlayer";
 
-		gameObject.SetActive (false);
+		//gameObject.SetActive (false);
+		//Changed
+		HideAllPanels();
 		StartHost ();
 
 	}
@@ -448,10 +483,13 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, 0f));
 		gameMode = "MultiPlayer";
 
-		gameObject.SetActive (true);
+
+		//Changed
+		//ChangePanel (mainMenuPanel);
+		//gameObject.SetActive (true);
 		StopHost();
 
-		waitingForPlayersScreen.CancelButtonClicked ();
+		promptWaitingForPlayers.CancelButtonClicked ();
 		ChangePanel (mainMenuPanel);
 
 	}
@@ -467,13 +505,31 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* Called when a player is added */ 
 
 	public void NumberOfPlayersChanged(int i){
-		waitingForPlayersScreen.NumberOfPlayersChanged (i);
+		promptWaitingForPlayers.NumberOfPlayersChanged (i);
 
 	}
+
+	private void HideAllPanels(){
+
+		background.gameObject.SetActive (false);
+		
+		mainMenuPanel.gameObject.SetActive (false);
+
+		lobbySelectionPanel.gameObject.SetActive (false);
+
+		ShowPromptWindow (promptWaitingForPlayers, false);
+
+		ShowPromptWindow (promptConnectingToLobby, false);
+
+		ShowPromptWindow (promptPlayerDisconnect, false);
+
+	}
+
 
 	public void DebugJoinOrCreateMatch(bool success, string extendedInfo, List<MatchInfoSnapshot> matches)
 	{
 		CreateMatch();
 	}
+
 		
 }
