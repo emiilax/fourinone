@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
@@ -33,7 +34,15 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	private bool isHost = false;
 
-	public string lobbyName = ""; 
+	public string lobbyName = "";
+
+	//name of created match, differs from lobbyName cause it also includes time stamp
+	protected string createdName = "";
+
+	protected MatchInfo connectedMatchInfo;
+
+	protected NetworkConnection connectedConn;
+
 
 	protected RectTransform currentPanel;
 
@@ -46,6 +55,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	private int playerid;
 
 	private NodeID nodeId;
+
+	System.Guid guid;
 
 
 	// Initialization of the singelton
@@ -79,6 +90,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		defaultMinPlayer = minPlayers;
 
+		guid = System.Guid.NewGuid();
+
 		DontDestroyOnLoad(gameObject);
 
 	}
@@ -96,8 +109,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		currentPanel = newPanel;
 
 	}
-	public int GetPlayerId(){
-		return (int)nodeId;
+	public String GetPlayerId(){
+		return guid.ToString();
 	}
 	public void ShowPromptWindow(PromptWindow prompt, bool active){
 
@@ -129,48 +142,111 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 
 	/* Function called when serching for games (ShowLoadingScreen). It first loops through all the active games, and 
-	if the lobby you choosed is not active, then create lobby */ 
+	if the lobby you choosed is not active, then create lobby */
 	public void JoinOrCreateMatch(bool success, string extendedInfo, List<MatchInfoSnapshot> matches){
-	
+
 		if (success) {
 
 			if(matches.Count > 0){
-				
+				NetworkID bestId = 0;
+				string bestName = "";
+				bool foundMatch = false;
 				foreach (MatchInfoSnapshot m in matches) {
 
-					if(lobbyName.Equals(m.name)) {
-
-						Debug.Log ("Joined Game. Server: " + m.name);
-						currentMatchID = (System.UInt64) m.networkId;
-						isHost = false;
-						matchMaker.JoinMatch (m.networkId, "", "", "", 0, 0, OnMatchJoin);
-						return;
-
+					if (m.name.Contains(m.name) && m.currentSize > 0) {
+						if(!foundMatch || string.Compare(bestName, m.name) > 0)
+						{
+							bestName = m.name;
+							bestId = m.networkId;
+							foundMatch = true;
+						}
 					}// end if equals
-
 				}// end if count
+				if (foundMatch)
+				{
+					Debug.Log("Joined Game. Server: " + bestName);
+					currentMatchID = (System.UInt64)bestId;
+					isHost = false;
+					matchMaker.JoinMatch(bestId, "", "", "", 0, 0, OnMatchJoin);
+					return;
+				}
 
 			}// end if success
 
-			matchMaker.CreateMatch(
-				lobbyName ,
-				(uint)maxPlayers,
-				true,
-				"", "", "", 0, 0,
-				OnMatchCreate);
+			CreateMatch();
 
-			isHost = true;
-			Debug.Log ("Match created. Servername: " + lobbyName);
 
-		
+
 		} else {
-			
+
 			Debug.LogError("Couldn't connect to match maker");
 
 		}
 
 
 	}
+
+
+	protected void CreateMatch()
+	{
+		long ticks = DateTime.Now.Ticks;
+		createdName = lobbyName + ticks.ToString();
+
+		this.matchMaker.CreateMatch(
+			createdName,
+			(uint)maxPlayers,
+			true,
+			"", "", "", 0, 0,
+			OnMatchCreate);
+
+		isHost = true;
+		Debug.Log("Match created. Servername: " + lobbyName);
+	}
+
+	void GetServerListForCheck()
+	{
+		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, CheckForMatchCollission);
+	}
+
+
+	public void CheckForMatchCollission(bool success, string extendedInfo, List<MatchInfoSnapshot> matches)
+	{
+		// GUILog.Log("checking for collission");
+		if (matches.Count == 0)
+		{
+		}
+		foreach (MatchInfoSnapshot m in matches)
+		{
+			if (!m.name.Equals(createdName) && m.name.Contains(lobbyName))
+			{
+				if (string.Compare(createdName, m.name) > 0)
+				{                    
+					this.matchMaker.DropConnection(connectedMatchInfo.networkId, connectedMatchInfo.nodeId, 0, OnDroppedDuplicateMatch);
+
+					ShowPromptWindow (waitingForPlayersScreen, false);
+					ShowPromptWindow (connectingScreen, true);
+					waitingForPlayersScreen.SetUpPanel (minPlayers);
+					CancelInvoke("GetServerListForCheck");
+				}
+				else
+				{
+					// GUILog.Log("Keeping this one!");
+				}
+
+			}
+		}
+	}
+
+	public void OnDroppedDuplicateMatch(bool success, string extendedInfo)
+	{
+		StopHost();
+		isHost = false;
+		StopMatchMaker();
+		StartMatchMaker();
+		this.matchMaker.ListMatches(0, 6, "", true, 0, 0, JoinOrCreateMatch);
+	}
+
+
 
 	/* Fucktion used when you want to cancel the connection. Doing different actions
 	depending on "host" och client */
@@ -202,12 +278,23 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* Called when a match is created on mathMaker. Overrides this since we wan to save current match id.*/
 	public override void OnMatchCreate (bool success, string extendedInfo, MatchInfo matchInfo)
 	{
-		base.OnMatchCreate (success, extendedInfo, matchInfo);
-		currentMatchID = (System.UInt64)matchInfo.networkId;
-		if(!success){
+		
+		if (success)
+		{
+			connectedMatchInfo = matchInfo;
+
+			InvokeRepeating("GetServerListForCheck", 1, 1);
+
+			base.OnMatchCreate(success, extendedInfo, matchInfo);
+			currentMatchID = (System.UInt64)matchInfo.networkId;
+
+			nodeId = matchInfo.nodeId;
+		}
+		else
+		{
 			Debug.LogError("Couldn't connect to match maker");
 		}
-		nodeId = matchInfo.nodeId;
+
 	}
 
 	public void OnMatchJoin (bool success, string extendedInfo, MatchInfo matchInfo)
@@ -261,15 +348,17 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* When all players ready, start the game and disable current canvas */
 	public override void OnLobbyServerPlayersReady(){
 		// Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
+
+		this.matchMaker.SetMatchAttributes((NetworkID)currentMatchID, false, 0, OnSetMatchAttributes);
+		CancelInvoke("GetServerListForCheck");
 		Debug.Log ("All ready");
-
-
-
 		base.OnLobbyServerPlayersReady ();
 		gameObject.SetActive (false);
 
 
 	}
+
+	//public void OnSetMatchAttributes()
 
 
 	public override void OnLobbyServerDisconnect(NetworkConnection conn){
@@ -380,6 +469,11 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public void NumberOfPlayersChanged(int i){
 		waitingForPlayersScreen.NumberOfPlayersChanged (i);
 
+	}
+
+	public void DebugJoinOrCreateMatch(bool success, string extendedInfo, List<MatchInfoSnapshot> matches)
+	{
+		CreateMatch();
 	}
 		
 }

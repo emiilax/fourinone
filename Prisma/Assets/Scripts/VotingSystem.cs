@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,16 +14,18 @@ public class VotingSystem {
 	short voteCompleteMsg;
 	short voteFailMsg;
 	// Our connectionId should not change during game
-	int connId;
+	string connId;
 
-	private Dictionary<int, string> votes;
+	private Dictionary<string, string> votes;
 
 	NetworkClient client;
 
 	IVoteListener listener;
 
 
-	public VotingSystem(short voteId, short voteCompleteId, short voteFailId, int playerid, NetworkClient client, IVoteListener listener){
+
+
+	public VotingSystem(short voteId, short voteCompleteId, short voteFailId, string playerid, NetworkClient client, IVoteListener listener){
 		this.voteMsg = voteId;
 		this.voteCompleteMsg = voteCompleteId;
 		this.voteFailMsg = voteFailId;
@@ -33,10 +36,11 @@ public class VotingSystem {
 		NetworkServer.RegisterHandler(voteMsg, OnVoteCast);
 		client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
 		client.RegisterHandler (voteFailMsg, OnVoteFail);
+
 	}
 
 	public void setupServer(int numPlayers){
-		votes = new Dictionary<int, string> ();
+		votes = new Dictionary<string, string> ();
 		this.numPlayers = numPlayers;
 	}
 
@@ -66,13 +70,13 @@ public class VotingSystem {
 		string vote = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log ("recieved vote " + vote);
 		var idAndLevel = vote.Split ();
-		int id = int.Parse(idAndLevel[0]);
+		String id = idAndLevel[0];
 		string level = idAndLevel [1];
 		votes [id] = level;
 		if (votes.Count == numPlayers) {
 			string firstVote = null;
 			bool unanimous = true;
-			foreach(KeyValuePair<int, string> entry in votes)
+			foreach(KeyValuePair<string, string> entry in votes)
 			{
 				if (firstVote == null) {
 					firstVote = entry.Value;

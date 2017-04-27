@@ -10,5 +10,7 @@ public class ConnectingPanel : PromptWindow {
 	void start(){
 		connectingText.text = "Ansluter...";
 	}
+
+
 		
 }
