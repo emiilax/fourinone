@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.SceneManagement;
 
 public class GameController : NetworkBehaviour {
@@ -10,13 +11,17 @@ public class GameController : NetworkBehaviour {
 	public static GameController instance;
 	private bool gameActive = false;
 
+	public bool wantToLeave = false;
 	private List<GameObject> listOfKeys;
+
 
 	void Awake() {
 		//If we don't currently have a game control...
-		if (instance == null)
+		if (instance == null) {
+
 			//...set this one to be it...
 			instance = this;
+		}
 		//...otherwise...
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
@@ -28,6 +33,8 @@ public class GameController : NetworkBehaviour {
 	void Start () {
 		listOfKeys = new List<GameObject> ();
 		Debug.Log ("IsServer: " + isServer);
+		NetworkServer.RegisterHandler(322, UpdateWantToLeave);
+
 
 	}
 
@@ -49,7 +56,20 @@ public class GameController : NetworkBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {}
+	void Update(){
+		if (!isServer)
+			return;
+		//GUILog.Log (wantToLeave.ToString());
+		if (wantToLeave) {
+			GUILog.Log ("server want to leave");
+			RpcCompleted (false);
+			wantToLeave = false;
+		}
+		else if(GameFinished())
+		{
+			RpcCompleted (true);
+		}
+	}
 
 
 	public void KeyIsHit(GameObject theKey, bool keyIsHit){
@@ -66,6 +86,7 @@ public class GameController : NetworkBehaviour {
 
 	}
 
+
 	public bool GameFinished(){
 		if (!gameActive) {
 			return false;
@@ -81,12 +102,49 @@ public class GameController : NetworkBehaviour {
 		return true;
 
 	}
+		
+	public void UpdateWantToLeave(NetworkMessage netMsg){
+		GUILog.Log ("update want to leave");
+		if(netMsg.ReadMessage<IntegerMessage>().value == 1){
+			wantToLeave = true;//(bool) netMsg.ReadMessage<IntegerMessage>().value;
+		}else{
+			wantToLeave = false;
+		}
+
+	}
+
+	public void SetWantToLeave(){
+		GUILog.Log ("set want to leave");
+
+		MyNetworkLobbyManager.singleton.client.Send(322, new IntegerMessage(1));
+		//MyNetworkLobbyManager.singelton.client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
+		//wantToLeave = true;
+		//CmdWantToLeave(true);
+	}
 
 
 		
 	// Action handler for back-button for singlePlayer to last scene.
 	public void SinglePlayerBackButtonPressed() {
 		NetworkManager.singleton.ServerChangeScene ("LevelSelector");
+	}
+
+	[Command]
+	public void CmdWantToLeave(bool b)
+	{
+		GUILog.Log ("cmd want to leave");
+		wantToLeave = b;
+	}
+
+
+	[ClientRpc]
+	void RpcCompleted(bool success){
+		if (isServer) {
+			return;
+		}
+		GUILog.Log ("rpc completed");
+		LevelCompleteManager lvlman = GameObject.Find ("GUIPanelHost").GetComponent<LevelCompleteManager>();
+		lvlman.GameComplete (success);
 	}
 
 }

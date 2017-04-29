@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
+public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 	public float restartDelay = 5f;         // Time to wait before restarting the level
 
@@ -21,8 +21,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	public GameObject menuButton;
 	public GameObject restartButton;
 	public GameObject textObj;
-
-
+	public GameObject successFailTextGameObj;
+	public string successText = "Bra jobbat!";
+	public string exitText = "Matchen avslutad";
 
 
 	Text text;
@@ -63,25 +64,11 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	void Update ()
 	{
 
-		if (!isServer)
-			return;
-		
-		if(GameController.instance.GameFinished())
-		{
-			
-			RpcShowAnimation ();
-
-		}
-	}
-
-	public void OnChangeLevel(){
 
 	}
 
-
-	[ClientRpc]
-	void RpcShowAnimation(){
-		//if(isServer)
+	public void GameComplete(bool success){
+		GUILog.Log("succeeded  " + success.ToString());
 		GUILog.Log("show animation");
 		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
 		if (LevelSelectorController.instance.HasNextLevel ()) {
@@ -90,20 +77,31 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			nextButton.SetActive (false);
 
 		}
+		if (success) {
+			successFailTextGameObj.GetComponent<Text> ().text = successText;
+			foreach (GameObject g in austronauts) {
 
-		foreach(GameObject g in austronauts){
-
-			if (g.activeInHierarchy) {
-				Debug.Log ("Austronaut show animation");
-				g.GetComponent<AustronautManager> ().ShowAnimation ();
+				if (g.activeInHierarchy) {
+					Debug.Log ("Austronaut show animation");
+					g.GetComponent<AustronautManager> ().ShowAnimation ();
+				}
 			}
+		} else {
+			successFailTextGameObj.GetComponent<Text> ().text = exitText;
 		}
-
 		anim.SetTrigger ("LevelCompleteHost");
 
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
 	}
+
+
+	public void OnChangeLevel(){
+
+	}
+
+
+
 
 
 	public void ButtonBackToLobby(){
@@ -175,30 +173,7 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		}
 	}
 
-	[ClientRpc]
-	void RpcSendMessage(string str){
-	
-		Debug.Log (str);
 
-	}
-	[ClientRpc]
-	void RpcSetTrigger(string str){
-
-		if (str.Equals ("Hidden")) {
-			GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
-
-
-			foreach(GameObject g in austronauts){
-
-				if (g.activeInHierarchy) {
-					
-					g.GetComponent<AustronautManager> ().HideAnimation ();
-				}
-			}
-		}
-
-		anim.SetTrigger (str);
-	}
 		
 }
 

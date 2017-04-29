@@ -21,4 +21,8 @@ public class StaticVariables : MonoBehaviour {
 	public static short SyncVoteMsg          = 1006;
 	public static short SyncVoteCompletedMsg = 1007;
 	public static short SyncVoteFailMsg              = 1008;
+
+	public static short ExitGameVoteMsg          = 1009;
+	public static short ExitGameCompletedMsg = 1010;
+	public static short ExitGameVoteFailMsg              = 1011;
 }
