@@ -12,6 +12,9 @@ public class GameController : NetworkBehaviour {
 	private bool gameActive = false;
 
 	public bool wantToLeave = false;
+
+
+
 	private List<GameObject> listOfKeys;
 
 
@@ -32,8 +35,6 @@ public class GameController : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 		listOfKeys = new List<GameObject> ();
-		Debug.Log ("IsServer: " + isServer);
-		NetworkServer.RegisterHandler(322, UpdateWantToLeave);
 
 
 	}
@@ -57,9 +58,26 @@ public class GameController : NetworkBehaviour {
 	
 	// Update is called once per frame
 	void Update(){
-		if (!isServer)
+		//GUILog.Log ("update" + isServer.ToString());
+
+		if (!isServer) {
+			//CmdWantToLeave (true);
+			GUILog.Log ("client " + wantToLeave.ToString ());
 			return;
-		//GUILog.Log (wantToLeave.ToString());
+		}
+		GUILog.Log ("server " + wantToLeave.ToString());
+		if (wantToLeave) {
+			GUILog.Log ("server want to leave");
+			RpcCompleted (false);
+			wantToLeave = false;
+		}
+		if(GameFinished())
+		{
+			RpcCompleted (true);
+		}
+		/*
+		GUILog.Log ("server " + wantToLeave.ToString());
+
 		if (wantToLeave) {
 			GUILog.Log ("server want to leave");
 			RpcCompleted (false);
@@ -69,6 +87,8 @@ public class GameController : NetworkBehaviour {
 		{
 			RpcCompleted (true);
 		}
+		*/
+
 	}
 
 
@@ -116,7 +136,7 @@ public class GameController : NetworkBehaviour {
 	public void SetWantToLeave(){
 		GUILog.Log ("set want to leave");
 
-		MyNetworkLobbyManager.singleton.client.Send(322, new IntegerMessage(1));
+		//MyNetworkLobbyManager.singleton.client.Send(322, new IntegerMessage(1));
 		//MyNetworkLobbyManager.singelton.client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
 		//wantToLeave = true;
 		//CmdWantToLeave(true);
@@ -129,18 +149,16 @@ public class GameController : NetworkBehaviour {
 		NetworkManager.singleton.ServerChangeScene ("LevelSelector");
 	}
 
-	[Command]
-	public void CmdWantToLeave(bool b)
-	{
-		GUILog.Log ("cmd want to leave");
-		wantToLeave = b;
-	}
 
 
 	[ClientRpc]
 	void RpcCompleted(bool success){
+		
 		if (isServer) {
-			return;
+			GUILog.Log ("rpc server");
+			//return;
+		} else {
+			GUILog.Log ("rpc client");
 		}
 		GUILog.Log ("rpc completed");
 		LevelCompleteManager lvlman = GameObject.Find ("GUIPanelHost").GetComponent<LevelCompleteManager>();

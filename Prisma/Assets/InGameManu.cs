@@ -31,6 +31,8 @@ public class InGameManu : MonoBehaviour, IVoteListener {
 	}
 
 	public void ServerVoteComplete (string winner){
+		//gameController.GetComponent<GameController> ().SetWantToLeave ();
+		GameObject.Find("GameController").GetComponent<GameController>().wantToLeave = true;
 		GUILog.Log ("server vote");
 	}
 

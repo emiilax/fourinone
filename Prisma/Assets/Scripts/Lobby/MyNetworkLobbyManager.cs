@@ -77,7 +77,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	// Use this for initialization
 	void Start () {
-
+		
 		playerSpawnPositions = new Vector3 [4];
 
 		playerSpawnPositions[0] = (new Vector3 (-30.5f, 22f, -1f));
@@ -186,7 +186,8 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 
 		} else {
-
+			ShowPromptWindow (promptConnectingToLobby, false);
+			ShowPromptWindow (promptPlayerDisconnect, true);
 			Debug.LogError("Couldn't connect to match maker");
 
 		}
@@ -405,7 +406,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	public void QuitGame (){
 		OnApplicationQuit ();
 	}
-		
+		*/
 
 	/* When app is closing and you were "host", destroy game */
 	void OnApplicationQuit() {
@@ -423,13 +424,30 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 
+	public override void OnClientError(NetworkConnection conn, int err){
+		GUILog.Log ("on client error " + err.ToString());
+		ShowPromptWindow (promptConnectingToLobby, false);
+	}
+
+
+	public override void OnServerDisconnect(NetworkConnection conn){
+		base.OnServerDisconnect(conn);
+
+		ShowPromptWindow (promptWaitingForPlayers, false);
+
+		ShowPromptWindow (promptPlayerDisconnect, true);
+
+		//Changed
+		ChangePanel (lobbySelectionPanel);
+	}
+
 	/* When a client disconnects, get back to lobby */ 
 	public override void OnClientDisconnect(NetworkConnection conn)
 	{
 		base.OnClientDisconnect(conn);
 
 		ShowPromptWindow (promptWaitingForPlayers, false);
-
+		ShowPromptWindow (promptConnectingToLobby, false);
 		ShowPromptWindow (promptPlayerDisconnect, true);
 
 		//Changed

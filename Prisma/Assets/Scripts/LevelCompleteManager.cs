@@ -65,6 +65,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	{
 
 
+
 	}
 
 	public void GameComplete(bool success){

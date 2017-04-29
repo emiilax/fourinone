@@ -358,7 +358,7 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 	// Action handler for back-button for multiPlayer to last scene.
 	public void MultiPLayerBackButtonPressed() {
-		//MyNetworkLobbyManager.singelton.
+		MyNetworkLobbyManager.singelton.ResetFromMultiPlayer ();
 	}
 
 	public void BackButtonPressed() {
