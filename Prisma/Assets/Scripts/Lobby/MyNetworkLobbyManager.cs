@@ -365,8 +365,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* When all players ready, start the game and disable current canvas */
 	public override void OnLobbyServerPlayersReady(){
 		// Debug.Log ("OnLobbyServerPlayerReady: Nmbr of startpos: " + this.startPositions.Count);
-
-		this.matchMaker.SetMatchAttributes((NetworkID)currentMatchID, false, 0, OnSetMatchAttributes);
+		if(gameMode == "Multiplayer"){
+			this.matchMaker.SetMatchAttributes((NetworkID)currentMatchID, false, 0, OnSetMatchAttributes);
+		}
 		CancelInvoke("GetServerListForCheck");
 		Debug.Log ("All ready");
 		base.OnLobbyServerPlayersReady ();
@@ -492,6 +493,16 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 		promptWaitingForPlayers.CancelButtonClicked ();
 		ChangePanel (mainMenuPanel);
 
+	}
+
+	public void ResetFromMultiPlayer(){
+		if (isHost) {
+			StopHost ();
+		}
+		promptWaitingForPlayers.CancelButtonClicked ();
+		ServerChangeScene ("Lobby");
+		ChangePanel (mainMenuPanel);
+		GUILog.Log ("changed to lobby");
 	}
 
 	/* Action handler for back-button to previous panel*/

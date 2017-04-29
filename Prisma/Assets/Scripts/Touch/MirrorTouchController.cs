@@ -19,6 +19,10 @@ public class MirrorTouchController :  AbstractTouchController
 	private Vector3 startPos;
 	private Vector3 lastNonOverlappingPosition;
 	private Vector3 lastPosition;
+
+	private Quaternion lastNonOverlappingRotation;
+	private Quaternion lastRotation;
+
     private TouchSelectionIndicator selectionIndicator;
 
     // Use this for initialization
@@ -42,6 +46,8 @@ public class MirrorTouchController :  AbstractTouchController
 		if (overlaps == 0) {
 			lastNonOverlappingPosition = lastPosition;
 			lastPosition = gameObject.transform.position;
+			lastNonOverlappingRotation = lastRotation;
+			lastRotation = gameObject.transform.rotation;
 		}
     }
 
@@ -49,7 +55,7 @@ public class MirrorTouchController :  AbstractTouchController
 	{
 		selectionIndicator.SetColor (Color.red);
 		overlaps++;
-		GUILog.Log("collided");	
+		//GUILog.Log("collided");	
 	}
 	void OnCollisionStay2D(Collision2D col)
 	{
@@ -61,23 +67,23 @@ public class MirrorTouchController :  AbstractTouchController
 		if (overlaps == 0) {
 			selectionIndicator.SetColor (Color.green);
 		}
-		GUILog.Log("exit");
+		//GUILog.Log("exit");
 	}
 	void OnEnable() {
 		transform.position = startPos;
-		GUILog.Log("reset mirror");
+		//GUILog.Log("reset mirror");
 		overlaps = 0;
 		selectionIndicator.SetColor (Color.green);
 	}
 	void OnDisable() {
 		transform.position = startPos;
-		GUILog.Log("reset mirror");
+		//GUILog.Log("reset mirror");
 		overlaps = 0;
 		selectionIndicator.SetColor (Color.green);
 	}
 	public void OnChangeLevel(){
 		transform.position = startPos;
-		GUILog.Log("reset mirror");
+		//GUILog.Log("reset mirror");
 		overlaps = 0;
 		selectionIndicator.SetColor (Color.green);
 	}
@@ -145,16 +151,17 @@ public class MirrorTouchController :  AbstractTouchController
 		ctrlLeft.GetComponent<MirrorSideTouchController> ().ReleaseWithoutReset (); 
 		ctrlRight.GetComponent<MirrorSideTouchController> ().ReleaseWithoutReset ();
 		if (overlaps > 0) {
-			ctrlLeft.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
-			ctrlRight.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+			//ctrlLeft.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+			//ctrlRight.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
 
 			gameObject.transform.position = lastNonOverlappingPosition;
+			//gameObject.transform.rotation = lastNonOverlappingRotation;
+			ResetControllerPositions ();
+			//MoveSideControlleraWithMirror (lastNonOverlappingPosition);
 
-			//ResetControllerPositions ();
-			MoveSideControlleraWithMirror (lastNonOverlappingPosition);
-			UpdateLinePoints();
-			ctrlLeft.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset (); 
-			ctrlRight.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset ();
+			//UpdateLinePoints();
+			//ctrlLeft.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset (); 
+			//ctrlRight.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset ();
 
 			//ctrlLeft.GetComponent<MirrorSideTouchController> ().Release (); 
 			//ctrlRight.GetComponent<MirrorSideTouchController> ().Release ();
@@ -164,6 +171,29 @@ public class MirrorTouchController :  AbstractTouchController
 
 		}
     }
+
+	public void OnReleaseSideControllers(){
+		if (overlaps > 0) {
+			ctrlLeft.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+			ctrlRight.GetComponent<MirrorSideTouchController>().BeginWithMirror(gameObject.transform.position);
+
+			gameObject.transform.position = lastNonOverlappingPosition;
+			gameObject.transform.rotation = lastNonOverlappingRotation;
+
+			ResetControllerPositions ();
+			//MoveSideControlleraWithMirror (lastNonOverlappingPosition);
+			//UpdateLinePoints();
+			//ctrlLeft.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset (); 
+			//ctrlRight.GetComponent<MirrorSideTouchController>().ReleaseWithoutReset ();
+
+			//ctrlLeft.GetComponent<MirrorSideTouchController> ().Release (); 
+			//ctrlRight.GetComponent<MirrorSideTouchController> ().Release ();
+			//
+		} else {
+
+
+		}
+	}
 
 	public void MoveSideControlleraWithMirror(Vector3 pos){
 		ctrlLeft.GetComponent<MirrorSideTouchController>().MoveWithMirror(pos); 
@@ -216,12 +246,17 @@ public class MirrorTouchController :  AbstractTouchController
     {
         if(!ctrlLeft.GetComponent<MirrorSideTouchController>().BeingDragged() && !ctrlRight.GetComponent<MirrorSideTouchController>().BeingDragged())
         {
+			Vector3 left = transform.position + transform.TransformDirection (Vector3.left) * distFromCenter;
+			Vector3 right = transform.position + transform.TransformDirection (Vector3.right) * distFromCenter;
+			ctrlLeft.transform.position = left;
+			ctrlRight.transform.position = right;
+			/*
             Vector3 offset = ctrlLeft.transform.position - transform.position;
             ctrlLeft.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
 
             offset = ctrlRight.transform.position - transform.position;
             ctrlRight.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
-
+*/
             UpdateLinePoints();
         }
     }

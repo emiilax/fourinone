@@ -38,14 +38,9 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		anim = GetComponent <Animator> ();
 	}
 
-	void Start(){
 
 
-
-	}
-
-
-	public override void OnStartClient ()
+	void Start ()
 	{
 		//Debug.Log ("SceneLoaded: " + SceneManager.sceneLoaded);
 
@@ -56,13 +51,12 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 			StaticVariables.FinnishedGameVoteCompletedMsg,
 			StaticVariables.FinnishVoteFailMsg,
 			MyNetworkLobbyManager.singelton.GetPlayerId(),
+			MyNetworkLobbyManager.singelton.minPlayers,
 			MyNetworkLobbyManager.singleton.client,
 			this
 		);
-		if (isServer) {
-			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
-		}
-		lvlselector = GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
+
+		lvlselector = LevelSelectorController.instance;//GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
 		hostPanel = GameObject.Find ("GUIPanelHost");
 	}
 
@@ -88,9 +82,14 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 	[ClientRpc]
 	void RpcShowAnimation(){
 		//if(isServer)
-
+		GUILog.Log("show animation");
 		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+		if (LevelSelectorController.instance.HasNextLevel ()) {
+			nextButton.SetActive (true);
+		}else{
+			nextButton.SetActive (false);
 
+		}
 
 		foreach(GameObject g in austronauts){
 
@@ -146,20 +145,29 @@ public class LevelCompleteManager : NetworkBehaviour, IVoteListener {
 		anim.SetTrigger ("Hidden");
 		selectedButton.SetActive (false);
 		text.text = defaultText;
+		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
+		foreach(GameObject g in austronauts){
+
+			if (g.activeInHierarchy) {
+				Debug.Log ("Austronaut show animation");
+				g.GetComponent<AustronautManager> ().HideAnimation ();
+			}
+		}
 	}
 
 	void menu(){
-		lvlselector.TriggerChangeLevel ();
-		lvlselector.ToggleSelector ();
-		lvlselector.ShowLevelGrid ();
+		LevelSelectorController.instance.TriggerChangeLevel ();
+		LevelSelectorController.instance.ToggleSelector ();
+		LevelSelectorController.instance.ShowLevelGrid ();
 	}
 
 	void restart(){
-		lvlselector.TriggerChangeLevel ();
+		LevelSelectorController.instance.TriggerChangeLevel ();
 	}
 
 	void next(){
-		GameObject nextLevel = lvlselector.SetNextLevel ();
+		//GUILog.Log ("level selector == null " + (lvlselector == null).ToString());
+		GameObject nextLevel = LevelSelectorController.instance.SetNextLevel ();
 		if (nextLevel == null) {
 			Debug.Log ("potato");
 			menu ();

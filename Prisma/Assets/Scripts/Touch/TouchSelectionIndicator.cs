@@ -15,7 +15,7 @@ public class TouchSelectionIndicator  {
         selectedRendererObject.transform.localScale = gameObject.transform.localScale;
         selectedRendererObject.transform.parent = gameObject.transform;
         selectedRenderer = selectedRendererObject.AddComponent<SpriteRenderer>();
-        selectedRenderer.sortingLayerName = "Default";
+        selectedRenderer.sortingLayerName = "Midground";
         selectedRenderer.sortingOrder = 2;
         selectedRenderer.sprite = selectedSprite;
         selectedRenderer.enabled = false;

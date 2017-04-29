@@ -23,9 +23,11 @@ public class SyncScreenButton : MonoBehaviour {
 			if (!isEnabled) {
 				gameObject.GetComponent<SpriteRenderer> ().sprite = ready;
 				isEnabled = true;
+				SyncScreenController.instance.ButtonActivated ();
 			} else {
 				gameObject.GetComponent<SpriteRenderer> ().sprite = notReady;
 				isEnabled = false;
+				SyncScreenController.instance.ButtonDeactivated ();
 			}
 
 		}

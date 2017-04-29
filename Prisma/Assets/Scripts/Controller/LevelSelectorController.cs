@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 
-public class LevelSelectorController : NetworkBehaviour, IVoteListener {
+public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 	public static LevelSelectorController instance;
 
@@ -60,14 +60,9 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	private GUIStyle style;
 	private List<GUIContent> contents;
 	private int selGridInt = -1;
-	private bool showLevels;
+	private bool showLevels = false;
 
 	public LevelSelectorController singelton;
-
-
-
-	[SyncVar(hook = "OnAllLoaded")]
-	public bool allLoaded = false;
 
 
 
@@ -80,16 +75,23 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	}
 
 
+
+
 	void Start(){
-
 		instance = this;
-
-
-	}
-
-
-	public override void OnStartClient(){
 		GUILog.Log ("onstartlocalplayer");
+
+		text = textObject.GetComponent<Text> ();
+		text.text = defaultText;
+		vote = new VotingSystem (
+			StaticVariables.LevelVoteMsg, 
+			StaticVariables.LevelVoteCompletedMsg,
+			StaticVariables.LevelVoteFailMsg,
+			MyNetworkLobbyManager.singelton.GetPlayerId(),
+			MyNetworkLobbyManager.singelton.minPlayers,
+			MyNetworkLobbyManager.singleton.client,
+			this
+		);
 
 		Debug.Log ("onstartclient");
 		gameMode = MyNetworkLobbyManager.singelton.gameMode;
@@ -99,25 +101,20 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 		if (gameMode == "MultiPlayer") {
 
 			Debug.Log ("Multiplayer");
-
-			syncScreen.GetComponent<SyncScreenController> ().levelSelector = gameObject;
+			currentLevels = mpLevelList;
+			contents = GetContents (mpLevelList);
 
 			DeactivateLevels ();
-			gameObject.SetActive (false);
+			//gameObject.SetActive (false);
 			GUILog.Log ("gameobject active: " + gameObject.activeSelf);
-			syncScreen.SetActive (true);
+		
 
-		} 
-
-
+		}
 
 		if(gameMode == "SinglePlayer"){
-
-
-			StartLevelSelector ();
-
-
-
+			currentLevels = spLevelList;
+			contents = GetContents (spLevelList);
+			//gameObject.SetActive (false);
 		}
 
 	}
@@ -125,21 +122,7 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	public void StartLevelSelector(){
 		
 
-		text = textObject.GetComponent<Text> ();
-		text.text = defaultText;
-		showLevels = true;
-		vote = new VotingSystem (
-			StaticVariables.LevelVoteMsg, 
-			StaticVariables.LevelVoteCompletedMsg,
-			StaticVariables.LevelVoteFailMsg,
-			MyNetworkLobbyManager.singelton.GetPlayerId(),
-			MyNetworkLobbyManager.singleton.client,
-			this
-		);
 
-		if (isServer) {
-			vote.setupServer (MyNetworkLobbyManager.singleton.numPlayers);
-		}
 
 		GUILog.Log ("player id " + MyNetworkLobbyManager.singelton.GetPlayerId());
 
@@ -165,16 +148,6 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 	}
 
 
-	private void OnAllLoaded(bool trufal){
-		//if (!isServer)
-		//	return;
-		
-		allLoaded = trufal;
-
-		Debug.Log ("AllLoaded:" + allLoaded);
-
-
-	}
 
 	IEnumerator Delay(){
 		yield return new WaitForSeconds (3.5f);
@@ -260,6 +233,10 @@ public class LevelSelectorController : NetworkBehaviour, IVoteListener {
 			return currentLevels [currentLevelIdx];
 		}
 
+	}
+
+	public bool HasNextLevel(){
+		return currentLevelIdx + 1 < currentLevels.Count;
 	}
 
 	public void OnVoteComplete(string levelIdx){

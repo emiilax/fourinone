@@ -22,16 +22,19 @@ public class VotingSystem {
 
 	IVoteListener listener;
 
+	bool initialized = false;
 
 
 
-	public VotingSystem(short voteId, short voteCompleteId, short voteFailId, string playerid, NetworkClient client, IVoteListener listener){
+
+	public VotingSystem(short voteId, short voteCompleteId, short voteFailId, string playerid, int numPlayers, NetworkClient client, IVoteListener listener){
 		this.voteMsg = voteId;
 		this.voteCompleteMsg = voteCompleteId;
 		this.voteFailMsg = voteFailId;
 		this.client = client;
 		this.listener = listener;
 		this.connId = playerid;
+		this.numPlayers = numPlayers;
 
 		NetworkServer.RegisterHandler(voteMsg, OnVoteCast);
 		client.RegisterHandler (voteCompleteMsg, OnVoteComplete);
@@ -39,9 +42,8 @@ public class VotingSystem {
 
 	}
 
-	public void setupServer(int numPlayers){
+	private void setupServer(){
 		votes = new Dictionary<string, string> ();
-		this.numPlayers = numPlayers;
 	}
 
 	//strings are used to represent a vote
@@ -67,6 +69,10 @@ public class VotingSystem {
 	}
 
 	public void OnVoteCast(NetworkMessage netMsg){
+		if (!initialized) {
+			setupServer ();
+			initialized = true;
+		}
 		string vote = netMsg.ReadMessage<StringMessage>().value;
 		GUILog.Log ("recieved vote " + vote);
 		var idAndLevel = vote.Split ();

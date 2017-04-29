@@ -16,4 +16,9 @@ public class StaticVariables : MonoBehaviour {
 	public static short FinnishedGameVoteMsg          = 1003;
 	public static short FinnishedGameVoteCompletedMsg = 1004;
 	public static short FinnishVoteFailMsg              = 1005;
+
+	//for sync screen
+	public static short SyncVoteMsg          = 1006;
+	public static short SyncVoteCompletedMsg = 1007;
+	public static short SyncVoteFailMsg              = 1008;
 }

@@ -36,6 +36,7 @@ public class MirrorSideTouchController :  AbstractTouchController {
         //GUILog.Log("Release side controller");
         controlled.GetComponent<MirrorTouchController>().ResetControllerPositions();
         controlled.GetComponent<MirrorTouchController>().HideSideControllers();
+		controlled.GetComponent<MirrorTouchController>().OnReleaseSideControllers();
         //controlled.GetComponent<MirrorTouchController>().UpdatePosition();
     }
     public void ReleaseWithoutReset()

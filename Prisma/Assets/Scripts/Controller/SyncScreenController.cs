@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SyncScreenController : NetworkBehaviour {
+public class SyncScreenController : MonoBehaviour, IVoteListener {
 
 	public static SyncScreenController instance;
 
@@ -14,14 +14,16 @@ public class SyncScreenController : NetworkBehaviour {
 	public GameObject[] players;
 	public GameObject[] playerController;
 
+	VotingSystem vote;
+
 	void Awake() {
 
 		//If we don't currently have a game control...
-		if (instance == null)
+		if (instance == null){
 			//...set this one to be it...
 			instance = this;
 
-
+		}
 		//...otherwise...
 		else if(instance != this)
 			//...destroy this one because it is a duplicate.
@@ -29,21 +31,41 @@ public class SyncScreenController : NetworkBehaviour {
 
 	}
 
+	public void OnVoteComplete(string winner){
+		gameObject.SetActive (false);
+		GUILog.Log ("vote complete " + winner);
+		levelSelector.SetActive (true);
+		levelSelector.GetComponent<LevelSelectorController> ().ShowLevelGrid ();
+	}
+
+
+	public void OnVoteFail(){
+		GUILog.Log ("vote fail");
+	}
+
+	public void ServerVoteComplete (string winner){
+	}
 
 	// Use this for initialization
 	void Start () {
-
+		
 		if (MyNetworkLobbyManager.singelton.gameMode == "MultiPlayer") {
-
-			//levelSelector = GameObject.FindGameObjectWithTag ("LevelSelector");
-
-			GUILog.Log ("levelselector == null?: " + (levelSelector==null));
-
-			players = GameObject.FindGameObjectsWithTag("PlayerOnlineTouch");
-			playerController = GameObject.FindGameObjectsWithTag("TouchController");
-			isReadyBtnPressed = new bool[MyNetworkLobbyManager.singelton.minPlayers];
-
+			vote = new VotingSystem (
+				StaticVariables.SyncVoteMsg, 
+				StaticVariables.SyncVoteCompletedMsg,
+				StaticVariables.SyncVoteFailMsg,
+				MyNetworkLobbyManager.singelton.GetPlayerId(),
+				MyNetworkLobbyManager.singelton.minPlayers,
+				MyNetworkLobbyManager.singleton.client,
+				this
+			);
 			EnablePlayer (false);
+		}
+		else if(MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer"){
+			GUILog.Log ("singleplayer sync screen");
+			gameObject.SetActive (false);
+			levelSelector.SetActive (true);
+			levelSelector.GetComponent<LevelSelectorController> ().ShowLevelGrid ();
 		}
 
 	}
@@ -69,65 +91,20 @@ public class SyncScreenController : NetworkBehaviour {
 		}
 	}
 
-	// When ready-button is pressed
-	public void ReadyBtnPressed(GameObject player, GameObject button) {
-
-		var id = int.Parse(button.name);
-
-		if (id > isReadyBtnPressed.Length) {
-			return;
-		}
-
-		if (!isReadyBtnPressed [id]) {
-			isReadyBtnPressed [id] = true;
-		} else {
-			isReadyBtnPressed [id] = false;
-		}
-
-		// Check if all the button is pressed i.e all players are ready. 
-		foreach (bool b in isReadyBtnPressed) {
-			if (b == false) {
-				return;
-			}
-		}
-
-		player.GetComponent<AimShootingMultiTouch> ().CmdSyncScreenStartGame();
+	public void ButtonActivated(){
+		GUILog.Log ("button active");
+		vote.CastVote ("ready");
 	}
+	public void ButtonDeactivated(){
+		GUILog.Log ("button not active");
+		vote.CastVote ("notReady");
+	}
+
+
 
 	public void StartGame() {
-		//GUILog.Log ("Im HERE1");
-
-		//levelSelector.SetActive (true);
-		//levelSelector.GetComponent<LevelSelectorController> ().ToggleSelector ();
-
-		//levelSelector.GetComponent<LevelSelectorController> ().ActivateMultiplayer();
-
-		RpcTest (gameObject);
-		//RpcSetLevelSelectorActive ();
-
-
-		//GUILog.Log ("Im HERE2");
-
-		//GUILog.Log ("Im HERE3");
-		//gameObject.SetActive (false);
-
-		//GUILog.Log ("Im HERE4");
 
 	}
 
-	[ClientRpc]
-	void RpcTest (GameObject syncscreen){
 
-		GUILog.Log ("Null? :" + (syncscreen.GetComponent<SyncScreenController>().levelSelector == null));
-		syncscreen.GetComponent<SyncScreenController>().levelSelector.SetActive(true);
-		syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().StartLevelSelector ();
-		//syncscreen.GetComponent<SyncScreenController> ().levelSelector.GetComponent<LevelSelectorController> ().multiPlayerPanel.SetActive (true);
-
-		GUILog.Log ("Levelselector ok!");
-
-		EnablePlayer (true);
-		GUILog.Log ("Enable player!");
-
-		syncscreen.SetActive (false);
-	}
 }
