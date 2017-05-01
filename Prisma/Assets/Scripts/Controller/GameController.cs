@@ -61,11 +61,8 @@ public class GameController : NetworkBehaviour {
 		//GUILog.Log ("update" + isServer.ToString());
 
 		if (!isServer) {
-			//CmdWantToLeave (true);
-			GUILog.Log ("client " + wantToLeave.ToString ());
 			return;
 		}
-		GUILog.Log ("server " + wantToLeave.ToString());
 		if (wantToLeave) {
 			GUILog.Log ("server want to leave");
 			RpcCompleted (false);

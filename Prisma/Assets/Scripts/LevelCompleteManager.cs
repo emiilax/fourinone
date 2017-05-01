@@ -79,6 +79,9 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 		}
 		if (success) {
+			
+			//anim.playbackTime = 0.0f;
+			//anim.speed = 1.0f;
 			successFailTextGameObj.GetComponent<Text> ().text = successText;
 			foreach (GameObject g in austronauts) {
 
@@ -87,10 +90,19 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 					g.GetComponent<AustronautManager> ().ShowAnimation ();
 				}
 			}
+			anim.SetTrigger ("LevelCompleteHost");
 		} else {
+			
+			//anim.playbackTime = 2.0f;
+			//anim.speed = 1.0f;
+			//anim.StartPlayback ("LevelCompleteHost");
+			anim.CrossFade("LevelCompleteHost", 0.1f, -1, 0.8f);
+			//anim.SetTarget ("LevelCompleteHost", 2.0f);
+			//anim.SetTrigger ("LevelCompleteHost");
 			successFailTextGameObj.GetComponent<Text> ().text = exitText;
 		}
-		anim.SetTrigger ("LevelCompleteHost");
+
+
 
 		// .. increment a timer to count up to restarting.
 		restartTimer += Time.deltaTime;
@@ -141,7 +153,10 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		else if(action.Equals("menu")){
 			menu ();
 		}
+		anim.speed = 10.0f;
 		anim.SetTrigger ("Hidden");
+		anim.speed = 1.0f;
+		//anim.CrossFadeInFixedTime("Hidden", 0.5f);
 		selectedButton.SetActive (false);
 		text.text = defaultText;
 		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");

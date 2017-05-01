@@ -432,7 +432,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 	public override void OnServerDisconnect(NetworkConnection conn){
 		base.OnServerDisconnect(conn);
-
+		if (isHost) {
+			StopHost ();
+		}
 		ShowPromptWindow (promptWaitingForPlayers, false);
 
 		ShowPromptWindow (promptPlayerDisconnect, true);
@@ -444,8 +446,11 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	/* When a client disconnects, get back to lobby */ 
 	public override void OnClientDisconnect(NetworkConnection conn)
 	{
+		
 		base.OnClientDisconnect(conn);
-
+		if (isHost) {
+			StopHost ();
+		}
 		ShowPromptWindow (promptWaitingForPlayers, false);
 		ShowPromptWindow (promptConnectingToLobby, false);
 		ShowPromptWindow (promptPlayerDisconnect, true);
@@ -514,14 +519,22 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 	}
 
 	public void ResetFromMultiPlayer(){
+		GUILog.Log ("reset in lobbymanager");
+		//ServerChangeScene ("Lobby");
+		/*
+		matchMaker.DestroyMatch ((NetworkID)currentMatchID, 0, OnDestroyMatch);
+
+
+		promptWaitingForPlayers.CancelButtonClicked ();
 		if (isHost) {
 			StopHost ();
 		}
-		promptWaitingForPlayers.CancelButtonClicked ();
-		ServerChangeScene ("Lobby");
+
 		ChangePanel (mainMenuPanel);
-		GUILog.Log ("changed to lobby");
+*/
 	}
+
+
 
 	/* Action handler for back-button to previous panel*/
 	/* The only panel to go back to is the mainMenuPanel at the moment */

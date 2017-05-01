@@ -10,6 +10,13 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 	public static LevelSelectorController instance;
 
+	bool selectedBackBtn = false;
+	public Sprite unselectedBack, selectedBack;
+
+	public GameObject singlePlayerBack;
+
+	public GameObject multiPlayerBack;
+
 	// The standard UI
 	public GameObject levelMenu;
 
@@ -107,7 +114,6 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 			DeactivateLevels ();
 			//gameObject.SetActive (false);
 			GUILog.Log ("gameobject active: " + gameObject.activeSelf);
-		
 
 		}
 
@@ -121,12 +127,7 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 	public void StartLevelSelector(){
 		
-
-
-
 		GUILog.Log ("player id " + MyNetworkLobbyManager.singelton.GetPlayerId());
-
-
 
 		style = new GUIStyle ("button");
 		if (gameMode == "SinglePlayer") {
@@ -256,6 +257,13 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 		TriggerChangeLevel ();
 		text.text = defaultText;
 
+		if (gameMode == "SinglePlayer") {
+			singlePlayerBack.SetActive (true);
+		} else {
+			multiPlayerBack.SetActive (true);
+		}
+
+
 	}
 
 
@@ -349,7 +357,7 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 				
 	// Action handler for back-button for singlePlayer to last scene.
-	public void SinglePlayerBackButtonPressed() {
+	public void SinglePlayerBackButtonPressed(GameObject btn) {
 		// Resets the default values for multiplayer and change back to lobby scene.
 		MyNetworkLobbyManager.singelton.ResetFromSinglePlayer ();
 
@@ -357,15 +365,28 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 	}
 
 	// Action handler for back-button for multiPlayer to last scene.
-	public void MultiPLayerBackButtonPressed() {
+	public void MultiPLayerBackButtonPressed(GameObject btn) {
+		GUILog.Log ("back button 1");
 		MyNetworkLobbyManager.singelton.ResetFromMultiPlayer ();
+		GUILog.Log ("back button 2");
+		/*
+		if (!selectedBack) {
+			vote.CastVote ("back");
+			btn.GetComponent<Image> ().sprite = selectedBack;
+		} else {
+			vote.CastVote ("none");
+			btn.GetComponent<Image> ().sprite = selectedBack;
+		}
+		*/
+		//MyNetworkLobbyManager.singelton.ResetFromMultiPlayer ();
 	}
 
-	public void BackButtonPressed() {
-		if (gameMode == "SinglePlayer") {
-			SinglePlayerBackButtonPressed ();
+	public void BackButtonPressed(GameObject btn) {
+		GUILog.Log ("back button 0");
+		if (gameMode.Equals("SinglePlayer")) {
+			SinglePlayerBackButtonPressed (btn);
 		} else {
-			MultiPLayerBackButtonPressed ();
+			MultiPLayerBackButtonPressed (btn);
 		}
 	}
 
