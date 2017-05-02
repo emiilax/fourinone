@@ -163,7 +163,7 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 				bool foundMatch = false;
 				foreach (MatchInfoSnapshot m in matches) {
 
-					if (m.name.Contains(m.name) && m.currentSize > 0) {
+					if (m.name.Contains(lobbyName) && m.currentSize > 0) {
 						if(!foundMatch || string.Compare(bestName, m.name) > 0)
 						{
 							bestName = m.name;
