@@ -192,7 +192,11 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		}
 
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag("Mirror")) {
-			g.GetComponent<MirrorTouchController> ().ResetControllerPositions ();
+			
+			MirrorTouchController mtc = g.GetComponent<MirrorTouchController> ();
+			if (mtc != null) {
+				mtc.ResetControllerPositions ();
+			}
 		}
 	
 	}
