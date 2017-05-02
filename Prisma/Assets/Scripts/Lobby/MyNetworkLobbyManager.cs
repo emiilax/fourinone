@@ -98,6 +98,9 @@ public class MyNetworkLobbyManager : NetworkLobbyManager {
 
 		DontDestroyOnLoad(gameObject);
 
+		// Wont go to sleepmode anymore.
+		Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
 	}
 
 	public void ChangePanel(RectTransform newPanel){

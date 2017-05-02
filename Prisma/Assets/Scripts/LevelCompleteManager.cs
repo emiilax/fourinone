@@ -29,6 +29,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	public string successText = "Bra jobbat!";
 	public string exitText = "Matchen avslutad";
 
+	private GameObject[] playerController;
+
 
 	Text text;
 	string defaultText;
@@ -63,6 +65,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 		lvlselector = LevelSelectorController.instance;//GameObject.Find ("SelectorMenu").GetComponent<LevelSelectorController> ();
 		hostPanel = GameObject.Find ("GUIPanelHost");
+
+		playerController = GameObject.FindGameObjectsWithTag ("TouchController");
 	}
 
 	void Update ()
@@ -73,6 +77,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	}
 
 	public void GameComplete(bool success){
+		EnablePlayerController (false);
+
 		GUILog.Log("succeeded  " + success.ToString());
 		GUILog.Log("show animation");
 		singlePlayerBack.SetActive (false);
@@ -152,6 +158,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 	public void OnVoteComplete(string action){
 
+		EnablePlayerController (true);
+
 		if (action.Equals ("next")) {
 			next ();
 		}else if (action.Equals ("restart")) {
@@ -186,6 +194,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag("Mirror")) {
 			g.GetComponent<MirrorTouchController> ().ResetControllerPositions ();
 		}
+	
 	}
 
 	void menu(){
@@ -208,7 +217,11 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		}
 	}
 
-
+	public void EnablePlayerController(bool b) {
+		foreach (GameObject controller in playerController) {
+			controller.SetActive (b);
+		}
+	}
 		
 }
 
