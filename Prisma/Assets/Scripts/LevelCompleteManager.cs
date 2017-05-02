@@ -151,6 +151,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	}
 
 	public void OnVoteComplete(string action){
+
 		if (action.Equals ("next")) {
 			next ();
 		}else if (action.Equals ("restart")) {
@@ -180,6 +181,10 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		} else {
 			multiPlayerBack.SetActive (true);
 			singlePlayerBack.SetActive (false);
+		}
+
+		foreach (GameObject g in GameObject.FindGameObjectsWithTag("Mirror")) {
+			g.GetComponent<MirrorTouchController> ().ResetControllerPositions ();
 		}
 	}
 

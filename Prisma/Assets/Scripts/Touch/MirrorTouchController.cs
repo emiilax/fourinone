@@ -250,13 +250,6 @@ public class MirrorTouchController :  AbstractTouchController
 			Vector3 right = transform.position + transform.TransformDirection (Vector3.right) * distFromCenter;
 			ctrlLeft.transform.position = left;
 			ctrlRight.transform.position = right;
-			/*
-            Vector3 offset = ctrlLeft.transform.position - transform.position;
-            ctrlLeft.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
-
-            offset = ctrlRight.transform.position - transform.position;
-            ctrlRight.transform.position += -offset * (offset.magnitude - distFromCenter) / offset.magnitude;
-*/
             UpdateLinePoints();
         }
     }
