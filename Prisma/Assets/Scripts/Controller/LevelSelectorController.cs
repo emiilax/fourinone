@@ -259,8 +259,10 @@ public class LevelSelectorController : MonoBehaviour, IVoteListener {
 
 		if (gameMode == "SinglePlayer") {
 			singlePlayerBack.SetActive (true);
+			multiPlayerBack.SetActive (false);
 		} else {
 			multiPlayerBack.SetActive (true);
+			singlePlayerBack.SetActive (false);
 		}
 
 
