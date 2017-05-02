@@ -10,6 +10,10 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 	public float restartDelay = 5f;         // Time to wait before restarting the level
 
+	public GameObject singlePlayerBack;
+
+	public GameObject multiPlayerBack;
+
 	public string currentScene;
 	public string nextScene;
 	public GameObject game;
@@ -71,6 +75,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	public void GameComplete(bool success){
 		GUILog.Log("succeeded  " + success.ToString());
 		GUILog.Log("show animation");
+		singlePlayerBack.SetActive (false);
+		multiPlayerBack.SetActive (false);
 		GameObject[] austronauts = GameObject.FindGameObjectsWithTag("Austronaut");
 		if (LevelSelectorController.instance.HasNextLevel ()) {
 			nextButton.SetActive (true);
@@ -166,6 +172,14 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 				Debug.Log ("Austronaut show animation");
 				g.GetComponent<AustronautManager> ().HideAnimation ();
 			}
+		}
+
+		if (MyNetworkLobbyManager.singelton.gameMode == "SinglePlayer") {
+			singlePlayerBack.SetActive (true);
+			multiPlayerBack.SetActive (false);
+		} else {
+			multiPlayerBack.SetActive (true);
+			singlePlayerBack.SetActive (false);
 		}
 	}
 
