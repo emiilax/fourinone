@@ -29,12 +29,12 @@ public class GUILog : NetworkBehaviour
     public static void Log(string msg) { Instance.addMessage(msg); }
 
     void OnGUI()
-    {
+	{
         string printString = "";
         foreach (string m in logQ) {
             printString += m + "\n";
         }
 
-        GUI.Label(new Rect(10, 10, 200, 500), printString);
+        //GUI.Label(new Rect(10, 10, 200, 500), printString);
     }
 }

@@ -383,6 +383,7 @@ public class AimShootingMultiTouch : NetworkBehaviour
 		}
 			
 		RpcSetObjectEnabled (door, true);
+		GameController.instance.KeyIsHit (key, false);
 
 	}
 

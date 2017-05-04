@@ -30,6 +30,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	public string exitText = "Matchen avslutad";
 
 	private GameObject[] playerController;
+	private bool canvote;
 
 
 	Text text;
@@ -49,6 +50,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 	void Start ()
 	{
+		canvote = true;
 		//Debug.Log ("SceneLoaded: " + SceneManager.sceneLoaded);
 
 		text = textObj.GetComponent<Text> ();
@@ -77,6 +79,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	}
 
 	public void GameComplete(bool success){
+		EnableButtons (true);
 		EnablePlayerController (false);
 
 		GUILog.Log("succeeded  " + success.ToString());
@@ -122,7 +125,6 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 
 	public void OnChangeLevel(){
-
 	}
 
 
@@ -157,7 +159,6 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	}
 
 	public void OnVoteComplete(string action){
-
 		EnablePlayerController (true);
 
 		if (action.Equals ("next")) {
@@ -168,7 +169,7 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		else if(action.Equals("menu")){
 			menu ();
 		}
-		anim.speed = 10.0f;
+		anim.speed = 100000.0f;
 		anim.SetTrigger ("Hidden");
 		anim.speed = 1.0f;
 		//anim.CrossFadeInFixedTime("Hidden", 0.5f);
@@ -198,7 +199,8 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 				mtc.ResetControllerPositions ();
 			}
 		}
-	
+
+		EnableButtons (false);
 	}
 
 	void menu(){
@@ -215,7 +217,6 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		//GUILog.Log ("level selector == null " + (lvlselector == null).ToString());
 		GameObject nextLevel = LevelSelectorController.instance.SetNextLevel ();
 		if (nextLevel == null) {
-			Debug.Log ("potato");
 			menu ();
 			return;
 		}
@@ -225,6 +226,11 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 		foreach (GameObject controller in playerController) {
 			controller.SetActive (b);
 		}
+	}
+	private void EnableButtons(bool b) {
+		nextButton.GetComponent<Button> ().interactable = b;
+		menuButton.GetComponent<Button> ().interactable = b;
+		restartButton.GetComponent<Button> ().interactable = b;
 	}
 		
 }
