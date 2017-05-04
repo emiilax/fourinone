@@ -30,7 +30,6 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 	public string exitText = "Matchen avslutad";
 
 	private GameObject[] playerController;
-	private bool canvote;
 
 
 	Text text;
@@ -50,7 +49,6 @@ public class LevelCompleteManager : MonoBehaviour, IVoteListener {
 
 	void Start ()
 	{
-		canvote = true;
 		//Debug.Log ("SceneLoaded: " + SceneManager.sceneLoaded);
 
 		text = textObj.GetComponent<Text> ();
